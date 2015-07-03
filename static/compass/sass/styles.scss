@@ -1,0 +1,133 @@
+// Import Bootstrap Compass integration
+@import "bootstrap-compass";
+
+// Import custom Bootstrap variables
+@import "bootstrap-variables";
+
+// Import Bootstrap for Sass
+@import "bootstrap";
+
+// For gradients
+@import "compass/css3/images";
+
+
+
+html {
+    height: 100%;
+}
+body {
+    padding-top: $navbar-height; /* Required padding for navbar */
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    @include background-image(linear-gradient(to bottom, #fff, $gray-lighter));
+}
+
+
+
+.navbar-inverse {
+    @include background-image(linear-gradient(to right, $primary-dark, $primary-light));
+}
+
+.navbar-brand {
+    font-family: $brand-font-family;
+    font-size: $brand-font-size;
+}
+
+.navbar-nav {
+    text-transform: uppercase;
+    font-family: $headline-font-family;
+    font-size: $body-font-size;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: $headline-font-family;
+    font-weight: 700;
+}
+
+
+
+// Elements
+#nav-logo {
+    margin-top: ($navbar-height - $nav-logo-height)/2; 
+    max-height: $nav-logo-height;
+    padding: 0px 10px; 
+    float:right;
+}
+#nav-logo-a {
+    padding: 0px 0px;
+}
+
+
+
+// Convenience classes
+.primary {
+    color: $primary;
+}
+
+.secondary {
+    color: secondary;
+}
+
+
+/*
+$nav: #000000 !default;
+$primary: #1259BB !default;
+$primary-dark: #0A4493 !default;
+$primary-light: #3670C1 !default;
+$secondary: #FF6403 !default;
+$tertiary: #FFCB03 !default;
+ 
+$brand-font-family: "Abel","Helvetica Neue", Helvetica, Arial, sans-serif;
+$headline-font-family: "Abel","Helvetica Neue", Helvetica, Arial, sans-serif;
+$body-font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+$brand-font-size: 50px;
+$body-font-size: 18px;
+
+
+
+// Styles
+body {
+	font-family: $body-font-family;
+	font-size: $body-font-size;
+    padding-top: 70px; 
+}
+
+h1, h2, h3, h4, h5 {
+	font-family: $headline-font-family;
+}
+
+.navbar-inverse {
+    background-color: $nav;
+	color: $primary;
+    @include background-image(linear-gradient(to bottom right, white, #dddddd));
+}
+
+.navbar-fixed-top .nav {
+    padding: 15px 0;
+}
+
+.navbar-fixed-top .navbar-brand {
+    padding: 13px 15px;
+}
+
+.navbar-brand {
+	font-family: $brand-font-family;
+	font-size: $brand-font-size - 10px;
+}
+
+@media(min-width:768px) {
+    body {
+        padding-top: 100px; 
+    }
+
+    .navbar-fixed-top .navbar-brand {
+        padding: 27px 10px;
+    }
+
+    .navbar-brand {
+    	font-size: $brand-font-size;
+    }
+}*/

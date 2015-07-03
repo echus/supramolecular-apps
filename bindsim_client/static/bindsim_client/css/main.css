@@ -1,0 +1,19 @@
+.title {
+    font-size: 50px;
+}
+
+#params-nmr-1to2 {
+    display: none;
+}
+
+/* Bootstrap mods */
+.input-group-addon-width {
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Convenience classes */
+.top-buffer { 
+    margin-top:50px; 
+}
+
