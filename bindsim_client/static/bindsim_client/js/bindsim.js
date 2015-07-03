@@ -207,7 +207,7 @@ bindsim.sim_nmr_1to1 = {
         json_mf_hg: "mf_hg",
         json_dd: "dd",
         // Colors for plotting
-        color_mf_h: "rgba(255, 213, 55, 0.4)",
+        color_mf_h: "rgba(7, 52, 115, 0.4)",
         color_mf_hg: "rgba(18, 89, 187, 0.4)",
         color_dd: "rgba(255, 100, 3, 1)",
         // jQuery selector for 1to1 form

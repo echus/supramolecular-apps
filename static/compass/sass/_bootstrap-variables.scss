@@ -12,7 +12,7 @@ $gray-base:              #000;
 $gray-darker:            lighten($gray-base, 13.5%); // #222
 $gray-dark:              lighten($gray-base, 20%);   // #333
 $gray:                   lighten($gray-base, 33.5%); // #555
-$gray-light:             lighten($gray-base, 46.7%); // #777
+$gray-light:             lighten($gray-base, 85.7%); // #777
 $gray-lighter:           lighten($gray-base, 93.5%); // #eee
 
 //== Additions
@@ -217,7 +217,7 @@ $input-bg:                       #fff;
 //** Text color for `<input>`s
 // $input-color:                    $gray
 //** `<input>` border color
-$input-border:                   $gray-lighter;
+$input-border:                   $gray-light;
 
 // TODO: Rename `$input-border-radius` to `$input-border-radius-base` in v4
 //** Default `.form-control` border radius
@@ -248,7 +248,7 @@ $input-border-focus:             $primary;
 // $legend-border-color:            #e5e5e5
 
 //** Background color for textual input addons
-// $input-group-addon-bg:           $gray-lighter
+$input-group-addon-bg:           $gray-light;
 //** Border color for textual input addons
 // $input-group-addon-border-color: $input-border
 
@@ -380,7 +380,7 @@ $input-border-focus:             $primary;
 //##
 
 // Basics of a navbar
-$navbar-height:                    80px;
+$navbar-height:                    60px;
 // $navbar-margin-bottom:             $line-height-computed
 // $navbar-border-radius:             $border-radius-base
 // $navbar-padding-horizontal:        floor(($grid-gutter-width / 2))

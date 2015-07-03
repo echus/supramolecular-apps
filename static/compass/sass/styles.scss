@@ -21,13 +21,15 @@ body {
     margin: 0;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    @include background-image(linear-gradient(to bottom, #fff, $gray-lighter));
+    background-color: $gray-lighter;
+    // @include background-image(linear-gradient(to bottom, #fff, $gray-lighter));
 }
 
 
 
 .navbar-inverse {
-    @include background-image(linear-gradient(to right, $primary-dark, $primary-light));
+    //@include background-image(linear-gradient(to top, $primary-dark, $primary));
+    background-color: $primary;
 }
 
 .navbar-brand {
@@ -102,7 +104,7 @@ h1, h2, h3, h4, h5 {
 .navbar-inverse {
     background-color: $nav;
 	color: $primary;
-    @include background-image(linear-gradient(to bottom right, white, #dddddd));
+    // @include background-image(linear-gradient(to bottom right, white, #dddddd));
 }
 
 .navbar-fixed-top .nav {

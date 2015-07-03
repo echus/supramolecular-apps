@@ -1854,7 +1854,7 @@ h6 .small,
 .h6 .small {
   font-weight: normal;
   line-height: 1;
-  color: #777777;
+  color: #dbdbdb;
 }
 
 /* line 24, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_type.scss */
@@ -2001,7 +2001,7 @@ mark,
 
 /* line 102, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_type.scss */
 .text-muted {
-  color: #777777;
+  color: #dbdbdb;
 }
 
 /* line 5, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/mixins/_text-emphasis.scss */
@@ -2211,7 +2211,7 @@ dd {
 abbr[title],
 abbr[data-original-title] {
   cursor: help;
-  border-bottom: 1px dotted #777777;
+  border-bottom: 1px dotted #dbdbdb;
 }
 
 /* line 235, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_type.scss */
@@ -2239,7 +2239,7 @@ blockquote .small {
   display: block;
   font-size: 80%;
   line-height: 1.42857143;
-  color: #777777;
+  color: #dbdbdb;
 }
 /* line 265, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_type.scss */
 blockquote footer:before,
@@ -3474,7 +3474,7 @@ table {
 caption {
   padding-top: 8px;
   padding-bottom: 8px;
-  color: #777777;
+  color: #dbdbdb;
   text-align: left;
 }
 
@@ -3826,7 +3826,7 @@ output {
   color: #555555;
   background-color: #fff;
   background-image: none;
-  border: 1px solid #eeeeee;
+  border: 1px solid #dbdbdb;
   border-radius: 0px;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -4758,7 +4758,7 @@ a.btn.disabled, fieldset[disabled] a.btn {
 }
 /* line 123, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_buttons.scss */
 .btn-link[disabled]:hover, .btn-link[disabled]:focus, fieldset[disabled] .btn-link:hover, fieldset[disabled] .btn-link:focus {
-  color: #777777;
+  color: #dbdbdb;
   text-decoration: none;
 }
 
@@ -4934,7 +4934,7 @@ tbody.collapse.in {
 
 /* line 103, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_dropdowns.scss */
 .dropdown-menu > .disabled > a, .dropdown-menu > .disabled > a:hover, .dropdown-menu > .disabled > a:focus {
-  color: #777777;
+  color: #dbdbdb;
 }
 /* line 110, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_dropdowns.scss */
 .dropdown-menu > .disabled > a:hover, .dropdown-menu > .disabled > a:focus {
@@ -4972,7 +4972,7 @@ tbody.collapse.in {
   padding: 3px 20px;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #777777;
+  color: #dbdbdb;
   white-space: nowrap;
 }
 
@@ -5315,8 +5315,8 @@ tbody.collapse.in {
   line-height: 1;
   color: #555555;
   text-align: center;
-  background-color: #eeeeee;
-  border: 1px solid #eeeeee;
+  background-color: #dbdbdb;
+  border: 1px solid #dbdbdb;
   border-radius: 0px;
 }
 /* line 85, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_input-groups.scss */
@@ -5438,11 +5438,11 @@ tbody.collapse.in {
 }
 /* line 31, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navs.scss */
 .nav > li.disabled > a {
-  color: #777777;
+  color: #dbdbdb;
 }
 /* line 34, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navs.scss */
 .nav > li.disabled > a:hover, .nav > li.disabled > a:focus {
-  color: #777777;
+  color: #dbdbdb;
   text-decoration: none;
   background-color: transparent;
   cursor: not-allowed;
@@ -5603,7 +5603,7 @@ tbody.collapse.in {
 /* line 11, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar {
   position: relative;
-  min-height: 80px;
+  min-height: 60px;
   margin-bottom: 22px;
   border: 1px solid transparent;
 }
@@ -5762,10 +5762,10 @@ tbody.collapse.in {
 /* line 163, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-brand {
   float: left;
-  padding: 29px 15px;
+  padding: 19px 15px;
   font-size: 20px;
   line-height: 22px;
-  height: 80px;
+  height: 60px;
 }
 /* line 170, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-brand:hover, .navbar-brand:focus {
@@ -5788,8 +5788,8 @@ tbody.collapse.in {
   float: right;
   margin-right: 15px;
   padding: 9px 10px;
-  margin-top: 23px;
-  margin-bottom: 23px;
+  margin-top: 13px;
+  margin-bottom: 13px;
   background-color: transparent;
   background-image: none;
   border: 1px solid transparent;
@@ -5819,7 +5819,7 @@ tbody.collapse.in {
 
 /* line 232, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-nav {
-  margin: 14.5px -15px;
+  margin: 9.5px -15px;
 }
 /* line 235, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-nav > li > a {
@@ -5864,8 +5864,8 @@ tbody.collapse.in {
   }
   /* line 272, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
   .navbar-nav > li > a {
-    padding-top: 29px;
-    padding-bottom: 29px;
+    padding-top: 19px;
+    padding-bottom: 19px;
   }
 }
 
@@ -5878,8 +5878,8 @@ tbody.collapse.in {
   border-bottom: 1px solid transparent;
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
-  margin-top: 22px;
-  margin-bottom: 22px;
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 @media (min-width: 768px) {
   /* line 472, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_forms.scss */
@@ -5984,24 +5984,24 @@ tbody.collapse.in {
 
 /* line 343, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-btn {
-  margin-top: 22px;
-  margin-bottom: 22px;
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 /* line 346, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-btn.btn-sm, .btn-group-sm > .navbar-btn.btn {
-  margin-top: 23.5px;
-  margin-bottom: 23.5px;
+  margin-top: 13.5px;
+  margin-bottom: 13.5px;
 }
 /* line 349, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-btn.btn-xs, .btn-group-xs > .navbar-btn.btn {
-  margin-top: 29px;
-  margin-bottom: 29px;
+  margin-top: 19px;
+  margin-bottom: 19px;
 }
 
 /* line 359, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-text {
-  margin-top: 29px;
-  margin-bottom: 29px;
+  margin-top: 19px;
+  margin-bottom: 19px;
 }
 @media (min-width: 768px) {
   /* line 359, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
@@ -6145,7 +6145,7 @@ tbody.collapse.in {
 }
 /* line 544, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-inverse .navbar-text {
-  color: #9d9d9d;
+  color: white;
 }
 /* line 549, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_navbar.scss */
 .navbar-inverse .navbar-nav > li > a {
@@ -6258,7 +6258,7 @@ tbody.collapse.in {
 }
 /* line 23, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_breadcrumbs.scss */
 .breadcrumb > .active {
-  color: #777777;
+  color: #dbdbdb;
 }
 
 /* line 4, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_pagination.scss */
@@ -6325,7 +6325,7 @@ tbody.collapse.in {
 .pagination > .disabled > a,
 .pagination > .disabled > a:hover,
 .pagination > .disabled > a:focus {
-  color: #777777;
+  color: #dbdbdb;
   background-color: #fff;
   border-color: #ddd;
   cursor: not-allowed;
@@ -6421,7 +6421,7 @@ tbody.collapse.in {
 .pager .disabled > a:hover,
 .pager .disabled > a:focus,
 .pager .disabled > span {
-  color: #777777;
+  color: #dbdbdb;
   background-color: #fff;
   cursor: not-allowed;
 }
@@ -6458,11 +6458,11 @@ a.label:hover, a.label:focus {
 
 /* line 44, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_labels.scss */
 .label-default {
-  background-color: #777777;
+  background-color: #dbdbdb;
 }
 /* line 7, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/mixins/_labels.scss */
 .label-default[href]:hover, .label-default[href]:focus {
-  background-color: #5e5e5e;
+  background-color: #c1c1c1;
 }
 
 /* line 48, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_labels.scss */
@@ -6522,7 +6522,7 @@ a.label:hover, a.label:focus {
   vertical-align: middle;
   white-space: nowrap;
   text-align: center;
-  background-color: #777777;
+  background-color: #dbdbdb;
   border-radius: 10px;
 }
 /* line 22, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_badges.scss */
@@ -6980,7 +6980,7 @@ button.list-group-item {
 /* line 70, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_list-group.scss */
 .list-group-item.disabled, .list-group-item.disabled:hover, .list-group-item.disabled:focus {
   background-color: #eeeeee;
-  color: #777777;
+  color: #dbdbdb;
   cursor: not-allowed;
 }
 /* line 78, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_list-group.scss */
@@ -6989,7 +6989,7 @@ button.list-group-item {
 }
 /* line 81, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_list-group.scss */
 .list-group-item.disabled .list-group-item-text, .list-group-item.disabled:hover .list-group-item-text, .list-group-item.disabled:focus .list-group-item-text {
-  color: #777777;
+  color: #dbdbdb;
 }
 /* line 87, ../../../../../../var/lib/gems/1.9.1/gems/bootstrap-sass-3.3.5.1/assets/stylesheets/bootstrap/_list-group.scss */
 .list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
@@ -8777,68 +8777,58 @@ html {
 
 /* line 18, ../sass/styles.scss */
 body {
-  padding-top: 80px;
+  padding-top: 60px;
   /* Required padding for navbar */
   height: 100%;
   margin: 0;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VlZWVlZSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
-  background-size: 100%;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #eeeeee));
-  background-image: -moz-linear-gradient(top, #ffffff, #eeeeee);
-  background-image: -webkit-linear-gradient(top, #ffffff, #eeeeee);
-  background-image: linear-gradient(to bottom, #ffffff, #eeeeee);
+  background-color: #eeeeee;
 }
 
-/* line 29, ../sass/styles.scss */
+/* line 30, ../sass/styles.scss */
 .navbar-inverse {
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuMCIgeTE9IjAuNSIgeDI9IjEuMCIgeTI9IjAuNSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzBhNDQ5MyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzM2NzBjMSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
-  background-size: 100%;
-  background-image: -webkit-gradient(linear, 0% 50%, 100% 50%, color-stop(0%, #0a4493), color-stop(100%, #3670c1));
-  background-image: -moz-linear-gradient(left, #0a4493, #3670c1);
-  background-image: -webkit-linear-gradient(left, #0a4493, #3670c1);
-  background-image: linear-gradient(to right, #0a4493, #3670c1);
+  background-color: #1259BB;
 }
 
-/* line 33, ../sass/styles.scss */
+/* line 35, ../sass/styles.scss */
 .navbar-brand {
   font-family: "Abel", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 50px;
 }
 
-/* line 38, ../sass/styles.scss */
+/* line 40, ../sass/styles.scss */
 .navbar-nav {
   text-transform: uppercase;
   font-family: "Abel", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
 }
 
-/* line 44, ../sass/styles.scss */
+/* line 46, ../sass/styles.scss */
 h1, h2, h3, h4, h5 {
   font-family: "Abel", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
 }
 
-/* line 52, ../sass/styles.scss */
+/* line 54, ../sass/styles.scss */
 #nav-logo {
-  margin-top: 15px;
+  margin-top: 5px;
   max-height: 50px;
   padding: 0px 10px;
   float: right;
 }
 
-/* line 58, ../sass/styles.scss */
+/* line 60, ../sass/styles.scss */
 #nav-logo-a {
   padding: 0px 0px;
 }
 
-/* line 65, ../sass/styles.scss */
+/* line 67, ../sass/styles.scss */
 .primary {
   color: #1259BB;
 }
 
-/* line 69, ../sass/styles.scss */
+/* line 71, ../sass/styles.scss */
 .secondary {
   color: secondary;
 }
@@ -8874,7 +8864,7 @@ h1, h2, h3, h4, h5 {
 .navbar-inverse {
     background-color: $nav;
 	color: $primary;
-    @include background-image(linear-gradient(to bottom right, white, #dddddd));
+    // @include background-image(linear-gradient(to bottom right, white, #dddddd));
 }
 
 .navbar-fixed-top .nav {
