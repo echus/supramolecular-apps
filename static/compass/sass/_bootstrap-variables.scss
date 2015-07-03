@@ -15,14 +15,6 @@ $gray:                   lighten($gray-base, 33.5%); // #555
 $gray-light:             lighten($gray-base, 46.7%); // #777
 $gray-lighter:           lighten($gray-base, 93.5%); // #eee
 
-// $brand-primary:         darken(#428bca, 6.5%) // #337ab7
-// $brand-success:         #5cb85c
-// $brand-info:            #5bc0de
-// $brand-warning:         #f0ad4e
-// $brand-danger:          #d9534f
-
-
-
 //== Additions
 // Fonts
 @import url(http://fonts.googleapis.com/css?family=Dosis:300,400,500|Abel|Lato:400,700|Oswald:300);
@@ -41,13 +33,19 @@ $secondary: #FF6403 !default;
 $secondary-dark: #E05600 !default;
 $secondary-darker: #AF4300 !default;
 $tertiary: #FFCB03 !default;
- 
+
+$brand-primary:         $primary;
+$brand-success:         $primary-dark;
+$brand-info:            $primary-light;
+$brand-warning:         $secondary;
+$brand-danger:          $secondary-dark;
+
 $brand-font-family: "Abel","Helvetica Neue", Helvetica, Arial, sans-serif;
 $headline-font-family: "Abel","Helvetica Neue", Helvetica, Arial, sans-serif;
 $body-font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 $brand-font-size: 50px;
-$body-font-size: 18px;
+$body-font-size: 16px;
 
 $brand-color: $gray-lighter;
 $brand-color-hover: #fff;
@@ -136,9 +134,9 @@ $font-size-base:          $body-font-size;
 // $line-height-large:         1.3333333 // extra decimals for Win 8.1 Chrome
 // $line-height-small:         1.5
 
-// $border-radius-base:        4px
-// $border-radius-large:       6px
-// $border-radius-small:       3px
+$border-radius-base:        0px;
+$border-radius-large:       0px;
+$border-radius-small:       0px;
 
 //** Global color for active items (e.g., navs or dropdowns).
 // $component-active-color:    #fff
@@ -203,9 +201,9 @@ $font-size-base:          $body-font-size;
 // $btn-link-disabled-color:        $gray-light
 
 // Allows for customizing button radius independently from global border radius
-// $btn-border-radius-base:         $border-radius-base
-// $btn-border-radius-large:        $border-radius-large
-// $btn-border-radius-small:        $border-radius-small
+$btn-border-radius-base:         0px; 
+$btn-border-radius-large:        0px; 
+$btn-border-radius-small:        0px; 
 
 //== Forms
 //
@@ -416,12 +414,12 @@ $navbar-height:                    80px;
 // Reset inverted navbar basics
 // $navbar-inverse-color:                      lighten($gray-light, 15%)
 // $navbar-inverse-bg:                         #222
-$navbar-inverse-border:                    transparent;
+$navbar-inverse-border:                    $primary-darker;
 
 // Inverted navbar links
 $navbar-inverse-link-color:                $gray-lighter; 
 $navbar-inverse-link-hover-color:          $gray-lighter; 
-$navbar-inverse-link-hover-bg:             $primary;
+$navbar-inverse-link-hover-bg:             $primary-dark;
 // $navbar-inverse-link-active-color:          $navbar-inverse-link-hover-color
 // $navbar-inverse-link-active-bg:             darken($navbar-inverse-bg, 10%)
 // $navbar-inverse-link-disabled-color:        #444

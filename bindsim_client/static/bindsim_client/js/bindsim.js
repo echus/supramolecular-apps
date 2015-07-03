@@ -130,6 +130,7 @@ var bindsim = {
         var chart = new Highcharts.Chart({
             chart: {
                 renderTo: bindsim.i.plot_id,
+                backgroundColor:null
             },
             title: {
                 text: "",
@@ -203,9 +204,9 @@ bindsim.sim_nmr_1to1 = {
         json_mf_hg: "mf_hg",
         json_dd: "dd",
         // Colors for plotting
-        color_mf_h: "rgba(8, 87, 244, 0.4)",
-        color_mf_hg: "rgba(126, 198, 254, 0.4)",
-        color_dd: "rgba(255, 73, 0, 1)",
+        color_mf_h: "rgba(255, 213, 55, 0.4)",
+        color_mf_hg: "rgba(18, 89, 187, 0.4)",
+        color_dd: "rgba(255, 100, 3, 1)",
         // jQuery selector for 1to1 form
         form: "#params-nmr-1to1",
         $form: {}
@@ -358,10 +359,10 @@ bindsim.sim_nmr_1to2 = {
         json_mf_hg2: "mf_hg2",
         json_dd: "dd",
         // Colors for plotting
-        color_mf_h: "rgba(8, 87, 244, 0.4)",
-        color_mf_hg: "rgba(126, 198, 254, 0.4)",
-        color_mf_hg2: "rgba(208, 237, 255, 0.4)",
-        color_dd: "rgba(255, 73, 0, 1)",
+        color_mf_h: "rgba(7, 52, 115, 0.4)",
+        color_mf_hg: "rgba(90, 138, 205, 0.4)",
+        color_mf_hg2: "rgba(18, 89, 187, 0.4)",
+        color_dd: "rgba(255, 100, 3, 1)",
         // jQuery selector for 1to1 form
         form: "#params-nmr-1to2",
         $form: {}
