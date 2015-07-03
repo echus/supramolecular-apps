@@ -130,7 +130,8 @@ var bindsim = {
         var chart = new Highcharts.Chart({
             chart: {
                 renderTo: bindsim.i.plot_id,
-                backgroundColor:null
+                backgroundColor:null,
+                style: {'font-family': 'Lato, Helvetica, Arial, Verdana', 'text-transform': 'none'}
             },
             title: {
                 text: "",
@@ -149,7 +150,8 @@ var bindsim = {
             yAxis: [{ // Primary y axis
                 id: bindsim.i.axis_isotherm,
                 title: {
-                    text: "\u0394\u03B4 (ppm or Hz)"
+                    text: "\u0394\u03B4 (ppm or Hz)",
+                    style: {'text-transform': 'none'}
                 },
                 labels: {
                     format: "{value}"
@@ -161,7 +163,8 @@ var bindsim = {
             }, { // Secondary y axis
                 id: bindsim.i.axis_molefrac,
                 title: {
-                    text: "Molefraction"
+                    text: "Molefraction",
+                    style: {'text-transform': 'none'}
                 },
                 labels: {
                     format: "{value}"

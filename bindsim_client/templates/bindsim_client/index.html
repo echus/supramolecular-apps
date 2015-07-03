@@ -9,6 +9,7 @@
     <!-- Highcharts -->
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="{% static "bindsim_client/js/highcharts-themes/grid-light.js" %}"></script>
     <!-- Bindsim -->
     <script src="{% static "bindsim_client/js/bindsim.js" %}"></script>
 {% endblock %}
@@ -28,13 +29,13 @@
                         <label for="params-nmr-1to1-h0_init" class="col-xs-4 control-label">[H]<sub>0</sub></label>
                         <div class="input-group col-xs-8">
                             <input id="params-nmr-1to1-h0_init" name="h0_init" type="number" class="form-control" value="0.001">
-                            <span class="input-group-addon input-group-addon-width">M</span>
+                            <span class="input-group-addon input-group-addon-width">M (initial)</span>
                         </div>
 
                         <label for="params-nmr-1to1-g0h0_final" class="col-xs-4 control-label">[G]<sub>0</sub>/[H]<sub>0</sub></label>
                         <div class="input-group col-xs-8">
                             <input id="params-nmr-1to1-g0h0_final" name="g0h0_final" type="number" class="form-control" value="20">
-                            <span class="input-group-addon input-group-addon-width"></span>
+                            <span class="input-group-addon input-group-addon-width">(max)</span>
                         </div>
 
                         <label for="params-nmr-1to1-dh" class="col-xs-4 control-label">&#948;<sub>H</sub></label>

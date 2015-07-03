@@ -8,8 +8,8 @@
 
 /* Bootstrap mods */
 .input-group-addon-width {
-    min-width: 100px;
-    text-align: center;
+    min-width: 120px;
+    text-align: left;
 }
 
 /* Convenience classes */

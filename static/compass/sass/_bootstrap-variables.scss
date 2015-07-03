@@ -210,14 +210,14 @@ $btn-border-radius-small:        0px;
 //##
 
 //** `<input>` background color
-// $input-bg:                       #fff
+$input-bg:                       #fff;
 //** `<input disabled>` background color
 // $input-bg-disabled:              $gray-lighter
 
 //** Text color for `<input>`s
 // $input-color:                    $gray
 //** `<input>` border color
-// $input-border:                   #ccc
+$input-border:                   $gray-lighter;
 
 // TODO: Rename `$input-border-radius` to `$input-border-radius-base` in v4
 //** Default `.form-control` border radius
@@ -229,7 +229,7 @@ $btn-border-radius-small:        0px;
 // $input-border-radius-small:      $border-radius-small
 
 //** Border color for inputs on focus
-// $input-border-focus:             #66afe9
+$input-border-focus:             $primary;
 
 //** Placeholder text color
 // $input-color-placeholder:        #999
@@ -414,7 +414,7 @@ $navbar-height:                    80px;
 // Reset inverted navbar basics
 // $navbar-inverse-color:                      lighten($gray-light, 15%)
 // $navbar-inverse-bg:                         #222
-$navbar-inverse-border:                    $primary-darker;
+$navbar-inverse-border:                    transparent;
 
 // Inverted navbar links
 $navbar-inverse-link-color:                $gray-lighter; 
