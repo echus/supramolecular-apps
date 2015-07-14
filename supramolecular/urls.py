@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^admin/',       include(admin.site.urls)),
     url(r'^bindsim/api/', include('bindsim.urls')),
     url(r'^bindsim/',     include('bindsim_client.urls')),
+    url(r'^bindfit/api/', include('bindfit.urls')),
 ]
