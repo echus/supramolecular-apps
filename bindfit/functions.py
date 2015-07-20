@@ -5,7 +5,7 @@ from math import sqrt
 import numpy as np
 import scipy as sp
 
-def nmr_1to1(k, h0, g0, data):
+def nmr_1to1(k, data):
     """
     Performs least squares regression fitting via matrix division on provided
     NMR data for a given binding constant K, and returns its sum of least
@@ -13,15 +13,18 @@ def nmr_1to1(k, h0, g0, data):
 
     Arguments:
         k   : float   Binding constant Ka guess
-        h0  : n x 1 matrix  Total [H]0 concentration, n observations
-        g0  : n x 1 matrix  Total [G]0 concentration, n observations
-        data: n x m matrix  Observed NMR resonances, n observations, m spectra
+        data: Data object of observed NMR resonances
 
     Returns:
-        matrix  Sum of least squares
+        float:  Sum of least squares
     """
 
-    # Calculate [HG] concentration given input [H]0, [G]0 matrices and Ka guess
+    h0  = data.params["h0"]
+    g0  = data.params["g0"]
+    obs = data.observations
+
+    # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
+    # and Ka guess
     hg = 0.5*(\
              (g0 + h0 + (1/k)) - \
              np.lib.scimath.sqrt(((g0+h0+(1/k))**2)-(4*((g0*h0))))\
@@ -37,8 +40,8 @@ def nmr_1to1(k, h0, g0, data):
     hg = hg.reshape(len(hg), 1)
 
     # Solve by matrix division - linear regression by least squares
-    # Equivalent to << params = hg\data >> in Matlab
-    params, residuals, rank, s = np.linalg.lstsq(hg, data)
+    # Equivalent to << params = hg\obs >> in Matlab
+    params, residuals, rank, s = np.linalg.lstsq(hg, obs)
 
     data_calculated = hg * params
 

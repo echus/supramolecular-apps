@@ -7,7 +7,9 @@ from django.conf import settings
 import os
 import numpy as np
 
-from . import fitter
+from . import functions
+from .data import Data
+from .fitter import Fitter
 
 @api_view(['POST'])
 def fit(request):
@@ -38,24 +40,23 @@ def fit(request):
             ...
     """
 
-    # Process request
+    # Create Data object from input
+    if request.data["input"]["type"] == "csv":
+        data = Data(os.path.join(settings.MEDIA_ROOT, 
+                                 request.data["input"]["value"]))
+    else:
+        pass
+        # Error page
 
-    # Import csv to numpy array
-    #fn = request["input"]["value"]
+    # Create appropriate Fitter
+    fitter = Fitter(functions.nmr_1to1)
 
-    with open(os.path.join(settings.MEDIA_ROOT, "input.csv")) as f:
-        raw_data = np.loadtxt(f, delimiter=",", skiprows=1)
-
-    h0   = raw_data[:,0]
-    g0   = raw_data[:,1]
-    data = raw_data[:,2:]
-
-    # Call fitting algorithm
-    k = fitter.fit_nmr_1to1(h0, g0, data)
+    # Run fitter on data
+    fitter.fit(data, request.data["k_guess"])
 
     # Build response dict
     response = {
-            "k": k,
-            }
+               "k": fitter.result
+               }
 
     return Response(response)
