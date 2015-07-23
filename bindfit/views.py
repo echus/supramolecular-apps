@@ -49,7 +49,7 @@ def fit(request):
         # Error page
 
     # Create appropriate Fitter
-    fitter = Fitter(functions.nmr_1to1)
+    fitter = Fitter(functions.NMR1to1)
 
     # Run fitter on data
     fitter.fit(data, request.data["k_guess"])

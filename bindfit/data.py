@@ -15,7 +15,8 @@ class Data():
 
         self.params = {
                       "h0": raw[:,0],
-                      "g0": raw[:,1]
+                      "g0": raw[:,1],
+                      "geq": raw[:,1]/raw[:,0],
                       }
         
         self.observations = raw[:,2:]
