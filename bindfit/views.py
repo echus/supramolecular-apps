@@ -23,21 +23,12 @@ def fit(request):
         algorithm: string  User selected fitting algorithm
 
     Response:
-        data:
-            x : Equivalent Guest
-            y1: Proton 1
-            y2: Proton 2
-            ...
-        fit:
-            x :
-            y1:
-            y2:
-            ...
+        data:       array  [ n x [array of [x, y] points] ]
+                           Where n = number of experiments
+                           x: Equivalent [G]/[H] concentration
+                           y_n: Observed spectrum n
+        fit:        array  As for data.
         residuals:
-            x :
-            y1:
-            y2:
-            ...
     """
 
     # Create Data object from input
