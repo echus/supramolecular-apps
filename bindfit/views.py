@@ -33,8 +33,9 @@ def fit(request):
 
     # Create Data object from input
     if request.data["input"]["type"] == "csv":
-        data = Data(os.path.join(settings.MEDIA_ROOT, 
-                                 request.data["input"]["value"]))
+        input_path = os.path.join(settings.MEDIA_ROOT,
+                                  request.data["input"]["value"])
+        data = Data(input_path)
     else:
         pass
         # Error page
