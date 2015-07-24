@@ -55,8 +55,24 @@ def fit(request):
     fitter.fit(data, request.data["k_guess"])
 
     # Build response dict
+    k = fitter.result
+
+    observed = []
+    predicted = []
+    # Loop through each column of observed data and its respective predicted
+    # best fit, create array of [x, y] point pairs for plottig
+    for o, p in zip(data.observations.T, fitter.predict(data).T):
+        geq = data.params["geq"]
+        obs_plot  = [ [x, y] for x, y in zip(geq, o) ]
+        pred_plot = [ [x, y] for x, y in zip(geq, p) ]
+        observed.append(obs_plot)
+        predicted.append(pred_plot)
+
     response = {
-               "k": fitter.result
+               "k": k,
+               "data": observed,
+               "fit": predicted,
+               "residuals": [],
                }
 
     return Response(response)

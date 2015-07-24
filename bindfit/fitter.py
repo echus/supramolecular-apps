@@ -22,10 +22,10 @@ class Fitter():
         #                               )
         self.result = scipy.optimize.fmin(self.function.lstsq,
                                           k_guess,
-                                          args=(data,),
+                                          args=(data, True),
                                           xtol=tol,
                                           ftol=tol
                                           )
 
     def predict(self, data):
-        pass
+        return self.function.lstsq(self.result, data) 

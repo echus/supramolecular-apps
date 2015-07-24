@@ -9,7 +9,7 @@ class Function():
     def __init__(self, f):
         self.f = f
 
-    def lstsq(self, k, data):
+    def lstsq(self, k, data, sum_residuals=False):
         """
         Performs least squares regression fitting via matrix division on provided
         NMR data for a given binding constant K, and returns its sum of least
@@ -33,9 +33,11 @@ class Function():
         # Equivalent to << params = hg\obs >> in Matlab
         params, residuals, rank, s = np.linalg.lstsq(hg, data.observations)
 
-        data_calculated = hg * params
-
-        return residuals.sum()
+        if sum_residuals:
+            return residuals.sum()
+        else:
+            data_calculated = hg.dot(params)
+            return data_calculated
 
 
 
