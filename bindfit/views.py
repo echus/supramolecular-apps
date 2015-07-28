@@ -1,6 +1,9 @@
-from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+
+from rest_framework.parsers import JSONParser, MultiPartParser 
+
 from rest_framework.response import Response
+from rest_framework import status
 
 from django.conf import settings
 
@@ -11,61 +14,99 @@ from . import functions
 from .data import Data
 from .fitter import Fitter
 
-@api_view(['POST'])
-def fit(request):
+import logging
+logger = logging.getLogger('supramolecular')
+
+class FitterView(APIView):
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        """
+        Request:
+            input:
+                type : string  Type of input file ["csv"]
+                value: string  Input data ["/path/to/csv"]
+
+            k_guess  : float   User guess of Ka
+            algorithm: string  User selected fitting algorithm
+
+        Response:
+            data:       array  [ n x [array of [x, y] points] ]
+                               Where n = number of experiments
+                               x: Equivalent [G]/[H] concentration
+                               y_n: Observed spectrum n
+            fit:        array  As for data.
+            residuals:
+        """
+
+        # Create Data object from input
+        if request.data["input"]["type"] == "csv":
+            input_path = os.path.join(settings.MEDIA_ROOT,
+                                      request.data["input"]["value"])
+            data = Data(input_path)
+        else:
+            pass
+            # Error page
+
+        # Initialise appropriate Fitter
+        fitter = Fitter(functions.NMR1to1)
+
+        # Run fitter on data
+        fitter.fit(data, request.data["k_guess"])
+
+        # Build response dict
+
+        # Loop through each column of observed data and its respective predicted
+        # best fit, create array of [x, y] point pairs for plotting
+        observed = []
+        predicted = []
+        for o, p in zip(data.observations.T, fitter.predict(data).T):
+            geq = data.params["geq"]
+            obs_plot  = [ [x, y] for x, y in zip(geq, o) ]
+            pred_plot = [ [x, y] for x, y in zip(geq, p) ]
+            observed.append(obs_plot)
+            predicted.append(pred_plot)
+
+        k = fitter.result
+
+        response = {
+                   "k": k,
+                   "data": observed,
+                   "fit": predicted,
+                   "residuals": [],
+                   }
+
+        return Response(response)
+
+
+
+class UploadView(APIView):
     """
     Request:
-        input:
-            type : string  Type of input file ["csv"]
-            value: string  Input data ["/path/to/csv"]
-
-        k_guess  : float   User guess of Ka
-        algorithm: string  User selected fitting algorithm
 
     Response:
-        data:       array  [ n x [array of [x, y] points] ]
-                           Where n = number of experiments
-                           x: Equivalent [G]/[H] concentration
-                           y_n: Observed spectrum n
-        fit:        array  As for data.
-        residuals:
+        string: Path to uploaded file on server
     """
 
-    # Create Data object from input
-    if request.data["input"]["type"] == "csv":
-        input_path = os.path.join(settings.MEDIA_ROOT,
-                                  request.data["input"]["value"])
-        data = Data(input_path)
-    else:
-        pass
-        # Error page
+    REQUEST_FILENAME = "input" 
 
-    # Initialise appropriate Fitter
-    fitter = Fitter(functions.NMR1to1)
+    parser_classes = (MultiPartParser, )
 
-    # Run fitter on data
-    fitter.fit(data, request.data["k_guess"])
+    def put(self, request):
+        f = request.FILES[self.REQUEST_FILENAME]
 
-    # Build response dict
+        filename = "input.csv"
+        upload_path = os.path.join(settings.MEDIA_ROOT, filename) 
 
-    # Loop through each column of observed data and its respective predicted
-    # best fit, create array of [x, y] point pairs for plotting
-    observed = []
-    predicted = []
-    for o, p in zip(data.observations.T, fitter.predict(data).T):
-        geq = data.params["geq"]
-        obs_plot  = [ [x, y] for x, y in zip(geq, o) ]
-        pred_plot = [ [x, y] for x, y in zip(geq, p) ]
-        observed.append(obs_plot)
-        predicted.append(pred_plot)
+        logger.debug("UploadView.put: called")
+        logger.debug("UploadView.put: f - "+str(f))
 
-    k = fitter.result
+        with open(upload_path, 'wb+') as destination:
+            destination.write(f.read())
+            logger.debug("UploadView.put: f written to destination "+destination.name)
 
-    response = {
-               "k": k,
-               "data": observed,
-               "fit": predicted,
-               "residuals": [],
-               }
+        response_dict = {
+                "filename": filename,
+                }
 
-    return Response(response)
+        return Response(response_dict, status=200)
