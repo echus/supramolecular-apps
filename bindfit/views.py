@@ -41,38 +41,32 @@ class FitterView(APIView):
 
         logger.debug("FitterView.post: called")
 
-        # Create Data object from input
-        if request.data["input"]["type"] == "csv":
-            input_path = os.path.join(settings.MEDIA_ROOT,
-                                      request.data["input"]["value"])
+        # Import data
+        data = self.import_data(request.data["input"]["type"], 
+                                request.data["input"]["value"])
+
+        # Call appropriate fitter
+        k_guess = np.array(request.data["k_guess"], dtype=np.float64)
+        fit = self.fit_uv_1to2(k_guess, data)
+        #fit = self.fit_nmr_1to1(k_guess, data)
+
+        # Build response dict
+        response = self.build_response(data, fit)
+
+        return Response(response)
+
+    def import_data(self, fmt, value):
+        # Import input file into Data object
+        if fmt == "csv":
+            input_path = os.path.join(settings.MEDIA_ROOT, value)
             data = Data(input_path)
         else:
             pass
             # Error page
 
-        # Initialise appropriate Fitter
-        fitter = Fitter(functions.NMR1to1)
+        return data
 
-        # Run fitter on data
-        k_guess = float(request.data["k_guess"])
-        fitter.fit(data, k_guess)
-
-        logger.debug("FitterView.post: NMR1to1 fit")
-        logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
-        logger.debug("FitterView.post: data.observations = "+str(data.observations))
-        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
-
-        ### TEMP UV1TO2 TESTING
-        data_1to2 = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
-        fitter_1to2 = Fitter(functions.UV1to2, None)
-        fitter_1to2.fit(data_1to2, [130000, 13000])
-        logger.debug("FitterView.post: UV1to2 fit")
-        logger.debug("FitterView.post: fitter_1to2.result = "+str(fitter_1to2.result))
-        logger.debug("FitterView.post: data_1to2.observations = "+str(data_1to2.observations))
-        logger.debug("FitterView.post: fitter_1to2.predict(data_1to2) = "+str(fitter_1to2.predict(data_1to2)))
-        ### END TEMP UV1TO2 TESTING
-
-
+    def build_response(self, data, fitter):
         # Build response dict
 
         # Loop through each column of observed data and its respective predicted
@@ -95,7 +89,39 @@ class FitterView(APIView):
                    "residuals": [],
                    }
 
-        return Response(response)
+        return response
+
+    def fit_nmr_1to1(self, k_guess, data):
+        # Initialise appropriate Fitter
+        fitter = Fitter(functions.NMR1to1)
+
+        # Run fitter on data
+        fitter.fit(data, k_guess)
+
+        logger.debug("FitterView.post: NMR1to1 fit")
+        logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
+        logger.debug("FitterView.post: data.observations = "+str(data.observations))
+        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
+
+        return fitter 
+
+    def fit_uv_1to2(self, k_guess, data):
+        # Initialise appropriate Fitter
+        fitter = Fitter(functions.UV1to2, None)
+
+        # Run fitter on data
+        # TESTING
+        data = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
+        k_guess = [130000, 13000]
+        # END TESTING
+        fitter.fit(data, k_guess)
+
+        logger.debug("FitterView.post: UV1to2 fit")
+        logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
+        logger.debug("FitterView.post: data.observations = "+str(data.observations))
+        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
+
+        return fitter
 
 
 
