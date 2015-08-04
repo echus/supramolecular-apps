@@ -54,7 +54,8 @@ class FitterView(APIView):
         fitter = Fitter(functions.NMR1to1)
 
         # Run fitter on data
-        fitter.fit(data, request.data["k_guess"])
+        k_guess = float(request.data["k_guess"])
+        fitter.fit(data, k_guess)
 
         logger.debug("FitterView.post: NMR1to1 fit")
         logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
@@ -63,11 +64,11 @@ class FitterView(APIView):
 
         data_1to2 = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
         fitter_1to2 = Fitter(functions.UV1to2)
-        fitter_1to2.fit(data_1to2, [100000, 10000])
+        fitter_1to2.fit(data_1to2, [10000, 1000], tol=10e-18)
         logger.debug("FitterView.post: UV1to2 fit")
-        logger.debug("FitterView.post: fitter.result = "+str(fitter_1to2.result))
-        logger.debug("FitterView.post: data.observations = "+str(data_1to2.observations))
-        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter_1to2.predict(data_1to2)))
+        logger.debug("FitterView.post: fitter_1to2.result = "+str(fitter_1to2.result))
+        logger.debug("FitterView.post: data_1to2.observations = "+str(data_1to2.observations))
+        logger.debug("FitterView.post: fitter_1to2.predict(data_1to2) = "+str(fitter_1to2.predict(data_1to2)))
 
         # Build response dict
 

@@ -10,22 +10,26 @@ import scipy.optimize
 from . import functions
 
 class Fitter():
-    def __init__(self, function, algorithm=None):
+    def __init__(self, function, algorithm='Nelder-Mead'):
         self.function = function
-        #self.algorithm = algorithm
+        self.algorithm = algorithm
 
-    def fit(self, data, k_guess=1000, tol=10e-10):
-        # k_optim = scipy.optimize.minimize(functions.nmr_1to1,
-        #                               1000,
-        #                               args=(h0, g0, data),
-        #                               tol=10e-10,
-        #                               )
-        self.result = scipy.optimize.fmin(self.function.lstsq,
-                                          k_guess,
-                                          args=(data, True),
-                                          xtol=tol,
-                                          ftol=tol
-                                          )
+    def fit(self, data, k_guess, tol=10e-18):
+        result = scipy.optimize.minimize(self.function.lstsq,
+                                         k_guess,
+                                         args=(data, True),
+                                         method=self.algorithm,
+                                         tol=tol,
+                                        )
+
+        self.result = result.x
+
+        # self.result = scipy.optimize.fmin(self.function.lstsq,
+        #                                   k_guess,
+        #                                   args=(data, True),
+        #                                   xtol=tol,
+        #                                   ftol=tol
+        #                                   )
 
     def predict(self, data):
         return self.function.lstsq(self.result, data) 
