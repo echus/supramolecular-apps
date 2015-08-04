@@ -62,13 +62,16 @@ class FitterView(APIView):
         logger.debug("FitterView.post: data.observations = "+str(data.observations))
         logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
 
+        ### TEMP UV1TO2 TESTING
         data_1to2 = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
-        fitter_1to2 = Fitter(functions.UV1to2)
-        fitter_1to2.fit(data_1to2, [10000, 1000], tol=10e-18)
+        fitter_1to2 = Fitter(functions.UV1to2, None)
+        fitter_1to2.fit(data_1to2, [130000, 13000])
         logger.debug("FitterView.post: UV1to2 fit")
         logger.debug("FitterView.post: fitter_1to2.result = "+str(fitter_1to2.result))
         logger.debug("FitterView.post: data_1to2.observations = "+str(data_1to2.observations))
         logger.debug("FitterView.post: fitter_1to2.predict(data_1to2) = "+str(fitter_1to2.predict(data_1to2)))
+        ### END TEMP UV1TO2 TESTING
+
 
         # Build response dict
 
