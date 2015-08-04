@@ -39,6 +39,8 @@ class FitterView(APIView):
             residuals:
         """
 
+        logger.debug("FitterView.post: called")
+
         # Create Data object from input
         if request.data["input"]["type"] == "csv":
             input_path = os.path.join(settings.MEDIA_ROOT,
@@ -53,6 +55,19 @@ class FitterView(APIView):
 
         # Run fitter on data
         fitter.fit(data, request.data["k_guess"])
+
+        logger.debug("FitterView.post: NMR1to1 fit")
+        logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
+        logger.debug("FitterView.post: data.observations = "+str(data.observations))
+        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
+
+        data_1to2 = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
+        fitter_1to2 = Fitter(functions.UV1to2)
+        fitter_1to2.fit(data_1to2, [100000, 10000])
+        logger.debug("FitterView.post: UV1to2 fit")
+        logger.debug("FitterView.post: fitter.result = "+str(fitter_1to2.result))
+        logger.debug("FitterView.post: data.observations = "+str(data_1to2.observations))
+        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter_1to2.predict(data_1to2)))
 
         # Build response dict
 

@@ -5,6 +5,9 @@ from math import sqrt
 import numpy as np
 import scipy as sp
 
+import logging
+logger = logging.getLogger('supramolecular')
+
 class Function():
     def __init__(self, f):
         self.f = f
@@ -23,11 +26,9 @@ class Function():
             float:  Sum of least squares
         """
 
-        # Call self.f to calculate predicted [HG] for this k
+        # Call self.f to calculate predicted HG complex concentrations for this 
+        # set of k
         hg = self.f(k, data)
-
-        # Convert to column matrix for matrix calculations
-        hg = hg.reshape(len(hg), 1)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << params = hg\obs >> in Matlab
@@ -67,6 +68,67 @@ def nmr_1to1(k, data):
     # Convert [HG] concentration to molefraction for NMR
     hg /= h0
 
+    # Make column vector
+    hg = hg.reshape(len(hg), 1)
+
     return hg
 
+def uv_1to2(k, data):
+    """
+    Calculates predicted [HG] and [HG2] given data object and binding constants
+    as input.
+    """
+
+    # Convenience
+    k11 = k[0]
+    k12 = k[1]
+    h0 = data.params["h0"]
+    g0 = data.params["g0"]
+
+
+    #
+    # Calculate free guest concentration [G]: solve cubic
+    #
+    a = -1. * g0
+    b = 1 + k11*h0 - k11*g0
+    c = 2*k11*k12*h0 + k11 - g0*k11*k12
+    d = np.ones(h0.shape[0])*k11*k12
+
+    # Rows: data points, cols: poly coefficients
+    poly = np.column_stack((a, b, c, d))
+
+    # Solve cubic in [G] for each observation
+    g = np.zeros(h0.shape[0])
+    for i, p in enumerate(poly):
+        roots = np.roots(p)
+
+        # Smallest real +ve root is [G]
+        select = np.all([np.imag(roots) == 0, np.real(roots) >= 0], axis=0)
+        if select.any():
+            soln = roots[select].min()
+            soln = float(np.real(soln))
+        else:
+            # No positive real roots, set solution to 0
+            soln = 0.0
+        
+        g[i] = soln
+
+
+    #
+    # Calculate [HG] and [HG2] complex concentrations 
+    #
+    hg = h0*((g*k11)/(1+(g*k11)+(g*g*k11*k12)))
+    hg2 = h0*(((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12)))
+
+    hg_mat = np.vstack((hg, hg2))
+
+
+    # Transpose for matrix calculations
+    hg_mat = hg_mat.T
+
+    return hg_mat
+
+
+
 NMR1to1 = Function(nmr_1to1)
+UV1to2 = Function(uv_1to2)
