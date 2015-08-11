@@ -9,12 +9,17 @@ import scipy.optimize
 
 from . import functions
 
+import logging
+logger = logging.getLogger('supramolecular')
+
 class Fitter():
     def __init__(self, function, algorithm='Nelder-Mead'):
         self.function = function
         self.algorithm = algorithm
 
     def fit(self, data, k_guess, tol=10e-18):
+        logger.debug("Fitter.fit: called")
+
         result = scipy.optimize.minimize(self.function.lstsq,
                                          k_guess,
                                          args=(data, True),
@@ -23,6 +28,8 @@ class Fitter():
                                         )
 
         self.result = result.x
+
+        logger.debug("Fitter.fit: Result - "+str(result))
 
         # self.result = scipy.optimize.fmin(self.function.lstsq,
         #                                   k_guess,

@@ -47,11 +47,24 @@ class FitterView(APIView):
 
         # Call appropriate fitter
         k_guess = np.array(request.data["k_guess"], dtype=np.float64)
-        fit = self.fit_uv_1to2(k_guess, data)
+        
+        # TESTING
+        data_test = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
+        k_test = [115221.4, 12990.44]
+        k_test = [10000, 1000]
+        fit_test = self.fit_uv_1to2(k_test, data_test)
+        # END TESTING
+
+        #fit = self.fit_uv_1to2(k_guess, data)
         #fit = self.fit_nmr_1to1(k_guess, data)
 
         # Build response dict
-        response = self.build_response(data, fit)
+
+        # TESTING
+        response = self.build_response(data_test, fit_test)
+        # END TESTING
+
+        #response = self.build_response(data, fit)
 
         return Response(response)
 
@@ -107,13 +120,15 @@ class FitterView(APIView):
 
     def fit_uv_1to2(self, k_guess, data):
         # Initialise appropriate Fitter
-        fitter = Fitter(functions.UV1to2, None)
+        fitter = Fitter(functions.UV1to2)
+
+        # TESTING
+        hg_mat = functions.UV1to2.f(k_guess, data)
+        logger.debug("UV 1to2 HGMAT TEST")
+        logger.debug(str(hg_mat))
+        # END TESTING
 
         # Run fitter on data
-        # TESTING
-        data = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
-        k_guess = [130000, 13000]
-        # END TESTING
         fitter.fit(data, k_guess)
 
         logger.debug("FitterView.post: UV1to2 fit")

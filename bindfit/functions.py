@@ -89,10 +89,10 @@ def uv_1to2(k, data):
     #
     # Calculate free guest concentration [G]: solve cubic
     #
-    a = -1. * g0
-    b = 1 + k11*h0 - k11*g0
-    c = 2*k11*k12*h0 + k11 - g0*k11*k12
-    d = np.ones(h0.shape[0])*k11*k12
+    a = np.ones(h0.shape[0])*k11*k12
+    b = 2*k11*k12*h0 + k11 - g0*k11*k12
+    c = 1 + k11*h0 - k11*g0
+    d = -1. * g0
 
     # Rows: data points, cols: poly coefficients
     poly = np.column_stack((a, b, c, d))
