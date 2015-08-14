@@ -38,7 +38,7 @@ class FitterView(APIView):
                     "units": "ppm",
                     },
                 "params": [
-                    {"name": "K (binding constant)", "units": "M-1"},
+                    {"label": "K", "units": "M\u207B\u00B9"},
                     ]
                 },
             "uv1to2": {
@@ -51,7 +51,8 @@ class FitterView(APIView):
                     "units": "ppm",
                     },
                 "params": [
-                    {"label": "K (binding constant)", "units": "M-1"},
+                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
                     ]
                 }
             }
