@@ -20,6 +20,7 @@ logger = logging.getLogger('supramolecular')
 class FitterView(APIView):
     parser_classes = (JSONParser,)
 
+
     def post(self, request):
         """
         Request:
@@ -45,26 +46,22 @@ class FitterView(APIView):
         data = self.import_data(request.data["input"]["type"], 
                                 request.data["input"]["value"])
 
-        # Call appropriate fitter
         k_guess = np.array(request.data["k_guess"], dtype=np.float64)
+
+        # Call appropriate fitter
+
+        # JSON fitter reference -> View fitter function map 
+        # TODO move this definition elsewhere?
+        fitter_select = {
+                "nmr1to1": self.fit_nmr_1to1,
+                "uv1to2":  self.fit_uv_1to2,
+                }
+
+        fitter = request.data["fitter"]
+        fit = fitter_select[fitter](k_guess, data)
         
-        # TESTING
-        data_test = Data(os.path.join(settings.MEDIA_ROOT, "uv1to2test.csv"))
-        k_test = [115221.4, 12990.44]
-        k_test = [10000, 1000]
-        fit_test = self.fit_uv_1to2(k_test, data_test)
-        # END TESTING
-
-        #fit = self.fit_uv_1to2(k_guess, data)
-        #fit = self.fit_nmr_1to1(k_guess, data)
-
         # Build response dict
-
-        # TESTING
-        response = self.build_response(data_test, fit_test)
-        # END TESTING
-
-        #response = self.build_response(data, fit)
+        response = self.build_response(data, fit)
 
         return Response(response)
 
@@ -104,7 +101,8 @@ class FitterView(APIView):
 
         return response
 
-    def fit_nmr_1to1(self, k_guess, data):
+    @staticmethod
+    def fit_nmr_1to1(k_guess, data):
         # Initialise appropriate Fitter
         fitter = Fitter(functions.NMR1to1)
 
@@ -118,9 +116,10 @@ class FitterView(APIView):
 
         return fitter 
 
-    def fit_uv_1to2(self, k_guess, data):
+    @staticmethod
+    def fit_uv_1to2(k_guess, data):
         # Initialise appropriate Fitter
-        fitter = Fitter(functions.UV1to2)
+        fitter = Fitter(functions.UV1to2, algorithm="Nelder-Mead")
 
         # TESTING
         hg_mat = functions.UV1to2.f(k_guess, data)

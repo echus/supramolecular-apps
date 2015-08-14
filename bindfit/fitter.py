@@ -17,14 +17,23 @@ class Fitter():
         self.function = function
         self.algorithm = algorithm
 
-    def fit(self, data, k_guess, tol=10e-18):
+    def fit(self, data, k_guess, tol=10e-18, niter=None):
         logger.debug("Fitter.fit: called")
+
+        if niter is not None:
+            opt = {
+                  "maxiter": niter,
+                  "maxfev": niter,  
+                  }
+        else:
+            opt = {}
 
         result = scipy.optimize.minimize(self.function.lstsq,
                                          k_guess,
                                          args=(data, True),
                                          method=self.algorithm,
                                          tol=tol,
+                                         options=opt,
                                         )
 
         self.result = result.x
