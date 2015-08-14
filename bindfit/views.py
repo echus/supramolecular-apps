@@ -20,6 +20,42 @@ logger = logging.getLogger('supramolecular')
 class FitterView(APIView):
     parser_classes = (JSONParser,)
 
+    # JSON fitter reference -> "functions" fitter function map 
+    fitter_select = {
+            "nmr1to1": "NMR1to1",
+            "uv1to2":  "UV1to2",
+            }
+
+    # Fitter-specific response display settings
+    response_select = {
+            "nmr1to1": {
+                "x": {
+                    "label": "Equivalent total [G]\u2080/[H]\u2080",
+                    "units": "",
+                    },
+                "y": {
+                    "label": "\u03B4",
+                    "units": "ppm",
+                    },
+                "params": [
+                    {"name": "K (binding constant)", "units": "M-1"},
+                    ]
+                },
+            "uv1to2": {
+                "x": {
+                    "label": "Equivalent total [G]\u2080/[H]\u2080",
+                    "units": "",
+                    },
+                "y": {
+                    "label": "\u03B4",
+                    "units": "ppm",
+                    },
+                "params": [
+                    {"label": "K (binding constant)", "units": "M-1"},
+                    ]
+                }
+            }
+
 
     def post(self, request):
         """
@@ -42,27 +78,19 @@ class FitterView(APIView):
 
         logger.debug("FitterView.post: called")
 
-        # Import data
-        data = self.import_data(request.data["input"]["type"], 
-                                request.data["input"]["value"])
+        # Parse request
+        self.fitter = request.data["fitter"]
+        self.k_guess = np.array(request.data["k_guess"], dtype=np.float64)
 
-        k_guess = np.array(request.data["k_guess"], dtype=np.float64)
+        # Import data
+        self.data = self.import_data(request.data["input"]["type"], 
+                                     request.data["input"]["value"])
 
         # Call appropriate fitter
-
-        # JSON fitter reference -> View fitter function map 
-        # TODO move this definition elsewhere?
-        fitter_select = {
-                "nmr1to1": self.fit_nmr_1to1,
-                "uv1to2":  self.fit_uv_1to2,
-                }
-
-        fitter = request.data["fitter"]
-        fit = fitter_select[fitter](k_guess, data)
+        self.fit = self.run_fitter()
         
         # Build response dict
-        response = self.build_response(data, fit)
-
+        response = self.build_response()
         return Response(response)
 
     def import_data(self, fmt, value):
@@ -72,70 +100,53 @@ class FitterView(APIView):
             data = Data(input_path)
         else:
             pass
-            # Error page
+            # Error response 
 
         return data
 
-    def build_response(self, data, fitter):
-        # Build response dict
+    def build_response(self):
+        data = self.data
+        fit  = self.fit
 
         # Loop through each column of observed data and its respective predicted
         # best fit, create array of [x, y] point pairs for plotting
         observed = []
         predicted = []
-        for o, p in zip(data.observations.T, fitter.predict(data).T):
+        for o, p in zip(data.observations.T, fit.predict(data).T):
             geq = data.params["geq"]
             obs_plot  = [ [x, y] for x, y in zip(geq, o) ]
             pred_plot = [ [x, y] for x, y in zip(geq, p) ]
             observed.append(obs_plot)
             predicted.append(pred_plot)
 
-        k = fitter.result
+        k = fit.result
 
         response = {
-                   "k": k,
-                   "data": observed,
-                   "fit": predicted,
-                   "residuals": [],
-                   }
+                "data": {
+                    "params": k,
+                    "data": observed,
+                    "fit": predicted,
+                    "residuals": [],
+                    },
+                "options": self.response_select[self.fitter]
+                }
 
         return response
 
-    @staticmethod
-    def fit_nmr_1to1(k_guess, data):
+    def run_fitter(self):
         # Initialise appropriate Fitter
-        fitter = Fitter(functions.NMR1to1)
+        function = getattr(functions, self.fitter_select[self.fitter])
+        fitter = Fitter(function)
 
         # Run fitter on data
-        fitter.fit(data, k_guess)
+        fitter.fit(self.data, self.k_guess)
 
         logger.debug("FitterView.post: NMR1to1 fit")
         logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
-        logger.debug("FitterView.post: data.observations = "+str(data.observations))
-        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
+        logger.debug("FitterView.post: data.observations = "+str(self.data.observations))
+        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(self.data)))
 
         return fitter 
-
-    @staticmethod
-    def fit_uv_1to2(k_guess, data):
-        # Initialise appropriate Fitter
-        fitter = Fitter(functions.UV1to2, algorithm="Nelder-Mead")
-
-        # TESTING
-        hg_mat = functions.UV1to2.f(k_guess, data)
-        logger.debug("UV 1to2 HGMAT TEST")
-        logger.debug(str(hg_mat))
-        # END TESTING
-
-        # Run fitter on data
-        fitter.fit(data, k_guess)
-
-        logger.debug("FitterView.post: UV1to2 fit")
-        logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
-        logger.debug("FitterView.post: data.observations = "+str(data.observations))
-        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(data)))
-
-        return fitter
 
 
 
