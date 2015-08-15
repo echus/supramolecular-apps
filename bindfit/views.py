@@ -188,6 +188,18 @@ class FitterLabelsView(APIView):
 
 
 
+class FitterListView(APIView):
+    parser_classes = (JSONParser,)
+    
+    def get(self, request):
+        fitter_list = [
+                {"name": "NMR 1:1", "key": "nmr1to1"},
+                {"name": "UV 1:2",  "key": "uv1to2"},
+                ]
+        return Response(fitter_list)
+
+
+
 class UploadView(APIView):
     """
     Request:
