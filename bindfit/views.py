@@ -26,38 +26,6 @@ class FitterView(APIView):
             "uv1to2":  "UV1to2",
             }
 
-    # Fitter-specific response display settings
-    response_select = {
-            "nmr1to1": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
-                    },
-                "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
-                    },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
-                },
-            "uv1to2": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
-                    },
-                "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
-                    },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
-                }
-            }
-
-
     def post(self, request):
         """
         Request:
@@ -123,13 +91,10 @@ class FitterView(APIView):
         k = fit.result
 
         response = {
-                "data": {
-                    "params": k,
-                    "data": observed,
-                    "fit": predicted,
-                    "residuals": [],
-                    },
-                "options": self.response_select[self.fitter]
+                "params": k,
+                "data": observed,
+                "fit": predicted,
+                "residuals": [],
                 }
 
         return response
@@ -148,6 +113,78 @@ class FitterView(APIView):
         logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(self.data)))
 
         return fitter 
+
+
+
+class FitterOptionsView(APIView):
+    parser_classes = (JSONParser,)
+
+    # Default options for each fitter type
+    default_options_select = {
+            "nmr1to1": {
+                "fitter": "nmr1to1",
+                "input": {
+                    "type": "csv",
+                    "value": "input.csv",
+                    },
+                "params": [1000],
+                },
+            "uv1to2": {
+                "fitter": "uv1to2",
+                "input": {
+                    "type": "csv",
+                    "value": "input.csv",
+                    },
+                "params": [10000, 1000],
+                },
+            }
+
+
+    def post(self, request):
+        fitter = request.data["fitter"]
+        response = self.default_options_select[fitter]
+        return Response(response)
+
+
+
+class FitterLabelsView(APIView):
+    parser_classes = (JSONParser,)
+    
+    # Labels for each fitter type
+    label_select = {
+            "nmr1to1": {
+                "x": {
+                    "label": "Equivalent total [G]\u2080/[H]\u2080",
+                    "units": "",
+                    },
+                "y": {
+                    "label": "\u03B4",
+                    "units": "ppm",
+                    },
+                "params": [
+                    {"label": "K", "units": "M\u207B\u00B9"},
+                    ]
+                },
+            "uv1to2": {
+                "x": {
+                    "label": "Equivalent total [G]\u2080/[H]\u2080",
+                    "units": "",
+                    },
+                "y": {
+                    "label": "\u03B4",
+                    "units": "ppm",
+                    },
+                "params": [
+                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                    ]
+                }
+            }
+
+    def post(self, request):
+        fitter = request.data["fitter"]
+        response = self.label_select[fitter]
+        return Response(response)
 
 
 
