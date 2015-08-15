@@ -49,7 +49,7 @@ class FitterView(APIView):
 
         # Parse request
         self.fitter = request.data["fitter"]
-        self.k_guess = np.array(request.data["k_guess"], dtype=np.float64)
+        self.k_guess = np.array(request.data["params"], dtype=np.float64)
 
         # Import data
         self.data = self.import_data(request.data["input"]["type"], 
@@ -182,6 +182,9 @@ class FitterLabelsView(APIView):
             }
 
     def post(self, request):
+        logger.debug("FitterLabelsView.post: called")
+        logger.debug(request.data)
+
         fitter = request.data["fitter"]
         response = self.label_select[fitter]
         return Response(response)
