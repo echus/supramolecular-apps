@@ -73,6 +73,30 @@ def nmr_1to1(k, data):
 
     return hg
 
+def uv_1to1(k, data):
+    """
+    Calculates predicted [HG] given data object parameters as input.
+    """
+
+    h0  = data.params["h0"]
+    g0  = data.params["g0"]
+
+    # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
+    # and Ka guess
+    hg = 0.5*(\
+             (g0 + h0 + (1/k)) - \
+             np.lib.scimath.sqrt(((g0+h0+(1/k))**2)-(4*((g0*h0))))\
+             )
+
+    # Replace any non-real solutions with sqrt(h0*g0) 
+    inds = np.imag(hg) > 0
+    hg[inds] = np.sqrt(h0[inds] * g0[inds])
+
+    # Make column vector
+    hg = hg.reshape(len(hg), 1)
+
+    return hg
+
 def uv_1to2(k, data):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
@@ -128,7 +152,64 @@ def uv_1to2(k, data):
 
     return hg_mat
 
+def nmr_1to2(k, data):
+    """
+    Calculates predicted [HG] and [HG2] given data object and binding constants
+    as input.
+    """
+
+    # Convenience
+    k11 = k[0]
+    k12 = k[1]
+    h0 = data.params["h0"]
+    g0 = data.params["g0"]
+
+
+    #
+    # Calculate free guest concentration [G]: solve cubic
+    #
+    a = np.ones(h0.shape[0])*k11*k12
+    b = 2*k11*k12*h0 + k11 - g0*k11*k12
+    c = 1 + k11*h0 - k11*g0
+    d = -1. * g0
+
+    # Rows: data points, cols: poly coefficients
+    poly = np.column_stack((a, b, c, d))
+
+    # Solve cubic in [G] for each observation
+    g = np.zeros(h0.shape[0])
+    for i, p in enumerate(poly):
+        roots = np.roots(p)
+
+        # Smallest real +ve root is [G]
+        select = np.all([np.imag(roots) == 0, np.real(roots) >= 0], axis=0)
+        if select.any():
+            soln = roots[select].min()
+            soln = float(np.real(soln))
+        else:
+            # No positive real roots, set solution to 0
+            soln = 0.0
+        
+        g[i] = soln
+
+
+    #
+    # Calculate [HG] and [HG2] complex concentrations 
+    #
+    hg = (g*k11)/(1+(g*k11)+(g*g*k11*k12))
+    hg2 = ((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12))
+
+    hg_mat = np.vstack((hg, hg2))
+
+
+    # Transpose for matrix calculations
+    hg_mat = hg_mat.T
+
+    return hg_mat
+
 
 
 NMR1to1 = Function(nmr_1to1)
+NMR1to2 = Function(nmr_1to2)
+UV1to1 = Function(uv_1to1)
 UV1to2 = Function(uv_1to2)

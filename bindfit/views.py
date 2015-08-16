@@ -23,6 +23,8 @@ class FitterView(APIView):
     # JSON fitter reference -> "functions" fitter function map 
     fitter_select = {
             "nmr1to1": "NMR1to1",
+            "nmr1to2": "NMR1to2",
+            "uv1to1":  "UV1to1",
             "uv1to2":  "UV1to2",
             }
 
@@ -129,6 +131,22 @@ class FitterOptionsView(APIView):
                     },
                 "params": [1000],
                 },
+            "nmr1to2": {
+                "fitter": "nmr1to2",
+                "input": {
+                    "type": "csv",
+                    "value": "input.csv",
+                    },
+                "params": [10000, 1000],
+                },
+            "uv1to1": {
+                "fitter": "uv1to1",
+                "input": {
+                    "type": "csv",
+                    "value": "input.csv",
+                    },
+                "params": [1000],
+                },
             "uv1to2": {
                 "fitter": "uv1to2",
                 "input": {
@@ -165,6 +183,33 @@ class FitterLabelsView(APIView):
                     {"label": "K", "units": "M\u207B\u00B9"},
                     ]
                 },
+            "nmr1to2": {
+                "x": {
+                    "label": "Equivalent total [G]\u2080/[H]\u2080",
+                    "units": "",
+                    },
+                "y": {
+                    "label": "\u03B4",
+                    "units": "ppm",
+                    },
+                "params": [
+                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                    ]
+                },
+            "uv1to1": {
+                "x": {
+                    "label": "Equivalent total [G]\u2080/[H]\u2080",
+                    "units": "",
+                    },
+                "y": {
+                    "label": "\u03B4",
+                    "units": "ppm",
+                    },
+                "params": [
+                    {"label": "K", "units": "M\u207B\u00B9"},
+                    ]
+                },
             "uv1to2": {
                 "x": {
                     "label": "Equivalent total [G]\u2080/[H]\u2080",
@@ -178,7 +223,7 @@ class FitterLabelsView(APIView):
                     {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
                     {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
                     ]
-                }
+                },
             }
 
     def post(self, request):
@@ -197,6 +242,8 @@ class FitterListView(APIView):
     def get(self, request):
         fitter_list = [
                 {"name": "NMR 1:1", "key": "nmr1to1"},
+                {"name": "NMR 1:2", "key": "nmr1to2"},
+                {"name": "UV 1:1",  "key": "uv1to1"},
                 {"name": "UV 1:2",  "key": "uv1to2"},
                 ]
         return Response(fitter_list)
