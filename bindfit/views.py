@@ -35,23 +35,38 @@ class FitterView(APIView):
                 type : string  Type of input file ["csv"]
                 value: string  Input data ["/path/to/csv"]
 
-            k_guess  : float   User guess of Ka
+            params   :
+                0    : float   User guess of first parameter
+                1    : float   User guess of second parameter
+                ...  : ...
+
             algorithm: string  User selected fitting algorithm
 
+            Note: params represented as dictionary instead of array to 
+                  avoid issues with binding to arrays of primitives in JS 
+                  frontend frameworks.
+
         Response:
-            data:       array  [ n x [array of [x, y] points] ]
+            data     : array  [ n x [array of [x, y] points] ]
                                Where n = number of experiments
                                x: Equivalent [G]/[H] concentration
                                y_n: Observed spectrum n
-            fit:        array  As for data.
+            fit      : array  As for data.
             residuals:
+            params   :
+                0    : float   Fitted first parameter
+                1    : float   Fitted second parameter
+                ...  : ...
         """
 
         logger.debug("FitterView.post: called")
 
         # Parse request
         self.fitter = request.data["fitter"]
-        self.k_guess = np.array(request.data["params"], dtype=np.float64)
+
+        params = request.data["params"]
+        # Convert params dictionary to array for input to fitter
+        self.params = [ params[str(i)] for i in range(len(params)) ]
 
         # Import data
         self.data = self.import_data(request.data["input"]["type"], 
@@ -90,10 +105,11 @@ class FitterView(APIView):
             observed.append(obs_plot)
             predicted.append(pred_plot)
 
-        k = fit.result
+        # Convert fit result params to dictionary for response
+        params = { i: param for (i, param) in enumerate(fit.result) }
 
         response = {
-                "params": k,
+                "params": params,
                 "data": observed,
                 "fit": predicted,
                 "residuals": [],
@@ -107,7 +123,7 @@ class FitterView(APIView):
         fitter = Fitter(function)
 
         # Run fitter on data
-        fitter.fit(self.data, self.k_guess)
+        fitter.fit(self.data, self.params)
 
         logger.debug("FitterView.post: NMR1to1 fit")
         logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
@@ -129,7 +145,9 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": [1000],
+                "params": {
+                    0: 1000,
+                    },
                 },
             "nmr1to2": {
                 "fitter": "nmr1to2",
@@ -137,7 +155,10 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": [10000, 1000],
+                "params": {
+                    0: 10000,
+                    1: 1000,
+                    },
                 },
             "uv1to1": {
                 "fitter": "uv1to1",
@@ -145,7 +166,9 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": [1000],
+                "params": {
+                    0: 1000,
+                    },
                 },
             "uv1to2": {
                 "fitter": "uv1to2",
@@ -153,7 +176,10 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": [10000, 1000],
+                "params": {
+                    0: 10000,
+                    1: 1000,
+                    },
                 },
             }
 
