@@ -233,8 +233,8 @@ class FitterLabelsView(APIView):
                     "units": "",
                     },
                 "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
+                    "label": "[UV LABEL]",
+                    "units": "[UV UNITS]",
                     },
                 "params": [
                     {"label": "K", "units": "M\u207B\u00B9"},
@@ -246,8 +246,8 @@ class FitterLabelsView(APIView):
                     "units": "",
                     },
                 "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
+                    "label": "[UV LABEL]",
+                    "units": "[UV UNITS]",
                     },
                 "params": [
                     {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
