@@ -321,7 +321,7 @@ class FitExportView(APIView):
 
         export_url = settings.ROOT_URL+settings.MEDIA_URL+"output.csv"
 
-        return Response({"DONE":export_url})
+        return Response({"url":export_url})
 
 
 
