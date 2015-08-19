@@ -35,16 +35,18 @@ class FitterView(APIView):
                 type : string  Type of input file ["csv"]
                 value: string  Input data ["/path/to/csv"]
 
-            params   :
-                0    : float   User guess of first parameter
-                1    : float   User guess of second parameter
+            params   : array   Array of objects
+                [
+                {value: float},   User guess of first parameter
+                {value: float},   User guess of first parameter
                 ...  : ...
+                ]
 
             algorithm: string  User selected fitting algorithm
 
-            Note: params represented as dictionary instead of array to 
-                  avoid issues with binding to arrays of primitives in JS 
-                  frontend frameworks.
+            Note: Each param represented as dictionary instead of simple
+                  primitive to avoid issues with binding to arrays of 
+                  primitives in some JS frontend frameworks.
 
         Response:
             data     : array  [ n x [array of [x, y] points] ]
@@ -54,9 +56,11 @@ class FitterView(APIView):
             fit      : array  As for data.
             residuals:
             params   :
-                0    : float   Fitted first parameter
-                1    : float   Fitted second parameter
+                [
+                {value: float},   User guess of first parameter
+                {value: float},   User guess of first parameter
                 ...  : ...
+                ]
         """
 
         logger.debug("FitterView.post: called")
@@ -66,7 +70,7 @@ class FitterView(APIView):
 
         params = request.data["params"]
         # Convert params dictionary to array for input to fitter
-        self.params = [ params[str(i)] for i in range(len(params)) ]
+        self.params = [ float(p["value"]) for p in request.data["params"] ]
 
         # Import data
         self.data = self.import_data(request.data["input"]["type"], 
@@ -105,8 +109,8 @@ class FitterView(APIView):
             observed.append(obs_plot)
             predicted.append(pred_plot)
 
-        # Convert fit result params to dictionary for response
-        params = { i: param for (i, param) in enumerate(fit.result) }
+        # Convert fit result params to dictionaries for response
+        params = [ {"value": param} for param in fit.result ]
 
         response = {
                 "params": params,
@@ -145,9 +149,9 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": {
-                    0: 1000,
-                    },
+                "params": [
+                    {"value": 1000},
+                    ],
                 },
             "nmr1to2": {
                 "fitter": "nmr1to2",
@@ -155,10 +159,10 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": {
-                    0: 10000,
-                    1: 1000,
-                    },
+                "params": [
+                    {"value": 10000},
+                    {"value": 1000},
+                    ],
                 },
             "uv1to1": {
                 "fitter": "uv1to1",
@@ -166,9 +170,9 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": {
-                    0: 1000,
-                    },
+                "params": [
+                    {"value": 1000},
+                    ],
                 },
             "uv1to2": {
                 "fitter": "uv1to2",
@@ -176,10 +180,10 @@ class FitterOptionsView(APIView):
                     "type": "csv",
                     "value": "input.csv",
                     },
-                "params": {
-                    0: 10000,
-                    1: 1000,
-                    },
+                "params": [
+                    {"value": 10000},
+                    {"value": 1000},
+                    ],
                 },
             }
 
@@ -205,9 +209,9 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": {
-                    0: {"label": "K", "units": "M\u207B\u00B9"},
-                    }
+                "params": [
+                    {"label": "K", "units": "M\u207B\u00B9"},
+                    ]
                 },
             "nmr1to2": {
                 "x": {
@@ -218,10 +222,10 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": {
-                    0: {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    1: {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    }
+                "params": [
+                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                    ]
                 },
             "uv1to1": {
                 "x": {
@@ -232,9 +236,9 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": {
-                    0: {"label": "K", "units": "M\u207B\u00B9"},
-                    }
+                "params": [
+                    {"label": "K", "units": "M\u207B\u00B9"},
+                    ]
                 },
             "uv1to2": {
                 "x": {
@@ -245,10 +249,10 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": {
-                    0: {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    1: {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    }
+                "params": [
+                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                    ]
                 },
             }
 
