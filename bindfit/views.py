@@ -5,6 +5,8 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.contrib.sites.models import Site
+
 from django.conf import settings
 
 import os
@@ -17,7 +19,7 @@ from .fitter import Fitter
 import logging
 logger = logging.getLogger('supramolecular')
 
-class FitterView(APIView):
+class FitView(APIView):
     parser_classes = (JSONParser,)
 
     # JSON fitter reference -> "functions" fitter function map 
@@ -138,7 +140,7 @@ class FitterView(APIView):
 
 
 
-class FitterOptionsView(APIView):
+class FitOptionsView(APIView):
     parser_classes = (JSONParser,)
 
     # Default options for each fitter type
@@ -195,7 +197,7 @@ class FitterOptionsView(APIView):
 
 
 
-class FitterLabelsView(APIView):
+class FitLabelsView(APIView):
     parser_classes = (JSONParser,)
     
     # Labels for each fitter type
@@ -266,7 +268,7 @@ class FitterLabelsView(APIView):
 
 
 
-class FitterListView(APIView):
+class FitListView(APIView):
     parser_classes = (JSONParser,)
     
     def get(self, request):
@@ -277,6 +279,49 @@ class FitterListView(APIView):
                 {"name": "UV 1:2",  "key": "uv1to2"},
                 ]
         return Response(fitter_list)
+
+
+
+class FitExportView(APIView):
+    parser_classes = (JSONParser,)
+    
+    def post(self, request):
+        # Get data
+        data   = np.array(request.data["data"]["data"])
+        fit    = np.array(request.data["data"]["fit"])
+        params = np.array([ p["value"] for p in request.data["data"]["params"] ])
+
+        ncols = 1 + len(data)*2 # Number of cols in exported data =
+                                # x axis + data y axes + fit y axes
+        nrows = len(data[0])
+
+        # Generate appropriate header for csv
+        names = ["Equivalent total [G]0/[H]0",]
+        names.extend([ "Data "+str(i) for i in range(len(data)) ])
+        names.extend([  "Fit "+str(i) for i in range(len(fit))  ])
+        header = ",".join(names)
+        footer = ",".join([ str(p) for p in params ])
+        
+        # Init output array
+        output = np.zeros((nrows, ncols), dtype='f8')
+
+        # Populate x, y data and fits
+        output[:,0] = np.array(data[0])[:,0] # x axis
+        i = 1
+        for d in data:
+            output[:, i] = np.array(d)[:,1] # y axis
+            i += 1
+
+        for f in fit:
+            output[:, i] = np.array(f)[:,1] # y axis
+            i += 1
+
+        export_path = os.path.join(settings.MEDIA_ROOT, "output.csv") 
+        np.savetxt(export_path, output, header=header, footer=footer, fmt="%.18f", delimiter=",")
+
+        export_url = settings.ROOT_URL+settings.MEDIA_URL+"output.csv"
+
+        return Response({"DONE":export_url})
 
 
 
