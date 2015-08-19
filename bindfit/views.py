@@ -205,9 +205,9 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
+                "params": {
+                    0: {"label": "K", "units": "M\u207B\u00B9"},
+                    }
                 },
             "nmr1to2": {
                 "x": {
@@ -218,10 +218,10 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
+                "params": {
+                    0: {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    1: {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                    }
                 },
             "uv1to1": {
                 "x": {
@@ -232,9 +232,9 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
+                "params": {
+                    0: {"label": "K", "units": "M\u207B\u00B9"},
+                    }
                 },
             "uv1to2": {
                 "x": {
@@ -245,10 +245,10 @@ class FitterLabelsView(APIView):
                     "label": "\u03B4",
                     "units": "ppm",
                     },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
+                "params": {
+                    0: {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                    1: {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                    }
                 },
             }
 
