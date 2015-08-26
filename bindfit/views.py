@@ -283,6 +283,20 @@ class FitListView(APIView):
 
 
 
+class FitSaveView(APIView):
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        options  = request.data["options"]
+        result   = request.data["result"]
+        metadata = request.data["metadata"]
+
+        response = {
+                "hello": "world",
+                }
+        return Response(response)
+
+
 class FitExportView(APIView):
     parser_classes = (JSONParser,)
     
