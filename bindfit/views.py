@@ -334,17 +334,20 @@ class UploadView(APIView):
         string: Name of uploaded file on server
     """
 
-    REQUEST_FILENAME = "input" 
+    REQUEST_KEY = "input"
+    MEDIA_INPUT_DIR = "input" 
 
     parser_classes = (MultiPartParser, )
 
     def put(self, request):
-        f = request.FILES[self.REQUEST_FILENAME]
+        f = request.FILES[self.REQUEST_KEY]
 
         # TODO chunk this pls
         buf = f.read()
         filename = self.generate_filename(buf)
-        upload_path = os.path.join(settings.MEDIA_ROOT, filename) 
+        upload_path = os.path.join(settings.MEDIA_ROOT, 
+                                   self.MEDIA_INPUT_DIR, 
+                                   filename) 
 
         logger.debug("UploadView.put: called")
         logger.debug("UploadView.put: f - "+str(f))
@@ -353,8 +356,9 @@ class UploadView(APIView):
             destination.write(buf)
             logger.debug("UploadView.put: f written to destination "+destination.name)
 
+        filepath = os.path.join(self.MEDIA_INPUT_DIR, filename)
         response_dict = {
-                "filename": filename,
+                "filename": filepath,
                 }
 
         return Response(response_dict, status=200)
