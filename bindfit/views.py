@@ -10,6 +10,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 
 import os
+import hashlib
 import numpy as np
 
 from . import functions
@@ -330,7 +331,7 @@ class UploadView(APIView):
     Request:
 
     Response:
-        string: Path to uploaded file on server
+        string: Name of uploaded file on server
     """
 
     REQUEST_FILENAME = "input" 
@@ -340,14 +341,16 @@ class UploadView(APIView):
     def put(self, request):
         f = request.FILES[self.REQUEST_FILENAME]
 
-        filename = "input.csv"
+        # TODO chunk this pls
+        buf = f.read()
+        filename = self.generate_filename(buf)
         upload_path = os.path.join(settings.MEDIA_ROOT, filename) 
 
         logger.debug("UploadView.put: called")
         logger.debug("UploadView.put: f - "+str(f))
 
         with open(upload_path, 'wb+') as destination:
-            destination.write(f.read())
+            destination.write(buf)
             logger.debug("UploadView.put: f written to destination "+destination.name)
 
         response_dict = {
@@ -355,3 +358,10 @@ class UploadView(APIView):
                 }
 
         return Response(response_dict, status=200)
+
+    def generate_filename(self, buf): 
+        # Use SHA1 hash as filename
+        hasher = hashlib.sha1()
+        hasher.update(buf)
+        filename = hasher.hexdigest()
+        return filename
