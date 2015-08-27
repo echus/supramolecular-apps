@@ -7,8 +7,10 @@ from django.contrib.postgres.fields import ArrayField
 import numpy as np
 import numpy.matlib as ml
 import hashlib
+import uuid
 
 class Fit(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, blank=True)
     notes = models.CharField(max_length=1000, blank=True)
 
