@@ -278,12 +278,26 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        options  = request.data["options"]
-        result   = request.data["result"]
-        metadata = request.data["metadata"]
+        fitter  = request.data["options"]["fitter"]
+        data_id = request.data["options"]["data_id"]
+        params_in = [ p["value"] for p in request.data["options"]["params"] ]
+        params_out = [ p["value"] for p in request.data["result"]["params"] ]
+        y = request.data["result"]["fit"]["y"]
+
+        data = models.Data.objects.get(id=data_id)
+
+        fit = models.Fit(name="TEST", 
+                         data=data,
+                         fitter=fitter,
+                         params=params_in
+                         )
+        fit.save()
+
+        result  = models.Result(fit=fit, params=params_out, y=y)
+        result.save()
 
         response = {
-                "hello": "world",
+                "id": fit.id,
                 }
         return Response(response)
 

@@ -9,14 +9,8 @@ import numpy.matlib as ml
 import hashlib
 import uuid
 
-class Fit(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200, blank=True)
-    notes = models.CharField(max_length=1000, blank=True)
-
 class Data(models.Model):
     id = models.CharField(max_length=40, primary_key=True)
-    fit = models.ForeignKey(Fit, null=True, blank=True, default=None)
     h0 = ArrayField(models.FloatField())
     g0 = ArrayField(models.FloatField())
     y = ArrayField(
@@ -61,13 +55,25 @@ class Data(models.Model):
 
         return data
 
-class Options(models.Model):
-    fit = models.OneToOneField(Fit, primary_key=True)
-    fitter = models.CharField(max_length=20)
-    parameters = ArrayField(base_field=models.FloatField())
+class Fit(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    # Metadata
+    name = models.CharField(max_length=200, blank=True)
+    notes = models.CharField(max_length=1000, blank=True)
+
+    # Link to raw data used for fit
+    data = models.ForeignKey(Data)
+
+    # Fit options 
+    fitter = models.CharField(max_length=20)
+    params = ArrayField(base_field=models.FloatField())
+
+    # Fit result in OneToOne relation ...
+    
 class Result(models.Model):
     fit = models.OneToOneField(Fit, primary_key=True)
+    params = ArrayField(base_field=models.FloatField())
     y = ArrayField(
             ArrayField(models.FloatField())
             )
