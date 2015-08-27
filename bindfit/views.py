@@ -15,7 +15,6 @@ import numpy as np
 
 from . import models
 from . import functions
-from .data import Data
 from .fitter import Fitter
 
 import logging
@@ -35,9 +34,7 @@ class FitView(APIView):
     def post(self, request):
         """
         Request:
-            input:
-                type : string  Type of input file ["csv"]
-                value: string  Input data ["/path/to/csv"]
+            data_id  : string  Reference to input data to use
 
             params   : array   Array of objects
                 [
@@ -87,18 +84,28 @@ class FitView(APIView):
         response = self.build_response()
         return Response(response)
 
-    def import_data(self, fmt, value):
-        # Import input file into Data object
-        if fmt == "csv":
-            input_path = os.path.join(settings.MEDIA_ROOT, value)
-            data = Data(input_path)
-        else:
-            pass
-            # Error response 
-
-        return data
-
     def build_response(self):
+        data = self.data
+        fit  = self.fit
+
+        # Convert fit result params to dictionaries for response
+        params = [ {"value": param} for param in fit.result ]
+
+        response = {
+                "params": params,
+                "data"  : {
+                    "geq": data["geq"],
+                    "y"  : data["ynorm"].T,
+                    },
+                "fit"   : {
+                    "y"  : fit.predict(data).T,
+                    },
+                "residuals" : [],
+                }
+
+        return response
+
+    def build_response_old(self):
         data = self.data
         fit  = self.fit
 
