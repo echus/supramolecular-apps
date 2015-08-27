@@ -1,27 +1,68 @@
+from __future__ import division
+from __future__ import print_function
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+
+import numpy as np
+import numpy.matlib as ml
+import hashlib
 
 class Fit(models.Model):
     name = models.CharField(max_length=200, blank=True)
     notes = models.CharField(max_length=1000, blank=True)
 
-class Options(models.Model):
-    fit = models.OneToOneField(Fit, primary_key=True)
-    fitter = models.CharField(max_length=20)
-    parameters = ArrayField(base_field=models.FloatField())
-
 class Data(models.Model):
-    fit = models.OneToOneField(Fit, primary_key=True)
+    id = models.CharField(max_length=40, primary_key=True)
+    fit = models.ForeignKey(Fit, null=True, blank=True, default=None)
     h0 = ArrayField(models.FloatField())
     g0 = ArrayField(models.FloatField())
     y = ArrayField(
             ArrayField(models.FloatField())
             )
 
-    @property
-    def geq(self):
-        # Calculate equivalent [G]0/[H]0 concentration
-        return None
+    @classmethod
+    def from_csv(cls, f):
+        raw = np.loadtxt(f, delimiter=",", skiprows=1)
+
+        # Use SHA1 hash of array as primary key to avoid duplication
+        hasher = hashlib.sha1()
+        hasher.update(raw)
+        id = hasher.hexdigest()
+
+        h0 = list(raw[:,0])
+        g0 = list(raw[:,1])
+
+        y_raw = raw[:,2:]
+        y = [ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]
+
+        return cls(id=id, h0=h0, g0=g0, y=y)
+
+    def to_dict(self):
+        h0 = np.array(self.h0).T
+        g0 = np.array(self.g0).T
+        y = np.array(self.y).T
+
+        geq = g0/h0
+
+        # Calculate normalised y
+        initialmat = ml.repmat(y[0,:], len(y), 1)
+        ynorm = y - initialmat
+
+        data = {
+                "h0": h0,
+                "g0": g0,
+                "geq": geq,
+                "y": y,
+                "ynorm": ynorm,
+                }
+
+        return data
+
+class Options(models.Model):
+    fit = models.OneToOneField(Fit, primary_key=True)
+    fitter = models.CharField(max_length=20)
+    parameters = ArrayField(base_field=models.FloatField())
 
 class Result(models.Model):
     fit = models.OneToOneField(Fit, primary_key=True)

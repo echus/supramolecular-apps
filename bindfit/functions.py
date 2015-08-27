@@ -19,8 +19,8 @@ class Function():
         squares for optimisation.
 
         Arguments:
-            k   : float   Binding constant Ka guess
-            data: Data object of observed NMR resonances
+            k   : float  Array of binding parameter guesses
+            data: dict   Data dictionary of observed NMR resonances
 
         Returns:
             float:  Sum of least squares
@@ -32,7 +32,7 @@ class Function():
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << params = hg\obs >> in Matlab
-        params, residuals, rank, s = np.linalg.lstsq(hg, data.observations)
+        params, residuals, rank, s = np.linalg.lstsq(hg, data["ynorm"])
 
         if sum_residuals:
             return residuals.sum()
@@ -51,8 +51,8 @@ def nmr_1to1(k, data):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data.params["h0"]
-    g0  = data.params["g0"]
+    h0  = data["h0"]
+    g0  = data["g0"]
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess
@@ -78,8 +78,8 @@ def uv_1to1(k, data):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data.params["h0"]
-    g0  = data.params["g0"]
+    h0  = data["h0"]
+    g0  = data["g0"]
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess
@@ -106,8 +106,8 @@ def uv_1to2(k, data):
     # Convenience
     k11 = k[0]
     k12 = k[1]
-    h0 = data.params["h0"]
-    g0 = data.params["g0"]
+    h0 = data["h0"]
+    g0 = data["g0"]
 
 
     #
@@ -161,8 +161,8 @@ def nmr_1to2(k, data):
     # Convenience
     k11 = k[0]
     k12 = k[1]
-    h0 = data.params["h0"]
-    g0 = data.params["g0"]
+    h0 = data["h0"]
+    g0 = data["g0"]
 
 
     #

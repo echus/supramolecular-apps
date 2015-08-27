@@ -12,26 +12,26 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Fit',
-            fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
-                ('name', models.CharField(blank=True, max_length=200)),
-                ('notes', models.CharField(blank=True, max_length=1000)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Data',
             fields=[
-                ('fit', models.OneToOneField(primary_key=True, to='bindfit.Fit', serialize=False)),
+                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
                 ('h0', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
                 ('g0', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
                 ('y', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
             ],
         ),
         migrations.CreateModel(
+            name='Fit',
+            fields=[
+                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
+                ('name', models.CharField(max_length=200, blank=True)),
+                ('notes', models.CharField(max_length=1000, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
             name='Options',
             fields=[
-                ('fit', models.OneToOneField(primary_key=True, to='bindfit.Fit', serialize=False)),
+                ('fit', models.OneToOneField(to='bindfit.Fit', serialize=False, primary_key=True)),
                 ('fitter', models.CharField(max_length=20)),
                 ('parameters', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
             ],
@@ -39,8 +39,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Result',
             fields=[
-                ('fit', models.OneToOneField(primary_key=True, to='bindfit.Fit', serialize=False)),
+                ('fit', models.OneToOneField(to='bindfit.Fit', serialize=False, primary_key=True)),
                 ('y', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
             ],
+        ),
+        migrations.AddField(
+            model_name='data',
+            name='fit',
+            field=models.ForeignKey(to='bindfit.Fit'),
         ),
     ]

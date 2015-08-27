@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^options$', views.FitOptionsView.as_view(), name="bindfit_options"),
     url(r'^labels$',  views.FitLabelsView.as_view(),  name="bindfit_labels"),
     url(r'^export$',  views.FitExportView.as_view(),  name="bindfit_export"),
-    url(r'^upload$',  views.UploadView.as_view(),     name="bindfit_upload"),
+    url(r'^upload$',  views.UploadDataView.as_view(),     name="bindfit_upload"),
 ]

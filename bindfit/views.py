@@ -13,6 +13,7 @@ import os
 import hashlib
 import numpy as np
 
+from . import models
 from . import functions
 from .data import Data
 from .fitter import Fitter
@@ -75,9 +76,9 @@ class FitView(APIView):
         # Convert params dictionary to array for input to fitter
         self.params = [ float(p["value"]) for p in request.data["params"] ]
 
-        # Import data
-        self.data = self.import_data(request.data["input"]["type"], 
-                                     request.data["input"]["value"])
+        # Get input data
+        data = models.Data.objects.get(id=request.data["data_id"])
+        self.data = data.to_dict()
 
         # Call appropriate fitter
         self.fit = self.run_fitter()
@@ -105,8 +106,8 @@ class FitView(APIView):
         # best fit, create array of [x, y] point pairs for plotting
         observed = []
         predicted = []
-        for o, p in zip(data.observations.T, fit.predict(data).T):
-            geq = data.params["geq"]
+        for o, p in zip(data["ynorm"].T, fit.predict(data).T):
+            geq = data["g0"]
             obs_plot  = [ [x, y] for x, y in zip(geq, o) ]
             pred_plot = [ [x, y] for x, y in zip(geq, p) ]
             observed.append(obs_plot)
@@ -132,11 +133,6 @@ class FitView(APIView):
         # Run fitter on data
         fitter.fit(self.data, self.params)
 
-        logger.debug("FitterView.post: NMR1to1 fit")
-        logger.debug("FitterView.post: fitter.result = "+str(fitter.result))
-        logger.debug("FitterView.post: data.observations = "+str(self.data.observations))
-        logger.debug("FitterView.post: fitter.predict(data) = "+str(fitter.predict(self.data)))
-
         return fitter 
 
 
@@ -148,20 +144,14 @@ class FitOptionsView(APIView):
     default_options_select = {
             "nmr1to1": {
                 "fitter": "nmr1to1",
-                "input": {
-                    "type": "csv",
-                    "value": "input.csv",
-                    },
+                "data_id": "",
                 "params": [
                     {"value": 1000},
                     ],
                 },
             "nmr1to2": {
                 "fitter": "nmr1to2",
-                "input": {
-                    "type": "csv",
-                    "value": "input.csv",
-                    },
+                "data_id": "",
                 "params": [
                     {"value": 10000},
                     {"value": 1000},
@@ -169,20 +159,14 @@ class FitOptionsView(APIView):
                 },
             "uv1to1": {
                 "fitter": "uv1to1",
-                "input": {
-                    "type": "csv",
-                    "value": "input.csv",
-                    },
+                "data_id": "",
                 "params": [
                     {"value": 1000},
                     ],
                 },
             "uv1to2": {
                 "fitter": "uv1to2",
-                "input": {
-                    "type": "csv",
-                    "value": "input.csv",
-                    },
+                "data_id": "",
                 "params": [
                     {"value": 10000},
                     {"value": 1000},
@@ -340,7 +324,7 @@ class FitExportView(APIView):
 
 
 
-class UploadView(APIView):
+class UploadDataView(APIView):
     """
     Request:
 
@@ -349,37 +333,16 @@ class UploadView(APIView):
     """
 
     REQUEST_KEY = "input"
-    MEDIA_INPUT_DIR = "input" 
 
     parser_classes = (MultiPartParser, )
 
     def put(self, request):
         f = request.FILES[self.REQUEST_KEY]
-
-        # TODO chunk this pls
-        buf = f.read()
-        filename = self.generate_filename(buf)
-        upload_path = os.path.join(settings.MEDIA_ROOT, 
-                                   self.MEDIA_INPUT_DIR, 
-                                   filename) 
-
-        logger.debug("UploadView.put: called")
-        logger.debug("UploadView.put: f - "+str(f))
-
-        with open(upload_path, 'wb+') as destination:
-            destination.write(buf)
-            logger.debug("UploadView.put: f written to destination "+destination.name)
-
-        filepath = os.path.join(self.MEDIA_INPUT_DIR, filename)
+        d = models.Data.from_csv(f)
+        d.save()
+        
         response_dict = {
-                "filename": filepath,
+                "id": d.id,
                 }
 
         return Response(response_dict, status=200)
-
-    def generate_filename(self, buf): 
-        # Use SHA1 hash as filename
-        hasher = hashlib.sha1()
-        hasher.update(buf)
-        filename = hasher.hexdigest()
-        return filename
