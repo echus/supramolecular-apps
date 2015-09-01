@@ -289,17 +289,50 @@ class FitSaveView(APIView):
         fit = models.Fit(name="TEST", 
                          data=data,
                          fitter=fitter,
-                         params=params_in
+                         params_guess=params_in,
+                         params=params_out,
+                         y=y
                          )
         fit.save()
-
-        result  = models.Result(fit=fit, params=params_out, y=y)
-        result.save()
 
         response = {
                 "id": fit.id,
                 }
         return Response(response)
+
+
+
+class FitRetrieveView(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request, id):
+        fit = models.Fit.objects.get(id=id)
+
+        data = models.Data.objects.get(id=fit.data_id)
+        data_dict = data.to_dict()
+        
+        response = {
+                "name": fit.name,
+                "options": {
+                    "fitter" : fit.fitter,
+                    "params" : [ {"value": p} for p in fit.params_guess ],
+                    "data_id": fit.data_id,
+                    },
+                "result": {
+                    "data": {
+                        "geq": data_dict["geq"],
+                        "y"  : data_dict["y"],
+                        },
+                    "fit" : {
+                        "y"  : np.array(fit.y),
+                        },
+                    "residuals": None,
+                    "params"   : [ {"value": p} for p in fit.params ],
+                    },
+                }
+
+        return Response(response)
+ 
 
 
 class FitExportView(APIView):

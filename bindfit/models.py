@@ -35,9 +35,9 @@ class Data(models.Model):
         return cls(id=id, h0=h0, g0=g0, y=y)
 
     def to_dict(self):
-        h0 = np.array(self.h0).T
-        g0 = np.array(self.g0).T
-        y = np.array(self.y).T
+        h0 = np.array(self.h0)
+        g0 = np.array(self.g0)
+        y = np.array(self.y)
 
         geq = g0/h0
 
@@ -67,12 +67,9 @@ class Fit(models.Model):
 
     # Fit options 
     fitter = models.CharField(max_length=20)
-    params = ArrayField(base_field=models.FloatField())
+    params_guess = ArrayField(base_field=models.FloatField())
 
     # Fit result in OneToOne relation ...
-    
-class Result(models.Model):
-    fit = models.OneToOneField(Fit, primary_key=True)
     params = ArrayField(base_field=models.FloatField())
     y = ArrayField(
             ArrayField(models.FloatField())
