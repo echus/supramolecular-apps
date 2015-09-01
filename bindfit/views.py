@@ -321,7 +321,7 @@ class FitRetrieveView(APIView):
                 "result": {
                     "data": {
                         "geq": data_dict["geq"],
-                        "y"  : data_dict["y"],
+                        "y"  : data_dict["ynorm"],
                         },
                     "fit" : {
                         "y"  : np.array(fit.y),

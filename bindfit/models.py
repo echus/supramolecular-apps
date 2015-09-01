@@ -42,8 +42,9 @@ class Data(models.Model):
         geq = g0/h0
 
         # Calculate normalised y
-        initialmat = ml.repmat(y[0,:], len(y), 1)
-        ynorm = y - initialmat
+        # Transpose magic for easier repmat'n
+        initialmat = ml.repmat(y.T[0,:], len(y.T), 1)
+        ynorm = (y.T - initialmat).T
 
         data = {
                 "h0": h0,
