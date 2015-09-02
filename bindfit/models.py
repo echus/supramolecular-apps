@@ -61,7 +61,7 @@ class Fit(models.Model):
 
     # Metadata
     name = models.CharField(max_length=200, blank=True)
-    notes = models.CharField(max_length=1000, blank=True)
+    notes = models.CharField(max_length=10000, blank=True)
 
     # Link to raw data used for fit
     data = models.ForeignKey(Data)

@@ -278,15 +278,20 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
+        name    = request.data["metadata"]["name"]
+        notes   = request.data["metadata"]["notes"]
+
         fitter  = request.data["options"]["fitter"]
         data_id = request.data["options"]["data_id"]
         params_in = [ p["value"] for p in request.data["options"]["params"] ]
+
         params_out = [ p["value"] for p in request.data["result"]["params"] ]
         y = request.data["result"]["fit"]["y"]
 
         data = models.Data.objects.get(id=data_id)
 
-        fit = models.Fit(name="TEST", 
+        fit = models.Fit(name=name, 
+                         notes=notes,
                          data=data,
                          fitter=fitter,
                          params_guess=params_in,
@@ -312,7 +317,10 @@ class FitRetrieveView(APIView):
         data_dict = data.to_dict()
         
         response = {
-                "name": fit.name,
+                "metadata": {
+                    "name"   : fit.name,
+                    "notes"  : fit.notes,
+                    },
                 "options": {
                     "fitter" : fit.fitter,
                     "params" : [ {"value": p} for p in fit.params_guess ],
