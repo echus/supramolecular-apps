@@ -32,7 +32,7 @@ class Function():
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << params = hg\obs >> in Matlab
-        params, residuals, rank, s = np.linalg.lstsq(hg, data["ynorm"])
+        params, residuals, rank, s = np.linalg.lstsq(hg, data["ynorm"].T)
 
         if sum_residuals:
             return residuals.sum()
@@ -51,8 +51,8 @@ def nmr_1to1(k, data):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data["h0"]
-    g0  = data["g0"]
+    h0  = data["h0"].T
+    g0  = data["g0"].T
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess

@@ -95,10 +95,10 @@ class FitView(APIView):
                 "params": params,
                 "data"  : {
                     "geq": data["geq"],
-                    "y"  : data["ynorm"].T,
+                    "y"  : data["ynorm"],
                     },
                 "fit"   : {
-                    "y"  : fit.predict(data).T,
+                    "y"  : fit.predict(data),
                     },
                 "residuals" : [],
                 }

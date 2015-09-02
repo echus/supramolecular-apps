@@ -48,4 +48,4 @@ class Fitter():
         #                                   )
 
     def predict(self, data):
-        return self.function.lstsq(self.result, data) 
+        return self.function.lstsq(self.result, data).T
