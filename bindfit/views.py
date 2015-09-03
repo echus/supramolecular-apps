@@ -347,35 +347,25 @@ class FitExportView(APIView):
     parser_classes = (JSONParser,)
     
     def post(self, request):
+        dt = 'f8'
+
         # Get data
-        data   = np.array(request.data["data"]["data"])
-        fit    = np.array(request.data["data"]["fit"])
-        params = np.array([ p["value"] for p in request.data["data"]["params"] ])
+        # Transpose geq 1D array -> 2D column array
+        geq    = np.array(request.data["data"]["data"]["geq"], dtype=dt)[np.newaxis].T
+        data   = np.array(request.data["data"]["data"]["y"],   dtype=dt).T
+        fit    = np.array(request.data["data"]["fit"]["y"],    dtype=dt).T
+        params = np.array([ p["value"] for p in request.data["data"]["params"] ], 
+                          dtype=dt)
 
-        ncols = 1 + len(data)*2 # Number of cols in exported data =
-                                # x axis + data y axes + fit y axes
-        nrows = len(data[0])
-
-        # Generate appropriate header for csv
+        # Generate appropriate header and footer info for csv
         names = ["Equivalent total [G]0/[H]0",]
         names.extend([ "Data "+str(i) for i in range(len(data)) ])
         names.extend([  "Fit "+str(i) for i in range(len(fit))  ])
         header = ",".join(names)
         footer = ",".join([ str(p) for p in params ])
         
-        # Init output array
-        output = np.zeros((nrows, ncols), dtype='f8')
-
-        # Populate x, y data and fits
-        output[:,0] = np.array(data[0])[:,0] # x axis
-        i = 1
-        for d in data:
-            output[:, i] = np.array(d)[:,1] # y axis
-            i += 1
-
-        for f in fit:
-            output[:, i] = np.array(f)[:,1] # y axis
-            i += 1
+        # Create output array
+        output = np.hstack((geq, data, fit))
 
         export_path = os.path.join(settings.MEDIA_ROOT, "output.csv") 
         np.savetxt(export_path, output, header=header, footer=footer, fmt="%.18f", delimiter=",")
