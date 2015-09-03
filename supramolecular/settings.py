@@ -16,7 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Root site URL
-ROOT_URL = "http://supramolecular.echus.co"
+ROOT_URL = "http://api.supramolecular.echus.co"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/

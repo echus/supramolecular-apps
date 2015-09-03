@@ -16,9 +16,11 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+ROOT = ""
+
 urlpatterns = [
-    url(r'^admin/',       include(admin.site.urls)),
-    url(r'^bindsim/api/', include('bindsim.urls')),
-    url(r'^bindsim/',     include('bindsim_client.urls')),
-    url(r'^bindfit/api/', include('bindfit.urls')),
+    url(r'^'+ROOT+'admin/',        include(admin.site.urls)),
+    url(r'^'+ROOT+'bindsim/api/',  include('bindsim.urls')),
+    url(r'^'+ROOT+'bindsim/',      include('bindsim_client.urls')),
+    url(r'^'+ROOT+'bindfit/',      include('bindfit.urls')),
 ]
