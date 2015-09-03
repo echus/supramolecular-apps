@@ -75,3 +75,31 @@ class Fit(models.Model):
     y = ArrayField(
             ArrayField(models.FloatField())
             )
+
+    def to_dict(self):
+        data_dict = self.data.to_dict()
+
+        fit_dict = {
+                "metadata": {
+                    "name"   : self.name,
+                    "notes"  : self.notes,
+                    },
+                "options": {
+                    "fitter" : self.fitter,
+                    "params" : [ {"value": p} for p in self.params_guess ],
+                    "data_id": self.data_id,
+                    },
+                "result": {
+                    "data": {
+                        "geq": data_dict["geq"],
+                        "y"  : data_dict["ynorm"],
+                        },
+                    "fit" : {
+                        "y"  : np.array(self.y),
+                        },
+                    "residuals": None,
+                    "params"   : [ {"value": p} for p in self.params ],
+                    },
+                }
+
+        return fit_dict

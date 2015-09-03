@@ -312,33 +312,7 @@ class FitRetrieveView(APIView):
 
     def get(self, request, id):
         fit = models.Fit.objects.get(id=id)
-
-        data = models.Data.objects.get(id=fit.data_id)
-        data_dict = data.to_dict()
-        
-        response = {
-                "metadata": {
-                    "name"   : fit.name,
-                    "notes"  : fit.notes,
-                    },
-                "options": {
-                    "fitter" : fit.fitter,
-                    "params" : [ {"value": p} for p in fit.params_guess ],
-                    "data_id": fit.data_id,
-                    },
-                "result": {
-                    "data": {
-                        "geq": data_dict["geq"],
-                        "y"  : data_dict["ynorm"],
-                        },
-                    "fit" : {
-                        "y"  : np.array(fit.y),
-                        },
-                    "residuals": None,
-                    "params"   : [ {"value": p} for p in fit.params ],
-                    },
-                }
-
+        response = fit.to_dict()
         return Response(response)
  
 
