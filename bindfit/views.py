@@ -217,8 +217,8 @@ class FitLabelsView(APIView):
                     "units": "",
                     },
                 "y": {
-                    "label": "[UV LABEL]",
-                    "units": "[UV UNITS]",
+                    "label": "Absorbance",
+                    "units": "",
                     },
                 "params": [
                     {"label": "K", "units": "M\u207B\u00B9"},
@@ -230,8 +230,8 @@ class FitLabelsView(APIView):
                     "units": "",
                     },
                 "y": {
-                    "label": "[UV LABEL]",
-                    "units": "[UV UNITS]",
+                    "label": "Absorbance",
+                    "units": "",
                     },
                 "params": [
                     {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
