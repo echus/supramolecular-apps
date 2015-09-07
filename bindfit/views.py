@@ -315,6 +315,8 @@ class FitExportView(APIView):
 
         # Get data
         # Transpose geq 1D array -> 2D column array
+        h0     = np.array(request.data["data"]["data"]["h0"], dtype=dt)[np.newaxis].T
+        g0     = np.array(request.data["data"]["data"]["g0"], dtype=dt)[np.newaxis].T
         geq    = np.array(request.data["data"]["data"]["geq"], dtype=dt)[np.newaxis].T
         data   = np.array(request.data["data"]["data"]["y"],   dtype=dt).T
         fit    = np.array(request.data["data"]["fit"]["y"],    dtype=dt).T
@@ -322,14 +324,14 @@ class FitExportView(APIView):
                           dtype=dt)
 
         # Generate appropriate header and footer info for csv
-        names = ["Equivalent total [G]0/[H]0",]
-        names.extend([ "Data "+str(i) for i in range(len(data)) ])
-        names.extend([  "Fit "+str(i) for i in range(len(fit))  ])
+        names = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
+        names.extend([ "Data "+str(i) for i in range(data.shape[1]) ])
+        names.extend([  "Fit "+str(i) for i in range(fit.shape[1])  ])
         header = ",".join(names)
         footer = ",".join([ str(p) for p in params ])
         
         # Create output array
-        output = np.hstack((geq, data, fit))
+        output = np.hstack((h0, g0, geq, data, fit))
 
         export_path = os.path.join(settings.MEDIA_ROOT, "output.csv") 
         np.savetxt(export_path, output, header=header, footer=footer, fmt="%.18f", delimiter=",")
