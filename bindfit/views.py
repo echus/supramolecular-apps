@@ -88,20 +88,10 @@ class FitView(APIView):
         data = self.data
         fit  = self.fit
 
-        # Convert fit result params to dictionaries for response
-        params = [ {"value": param} for param in fit.result ]
-
-        response = {
-                "params": params,
-                "data"  : {
-                    "geq": data["geq"],
-                    "y"  : data["ynorm"],
-                    },
-                "fit"   : {
-                    "y"  : fit.predict(data),
-                    },
-                "residuals" : [],
-                }
+        response = models.fit_result_to_dict(data=self.data,
+                                             fit=self.fit.predict(self.data),
+                                             params=self.fit.result,
+                                             residuals=None)
 
         return response
 

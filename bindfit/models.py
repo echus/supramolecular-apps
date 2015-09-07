@@ -70,7 +70,6 @@ class Fit(models.Model):
     fitter = models.CharField(max_length=20)
     params_guess = ArrayField(base_field=models.FloatField())
 
-    # Fit result in OneToOne relation ...
     params = ArrayField(base_field=models.FloatField())
     y = ArrayField(
             ArrayField(models.FloatField())
@@ -89,17 +88,40 @@ class Fit(models.Model):
                     "params" : [ {"value": p} for p in self.params_guess ],
                     "data_id": self.data_id,
                     },
-                "result": {
-                    "data": {
-                        "geq": data_dict["geq"],
-                        "y"  : data_dict["ynorm"],
-                        },
-                    "fit" : {
-                        "y"  : np.array(self.y),
-                        },
-                    "residuals": None,
-                    "params"   : [ {"value": p} for p in self.params ],
-                    },
+                "result": fit_result_to_dict(data=data_dict,
+                                             fit=np.array(self.y),
+                                             params=self.params,
+                                             residuals=None)
                 }
 
         return fit_dict
+
+
+
+def fit_result_to_dict(data, fit, params, residuals=None):
+    """
+    Helper function: return dictionary containing fit result information 
+    (defines format used as JSON response in views)
+
+    Arguments:
+        data  : Dictionary of input data as per Data.to_dict() model
+        fit   : Array of y arrays of values of fit results (vs. geq/h0/g0)
+        params: Array of calculated parameters
+    """
+
+    return {
+            "data" : {
+                "h0" : data["h0"],
+                "g0" : data["g0"],
+                "geq": data["geq"],
+                "y"  : data["ynorm"],
+                },
+
+            "fit"  : {
+                "y"  : fit,
+                },
+
+            "params"   : [ {"value": p} for p in params ],
+
+            "residuals": residuals,
+            }
