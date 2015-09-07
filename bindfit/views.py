@@ -14,6 +14,7 @@ import hashlib
 import numpy as np
 
 from . import models
+from . import formatter
 from . import functions
 from .fitter import Fitter
 
@@ -23,6 +24,7 @@ logger = logging.getLogger('supramolecular')
 class FitView(APIView):
     parser_classes = (JSONParser,)
 
+    # TODO: move this into functions module, alternate way to call functions??
     # JSON fitter reference -> "functions" fitter function map 
     fitter_select = {
             "nmr1to1": "NMR1to1",
@@ -88,11 +90,11 @@ class FitView(APIView):
         data = self.data
         fit  = self.fit
 
-        response = models.fit_result_to_dict(fitter=self.fitter,
-                                             data=self.data,
-                                             fit=self.fit.predict(self.data),
-                                             params=self.fit.result,
-                                             residuals=None)
+        response = formatter.fit(fitter=self.fitter,
+                                 data=self.data,
+                                 fit=self.fit.predict(self.data),
+                                 params=self.fit.result,
+                                 residuals=None)
 
         return response
 
@@ -138,116 +140,16 @@ class FitView(APIView):
 class FitOptionsView(APIView):
     parser_classes = (JSONParser,)
 
-    # Default options for each fitter type
-    default_options_select = {
-            "nmr1to1": {
-                "fitter": "nmr1to1",
-                "data_id": "",
-                "params": [
-                    {"value": 1000},
-                    ],
-                },
-            "nmr1to2": {
-                "fitter": "nmr1to2",
-                "data_id": "",
-                "params": [
-                    {"value": 10000},
-                    {"value": 1000},
-                    ],
-                },
-            "uv1to1": {
-                "fitter": "uv1to1",
-                "data_id": "",
-                "params": [
-                    {"value": 1000},
-                    ],
-                },
-            "uv1to2": {
-                "fitter": "uv1to2",
-                "data_id": "",
-                "params": [
-                    {"value": 10000},
-                    {"value": 1000},
-                    ],
-                },
-            }
-
-
     def post(self, request):
-        fitter = request.data["fitter"]
-        response = self.default_options_select[fitter]
-        return Response(response)
+        return Response(formatter.options(request.data["fitter"]))
 
 
 
 class FitLabelsView(APIView):
     parser_classes = (JSONParser,)
     
-    # Labels for each fitter type
-    label_select = {
-            "nmr1to1": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
-                    },
-                "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
-                    },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
-                },
-            "nmr1to2": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
-                    },
-                "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
-                    },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
-                },
-            "uv1to1": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
-                    },
-                "y": {
-                    "label": "Absorbance",
-                    "units": "",
-                    },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
-                },
-            "uv1to2": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
-                    },
-                "y": {
-                    "label": "Absorbance",
-                    "units": "",
-                    },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
-                },
-            }
-
     def post(self, request):
-        logger.debug("FitterLabelsView.post: called")
-        logger.debug(request.data)
-
-        fitter = request.data["fitter"]
-        response = self.label_select[fitter]
-        return Response(response)
+        return Response(formatter.labels(request.data["fitter"]))
 
 
 
@@ -255,13 +157,7 @@ class FitListView(APIView):
     parser_classes = (JSONParser,)
     
     def get(self, request):
-        fitter_list = [
-                {"name": "NMR 1:1", "key": "nmr1to1"},
-                {"name": "NMR 1:2", "key": "nmr1to2"},
-                {"name": "UV 1:1",  "key": "uv1to1"},
-                {"name": "UV 1:2",  "key": "uv1to2"},
-                ]
-        return Response(fitter_list)
+        return Response(formatter.fitter_list())
 
 
 
@@ -291,9 +187,7 @@ class FitSaveView(APIView):
                          )
         fit.save()
 
-        response = {
-                "id": fit.id,
-                }
+        response = formatter.save(fit.id)
         return Response(response)
 
 
@@ -339,7 +233,7 @@ class FitExportView(APIView):
 
         export_url = settings.ROOT_URL+settings.MEDIA_URL+"output.csv"
 
-        return Response({"url":export_url})
+        return Response(formatter.export(export_url))
 
 
 
@@ -360,8 +254,6 @@ class UploadDataView(APIView):
         d = models.Data.from_csv(f)
         d.save()
         
-        response_dict = {
-                "id": d.id,
-                }
-
-        return Response(response_dict, status=200)
+        response = formatter.upload(d.id)
+        
+        return Response(response, status=200)
