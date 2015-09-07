@@ -88,7 +88,8 @@ class FitView(APIView):
         data = self.data
         fit  = self.fit
 
-        response = models.fit_result_to_dict(data=self.data,
+        response = models.fit_result_to_dict(fitter=self.fitter,
+                                             data=self.data,
                                              fit=self.fit.predict(self.data),
                                              params=self.fit.result,
                                              residuals=None)

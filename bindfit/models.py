@@ -88,7 +88,8 @@ class Fit(models.Model):
                     "params" : [ {"value": p} for p in self.params_guess ],
                     "data_id": self.data_id,
                     },
-                "result": fit_result_to_dict(data=data_dict,
+                "result": fit_result_to_dict(fitter=self.fitter,
+                                             data=data_dict,
                                              fit=np.array(self.y),
                                              params=self.params,
                                              residuals=None)
@@ -98,18 +99,18 @@ class Fit(models.Model):
 
 
 
-def fit_result_to_dict(data, fit, params, residuals=None):
+def fit_result_to_dict(fitter, data, fit, params, residuals=None):
     """
     Helper function: return dictionary containing fit result information 
     (defines format used as JSON response in views)
 
     Arguments:
-        data  : Dictionary of input data as per Data.to_dict() model
-        fit   : Array of y arrays of values of fit results (vs. geq/h0/g0)
-        params: Array of calculated parameters
+        fitter: string  Fitter type (eg: nmr1to1, uv1to2)
+        data  : dict    Input data as per Data.to_dict() model
+        fit   : array   Array of y arrays of values of fit results (vs. geq/h0/g0)
+        params: array   Fitted parameters
     """
-
-    return {
+    response = {
             "data" : {
                 "h0" : data["h0"],
                 "g0" : data["g0"],
@@ -125,3 +126,11 @@ def fit_result_to_dict(data, fit, params, residuals=None):
 
             "residuals": residuals,
             }
+
+    # TODO move this into a fitter-specific function hash
+    # Fitter-type-specific post-processing
+    if fitter == "uv1to2" or fitter == "uv1to1":
+        response["data"]["y"] = np.abs(response["data"]["y"])
+        response["fit"]["y"] = np.abs(response["fit"]["y"])
+
+    return response
