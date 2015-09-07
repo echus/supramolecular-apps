@@ -1,3 +1,9 @@
+"""
+" Module containing singletons representing fitter-specific minimisation
+" functions.
+"
+"""
+
 from __future__ import division
 from __future__ import print_function
 
@@ -209,7 +215,12 @@ def nmr_1to2(k, data):
 
 
 
-NMR1to1 = Function(nmr_1to1)
-NMR1to2 = Function(nmr_1to2)
-UV1to1 = Function(uv_1to1)
-UV1to2 = Function(uv_1to2)
+# Initialise singletons for each function
+# Reference by dict key, ultimately exposed to use by formatter.fitter_list 
+# dictionary
+select = {
+        "nmr1to1": Function(nmr_1to1),
+        "nmr1to2": Function(nmr_1to2),
+        "uv1to1" : Function(uv_1to1),
+        "uv1to2" : Function(uv_1to2),
+        }

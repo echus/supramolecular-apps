@@ -24,15 +24,6 @@ logger = logging.getLogger('supramolecular')
 class FitView(APIView):
     parser_classes = (JSONParser,)
 
-    # TODO: move this into functions module, alternate way to call functions??
-    # JSON fitter reference -> "functions" fitter function map 
-    fitter_select = {
-            "nmr1to1": "NMR1to1",
-            "nmr1to2": "NMR1to2",
-            "uv1to1":  "UV1to1",
-            "uv1to2":  "UV1to2",
-            }
-
     def post(self, request):
         """
         Request:
@@ -126,8 +117,8 @@ class FitView(APIView):
         return response
 
     def run_fitter(self):
-        # Initialise appropriate Fitter
-        function = getattr(functions, self.fitter_select[self.fitter])
+        # Initialise appropriate Fitter with specified minimisation function
+        function = functions.select[self.fitter]
         fitter = Fitter(function)
 
         # Run fitter on data
