@@ -9,6 +9,9 @@ import numpy.matlib as ml
 import hashlib
 import uuid
 
+# For Excel read handling
+from xlrd import open_workbook
+
 from . import formatter 
 
 class Data(models.Model):
@@ -22,16 +25,39 @@ class Data(models.Model):
     @classmethod
     def from_csv(cls, f):
         raw = np.loadtxt(f, delimiter=",", skiprows=1)
+        return cls.from_np(raw)
 
+    @classmethod
+    def from_xls(cls, f):
+        # Number of header rows to skip
+        skiprows = 1
+        dtype    = 'f8'
+        
+        # Read data from xls/x into python list
+        data = []
+        with open_workbook(file_contents=f.read()) as wb:
+            ws = wb.sheet_by_index(0)
+            for r in range(ws.nrows):
+                if r < skiprows:
+                    continue
+                data.append(ws.row_values(r))
+
+        # Convert to float array
+        raw = np.array(data, dtype=dtype)
+        
+        return cls.from_np(raw)
+
+    @classmethod
+    def from_np(cls, array):
         # Use SHA1 hash of array as primary key to avoid duplication
         hasher = hashlib.sha1()
-        hasher.update(raw)
+        hasher.update(array)
         id = hasher.hexdigest()
 
-        h0 = list(raw[:,0])
-        g0 = list(raw[:,1])
+        h0 = list(array[:,0])
+        g0 = list(array[:,1])
 
-        y_raw = raw[:,2:]
+        y_raw = array[:,2:]
         y = [ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]
 
         return cls(id=id, h0=h0, g0=g0, y=y)

@@ -89,33 +89,6 @@ class FitView(APIView):
 
         return response
 
-    def build_response_old(self):
-        data = self.data
-        fit  = self.fit
-
-        # Loop through each column of observed data and its respective predicted
-        # best fit, create array of [x, y] point pairs for plotting
-        observed = []
-        predicted = []
-        for o, p in zip(data["ynorm"].T, fit.predict(data).T):
-            geq = data["g0"]
-            obs_plot  = [ [x, y] for x, y in zip(geq, o) ]
-            pred_plot = [ [x, y] for x, y in zip(geq, p) ]
-            observed.append(obs_plot)
-            predicted.append(pred_plot)
-
-        # Convert fit result params to dictionaries for response
-        params = [ {"value": param} for param in fit.result ]
-
-        response = {
-                "params": params,
-                "data": observed,
-                "fit": predicted,
-                "residuals": [],
-                }
-
-        return response
-
     def run_fitter(self):
         # Initialise appropriate Fitter with specified minimisation function
         function = functions.select[self.fitter]
@@ -242,7 +215,15 @@ class UploadDataView(APIView):
 
     def put(self, request):
         f = request.FILES[self.REQUEST_KEY]
-        d = models.Data.from_csv(f)
+
+        # Get file extension
+        ext = os.path.splitext(str(f))[1][1:]
+
+        if ext == "csv":
+            d = models.Data.from_csv(f)
+        elif ext == "xls" or ext == "xlsx":
+            d = models.Data.from_xls(f)
+
         d.save()
         
         response = formatter.upload(d.id)
