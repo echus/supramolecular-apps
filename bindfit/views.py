@@ -223,6 +223,9 @@ class UploadDataView(APIView):
             d = models.Data.from_csv(f)
         elif ext == "xls" or ext == "xlsx":
             d = models.Data.from_xls(f)
+        else:
+            # Try reading from csv as default if no extension provided
+            d = models.Data.from_csv(f)
 
         d.save()
         
