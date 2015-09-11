@@ -11,7 +11,8 @@ from django.conf import settings
 
 import os
 import hashlib
-import numpy as np
+import pandas as pd
+import numpy  as np
 
 from . import models
 from . import formatter
@@ -176,7 +177,7 @@ class FitRetrieveView(APIView):
  
 
 
-class FitExportView(APIView):
+class FitExportViewOld(APIView):
     parser_classes = (JSONParser,)
     
     def post(self, request):
@@ -208,6 +209,56 @@ class FitExportView(APIView):
 
         export_path = os.path.join(settings.MEDIA_ROOT, "output", filename) 
         np.savetxt(export_path, output, header=header, footer=footer, fmt="%.18f", delimiter=",")
+
+        export_url = settings.ROOT_URL+settings.MEDIA_URL+"output/"+filename
+
+        return Response(formatter.export(export_url))
+
+
+
+
+
+class FitExportView(APIView):
+    parser_classes = (JSONParser,)
+    
+    def post(self, request):
+        dt = 'f8'
+
+        # Munge some data
+        # Transpose 1D arrays -> 2D column arrays for hstack later
+        data_h0  = np.array(request.data["result"]["data"]["h0"],  dtype=dt)[np.newaxis].T
+        data_g0  = np.array(request.data["result"]["data"]["g0"],  dtype=dt)[np.newaxis].T
+        data_geq = np.array(request.data["result"]["data"]["geq"], dtype=dt)[np.newaxis].T
+        data_y   = np.array(request.data["result"]["data"]["y"],   dtype=dt).T
+
+        options_params = np.array([ p["value"] for p in request.data["options"]["params"] ], dtype=dt)
+
+        fit_y    = np.array(request.data["result"]["fit"]["y"],    dtype=dt).T
+        fit_params = np.array([ p["value"] for p in request.data["result"]["params"] ], dtype=dt)
+
+        # Create output array
+        data_array = np.hstack((data_h0, data_g0, data_geq, data_y))
+        fit_array  = np.hstack((data_h0, data_g0, data_geq, fit_y))
+
+        # Generate appropriate column titles
+        fit_names  = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
+        fit_names.extend([ "Fit "+str(i) for i in range(data_y.shape[1]) ])
+        data_names = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
+        data_names.extend([  "Data "+str(i) for i in range(fit_y.shape[1])  ])
+
+        # Create data frames for export
+        data_output = pd.DataFrame(data_array, columns=data_names)
+        fit_output  = pd.DataFrame(fit_array,  columns=data_names)
+
+        # Create export file
+        # Use SHA1 hash of fit array as filename to avoid duplication
+        filename = hashlib.sha1(np.ascontiguousarray(fit_array.data)).hexdigest()+".xlsx"
+        export_path = os.path.join(settings.MEDIA_ROOT, "output", filename) 
+
+        # Write all dataframes to excel file
+        writer = pd.ExcelWriter(export_path)
+        data_output.to_excel(writer, "Input data")
+        fit_output.to_excel(writer, "Fit")
 
         export_url = settings.ROOT_URL+settings.MEDIA_URL+"output/"+filename
 
