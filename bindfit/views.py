@@ -79,13 +79,16 @@ class FitView(APIView):
 
     def build_response(self):
         data = self.data
-        fit  = self.fit
+        fit  = self.fit.predict(self.data)
+        params = self.fit.result
 
         response = formatter.fit(fitter=self.fitter,
                                  data=self.data,
-                                 fit=self.fit.predict(self.data),
-                                 params=self.fit.result,
-                                 residuals=None)
+                                 fit=fit[0],
+                                 params=params,
+                                 residuals=fit[1],
+                                 species_coeff=fit[2],
+                                 species_molefrac=fit[3])
 
         return response
 
@@ -132,12 +135,16 @@ class FitSaveView(APIView):
         name    = request.data["metadata"]["name"]
         notes   = request.data["metadata"]["notes"]
 
-        fitter  = request.data["options"]["fitter"]
-        data_id = request.data["options"]["data_id"]
+        fitter    = request.data["options"]["fitter"]
+        data_id   = request.data["options"]["data_id"]
         params_in = [ p["value"] for p in request.data["options"]["params"] ]
 
         params_out = [ p["value"] for p in request.data["result"]["params"] ]
-        y = request.data["result"]["fit"]["y"]
+        y          = request.data["result"]["fit"]["y"]
+
+        residuals        = request.data["result"]["residuals"]
+        species_molefrac = request.data["result"]["species_molefrac"]
+        species_coeff    = request.data["result"]["species_coeff"]
 
         data = models.Data.objects.get(id=data_id)
 
@@ -147,7 +154,10 @@ class FitSaveView(APIView):
                          fitter=fitter,
                          params_guess=params_in,
                          params=params_out,
-                         y=y
+                         y=y,
+                         residuals=residuals,
+                         species_molefrac=species_molefrac,
+                         species_coeff=species_coeff,
                          )
         fit.save()
 
@@ -192,10 +202,14 @@ class FitExportView(APIView):
         # Create output array
         output = np.hstack((h0, g0, geq, data, fit))
 
-        export_path = os.path.join(settings.MEDIA_ROOT, "output.csv") 
+        # Create export file
+        # Use SHA1 hash of array as filename to avoid duplication
+        filename = hashlib.sha1(np.ascontiguousarray(output.data)).hexdigest()+".csv"
+
+        export_path = os.path.join(settings.MEDIA_ROOT, "output", filename) 
         np.savetxt(export_path, output, header=header, footer=footer, fmt="%.18f", delimiter=",")
 
-        export_url = settings.ROOT_URL+settings.MEDIA_URL+"output.csv"
+        export_url = settings.ROOT_URL+settings.MEDIA_URL+"output/"+filename
 
         return Response(formatter.export(export_url))
 

@@ -34,17 +34,24 @@ class Function():
 
         # Call self.f to calculate predicted HG complex concentrations for this 
         # set of k
-        hg = self.f(k, data)
+        molefrac = self.f(k, data)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << params = hg\obs >> in Matlab
-        params, residuals, rank, s = np.linalg.lstsq(hg, data["ynorm"].T)
+        coeff, residuals, rank, s = np.linalg.lstsq(molefrac, data["ynorm"].T)
 
         if sum_residuals:
+            # For use during optimisation
             return residuals.sum()
         else:
-            data_calculated = hg.dot(params)
-            return data_calculated
+            data_calculated = molefrac.dot(coeff)
+
+            logger.debug("Function.lstsq: linear regression molefrac and coeff")
+            logger.debug(molefrac)
+            logger.debug(coeff)
+
+            # Transpose any column-matrices to rows
+            return data_calculated.T, residuals, molefrac.T, coeff
 
 
 

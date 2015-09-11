@@ -40,12 +40,5 @@ class Fitter():
 
         logger.debug("Fitter.fit: Result - "+str(result))
 
-        # self.result = scipy.optimize.fmin(self.function.lstsq,
-        #                                   k_guess,
-        #                                   args=(data, True),
-        #                                   xtol=tol,
-        #                                   ftol=tol
-        #                                   )
-
     def predict(self, data):
-        return self.function.lstsq(self.result, data).T
+        return self.function.lstsq(self.result, data)

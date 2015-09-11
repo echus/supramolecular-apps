@@ -122,7 +122,7 @@ def options(fitter):
 
 
 
-def fit (fitter, data, fit, params, residuals=None):
+def fit (fitter, data, fit, params, residuals, species_coeff, species_molefrac):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -148,6 +148,9 @@ def fit (fitter, data, fit, params, residuals=None):
             "params"   : [ {"value": p} for p in params ],
 
             "residuals": residuals,
+
+            "species_coeff" : species_coeff,
+            "species_molefrac": species_molefrac,
             }
 
     # TODO move this into a fitter-specific function hash

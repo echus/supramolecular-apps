@@ -50,9 +50,7 @@ class Data(models.Model):
     @classmethod
     def from_np(cls, array):
         # Use SHA1 hash of array as primary key to avoid duplication
-        hasher = hashlib.sha1()
-        hasher.update(array)
-        id = hasher.hexdigest()
+        id = hashlib.sha1(np.ascontiguousarray(array.data)).hexdigest()
 
         h0 = list(array[:,0])
         g0 = list(array[:,1])
@@ -98,8 +96,16 @@ class Fit(models.Model):
     fitter = models.CharField(max_length=20)
     params_guess = ArrayField(base_field=models.FloatField())
 
+    # Fit results
     params = ArrayField(base_field=models.FloatField())
     y = ArrayField(
+            ArrayField(models.FloatField())
+            )
+    residuals = ArrayField(base_field=models.FloatField())
+    species_molefrac = ArrayField(
+            ArrayField(models.FloatField())
+            )
+    species_coeff    = ArrayField(
             ArrayField(models.FloatField())
             )
 
@@ -120,7 +126,9 @@ class Fit(models.Model):
                                     data=data_dict,
                                     fit=np.array(self.y),
                                     params=self.params,
-                                    residuals=None)
+                                    residuals=self.residuals,
+                                    species_coeff=self.species_coeff,
+                                    species_molefrac=self.species_molefrac)
                 }
 
         return fit_dict
