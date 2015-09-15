@@ -196,35 +196,52 @@ class FitExportView(APIView):
         options_fitter = request.data["options"]["fitter"]
         options_params = np.array([ p["value"] for p in request.data["options"]["params"] ], dtype=dt)
 
-        # Fit data
+        # Fit results 
         fit_y    = np.array(request.data["result"]["fit"]["y"],    dtype=dt).T
-
-        # Fit parameters
         fit_params = np.array([ p["value"] for p in request.data["result"]["params"] ], dtype=dt)
+        fit_molefrac  = np.array(request.data["result"]["species_molefrac"]).T
+        fit_coeffs    = np.array(request.data["result"]["species_coeff"])
+        fit_residuals = np.array(request.data["result"]["residuals"])
 
         # Labels
         labels = request.data["labels"]
 
         # Create output arrays
-        data_array = np.hstack((data_h0, data_g0, data_geq, data_y))
+        data_array    = np.hstack((data_h0, data_g0, data_geq, data_y))
         options_array = np.concatenate(([options_fitter], options_params))
-        fit_array  = np.hstack((data_h0, data_g0, data_geq, fit_y))
-        params_array = fit_params 
+        fit_array_1   = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_molefrac))
+        fit_array_2   = fit_coeffs
+        fit_array_3   = fit_residuals[np.newaxis] # To force horizontal array
+                                                  # in DataFrame
+        params_array  = fit_params 
 
         # Generate appropriate column titles
         data_names      = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
         data_names.extend([  "Data "+str(i+1) for i in range(fit_y.shape[1])  ])
+
         options_names      = ["Fitter"]
         options_names.extend([ p["label"] for p in labels["params"] ])
-        fit_names      = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
-        fit_names.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
+
+        fit_names_1      = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
+        fit_names_1.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
+        fit_names_1.extend([ "Fit molefrac "+str(i+1) for i in range(fit_molefrac.shape[1]) ])
+
+        fit_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
+        fit_names_3 = [ "Fit residuals sum "+str(i+1) for i in range(fit_residuals.shape[0]) ]
+
         params_names = [ p["label"] for p in labels["params"] ]
 
         # Create data frames for export
         data_output    = pd.DataFrame(data_array,    columns=data_names)
         options_output = pd.DataFrame(options_array, index=options_names) 
-        fit_output     = pd.DataFrame(fit_array,     columns=fit_names)
-        # TODO: bug on this line, column/index names problem?? look up on SO
+        fit_output_1   = pd.DataFrame(fit_array_1,   columns=fit_names_1)
+        fit_output_2   = pd.DataFrame(fit_array_2,   columns=fit_names_2)
+        fit_output_3   = pd.DataFrame(fit_array_3,   columns=fit_names_3)
+        fit_output     = pd.concat([fit_output_1, 
+                                    fit_output_2,
+                                    fit_output_3],
+                                    axis=1, 
+                                    join_axes=[fit_output_1.index])
         params_output  = pd.DataFrame(params_array,  index=params_names)
 
         # Create export file

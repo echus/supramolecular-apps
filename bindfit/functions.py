@@ -38,20 +38,20 @@ class Function():
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << params = hg\obs >> in Matlab
-        coeff, residuals, rank, s = np.linalg.lstsq(molefrac, data["ynorm"].T)
+        coeffs, residuals, rank, s = np.linalg.lstsq(molefrac, data["ynorm"].T)
 
         if sum_residuals:
             # For use during optimisation
             return residuals.sum()
         else:
-            data_calculated = molefrac.dot(coeff)
+            data_calculated = molefrac.dot(coeffs)
 
             logger.debug("Function.lstsq: linear regression molefrac and coeff")
             logger.debug(molefrac)
-            logger.debug(coeff)
+            logger.debug(coeffs)
 
             # Transpose any column-matrices to rows
-            return data_calculated.T, residuals, molefrac.T, coeff
+            return data_calculated.T, residuals, coeffs, molefrac.T
 
 
 
