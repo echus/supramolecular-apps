@@ -123,6 +123,13 @@ def options(fitter, data_id=None, params=None):
     else:
         return default_options_select[fitter]
 
+def meta(name, notes):
+    response = {
+            "name":  name,
+            "notes": notes,
+            }
+    return response
+
 def fit(y, params, residuals, molefrac, coeffs):
     """
     Return dictionary containing fit result information 
