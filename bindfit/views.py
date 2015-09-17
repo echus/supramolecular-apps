@@ -61,7 +61,7 @@ class FitView(APIView):
 
         logger.debug("FitterView.post: called")
 
-        # Parse request
+        # Parse request options
         self.fitter = request.data["fitter"]
 
         params = request.data["params"]
@@ -84,13 +84,14 @@ class FitView(APIView):
         fit  = self.fit.predict(self.data)
         params = self.fit.result
 
-        response = formatter.fit(fitter=self.fitter,
-                                 data=self.data,
-                                 fit=fit[0],
-                                 params=params,
-                                 residuals=fit[1],
-                                 species_coeff=fit[2],
-                                 species_molefrac=fit[3])
+        response = {
+                "data": self.data,
+                "fit" : formatter.fit(y=fit[0],
+                                      params=params,
+                                      residuals=fit[1],
+                                      coeffs=fit[2],
+                                      molefrac=fit[3])
+                }
 
         return response
 
@@ -187,9 +188,9 @@ class FitExportView(APIView):
         # Munge some data
         # Transpose 1D arrays -> 2D column arrays for hstack later
         # Input data
-        data_h0  = np.array(request.data["result"]["data"]["h0"],  dtype=dt)[np.newaxis].T
-        data_g0  = np.array(request.data["result"]["data"]["g0"],  dtype=dt)[np.newaxis].T
-        data_geq = np.array(request.data["result"]["data"]["geq"], dtype=dt)[np.newaxis].T
+        data_h0  = np.array(request.data["result"]["data"]["x"][0],  dtype=dt)[np.newaxis].T
+        data_g0  = np.array(request.data["result"]["data"]["x"][1],  dtype=dt)[np.newaxis].T
+        #data_geq = TODO calculate geq here
         data_y   = np.array(request.data["result"]["data"]["y"],   dtype=dt).T
 
         # Input options

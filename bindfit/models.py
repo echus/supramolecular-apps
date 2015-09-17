@@ -14,12 +14,23 @@ from xlrd import open_workbook
 
 from . import formatter 
 
+import logging
+logger = logging.getLogger('supramolecular')
+
 class Data(models.Model):
+    # Primary key: SHA1 hash of imported numpy array
     id = models.CharField(max_length=40, primary_key=True)
-    h0 = ArrayField(models.FloatField())
-    g0 = ArrayField(models.FloatField())
-    y = ArrayField(
+
+    # 2D array of input x value fields (eg: [H]0 and [G]0 for NMR 1:1)
+    x = ArrayField(
             ArrayField(models.FloatField())
+            )
+
+    # 3D array of variable length 2D input y value fields (eg: Proton 1, Proton 2, etc)
+    y = ArrayField(
+            ArrayField(
+                ArrayField(models.FloatField())
+                )
             )
 
     @classmethod
@@ -34,7 +45,9 @@ class Data(models.Model):
         dtype    = 'f8'
         
         # Read data from xls/x into python list
+        # TODO use openpyxl here, uninstall xlrd
         data = []
+        
         with open_workbook(file_contents=f.read()) as wb:
             ws = wb.sheet_by_index(0)
             for r in range(ws.nrows):
@@ -48,87 +61,90 @@ class Data(models.Model):
         return cls.from_np(raw)
 
     @classmethod
-    def from_np(cls, array):
+    def from_np(cls, array, fmt=None):
         # Use SHA1 hash of array as primary key to avoid duplication
         id = hashlib.sha1(np.ascontiguousarray(array.data)).hexdigest()
 
-        h0 = list(array[:,0])
-        g0 = list(array[:,1])
+        if fmt == "2d":
+            # Placeholder for handling decoding other array formats
+            pass
+        else:
+            # Default format, 2 x cols and 1 2D y input
+            x_raw = array[:,0:2]
+            x = [ list(x_raw[:,col]) for col in range(x_raw.shape[1]) ]
 
-        y_raw = array[:,2:]
-        y = [ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]
+            y_raw = array[:,2:]
+            # Add 3rd dimension to y for consistency w/ true 3D y inputs
+            y = [[ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]]
 
-        return cls(id=id, h0=h0, g0=g0, y=y)
+        logger.debug("Data.from_np: x and y arrays")
+        logger.debug(x)
+        logger.debug(y)
+
+        return cls(id=id, x=x, y=y)
 
     def to_dict(self):
-        h0 = np.array(self.h0)
-        g0 = np.array(self.g0)
+        x = np.array(self.x)
         y = np.array(self.y)
 
-        geq = g0/h0
-
-        # Calculate normalised y
+        # Calculate normalised y for each dimension
         # Transpose magic for easier repmat'n
-        initialmat = ml.repmat(y.T[0,:], len(y.T), 1)
-        ynorm = (y.T - initialmat).T
+        # TODO do this the proper matrix way instead of looping
+        ynorm = y
+        for i in range(y.shape[0]):
+            initialmat = ml.repmat(y[i].T[0,:], len(y[i].T), 1)
+            ynorm[i] = (y[i].T - initialmat).T
 
-        data = {
-                "h0": h0,
-                "g0": g0,
-                "geq": geq,
-                "y": y,
-                "ynorm": ynorm,
-                }
-
-        return data
+        return formatter.data(x, y, ynorm)
 
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Metadata
-    name = models.CharField(max_length=200, blank=True)
-    notes = models.CharField(max_length=10000, blank=True)
+    meta_name = models.CharField(max_length=200, blank=True)
+    meta_notes = models.CharField(max_length=10000, blank=True)
 
     # Link to raw data used for fit
     data = models.ForeignKey(Data)
 
     # Fit options 
-    fitter = models.CharField(max_length=20)
-    params_guess = ArrayField(base_field=models.FloatField())
+    options_fitter = models.CharField(max_length=20)
+    options_params = ArrayField(base_field=models.FloatField())
 
     # Fit results
-    params = ArrayField(base_field=models.FloatField())
-    y = ArrayField(
+    # 1D array of fitted parameters
+    fit_params = ArrayField(base_field=models.FloatField())
+
+    # 3D array of 2D matrices of fitted data for each input y data
+    fit_y = ArrayField(
+            ArrayField(
+                ArrayField(models.FloatField())
+                )
+            )
+    
+    fit_residuals = ArrayField(models.FloatField())
+
+    fit_molefrac = ArrayField(
             ArrayField(models.FloatField())
             )
-    residuals = ArrayField(base_field=models.FloatField())
-    species_molefrac = ArrayField(
-            ArrayField(models.FloatField())
-            )
-    species_coeff    = ArrayField(
+
+    fit_coeffs   = ArrayField(
             ArrayField(models.FloatField())
             )
 
     def to_dict(self):
-        data_dict = self.data.to_dict()
-
-        fit_dict = {
-                "metadata": {
-                    "name"   : self.name,
-                    "notes"  : self.notes,
-                    },
-                "options": {
-                    "fitter" : self.fitter,
-                    "params" : [ {"value": p} for p in self.params_guess ],
-                    "data_id": self.data_id,
-                    },
-                "result": formatter.fit(fitter=self.fitter,
-                                    data=data_dict,
-                                    fit=np.array(self.y),
-                                    params=self.params,
-                                    residuals=self.residuals,
-                                    species_coeff=self.species_coeff,
-                                    species_molefrac=self.species_molefrac)
+        response = {
+                "data": self.data.to_dict(),
+                "fit" : formatter.fit(self.fit_y, 
+                                      self.fit_params, 
+                                      self.fit_residuals,
+                                      self.fit_molefrac,
+                                      self.fit_coeffs),
+                "meta": formatter.meta(self.meta_name,
+                                       self.meta_notes),
+                "options": formatter.options(self.options_fitter,
+                                             self.data.id,
+                                             self.options_params),
+                "labels" : formatter.labels(self.options_fitter),
                 }
-
-        return fit_dict
+        return response

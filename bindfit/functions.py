@@ -38,7 +38,10 @@ class Function():
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << params = hg\obs >> in Matlab
-        coeffs, residuals, rank, s = np.linalg.lstsq(molefrac, data["ynorm"].T)
+
+        # PLACEHOLDER, only uses first dimension of potentially multi
+        # dimensional y input array
+        coeffs, residuals, rank, s = np.linalg.lstsq(molefrac, data["yn"][0].T)
 
         if sum_residuals:
             # For use during optimisation
@@ -64,8 +67,8 @@ def nmr_1to1(k, data):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data["h0"].T
-    g0  = data["g0"].T
+    h0  = data["x"][0]
+    g0  = data["x"][1]
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess
@@ -91,8 +94,8 @@ def uv_1to1(k, data):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data["h0"]
-    g0  = data["g0"]
+    h0  = data["x"][0]
+    g0  = data["x"][1]
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess
@@ -119,8 +122,8 @@ def uv_1to2(k, data):
     # Convenience
     k11 = k[0]
     k12 = k[1]
-    h0 = data["h0"]
-    g0 = data["g0"]
+    h0  = data["x"][0]
+    g0  = data["x"][1]
 
 
     #
@@ -174,8 +177,8 @@ def nmr_1to2(k, data):
     # Convenience
     k11 = k[0]
     k12 = k[1]
-    h0 = data["h0"]
-    g0 = data["g0"]
+    h0  = data["x"][0]
+    g0  = data["x"][1]
 
 
     #

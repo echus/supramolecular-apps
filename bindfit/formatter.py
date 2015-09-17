@@ -1,5 +1,5 @@
 """
-Module defining API's standardised JSON responses to major endpoint requests.
+" Module defining API's standardised JSON responses to major endpoint requests.
 """
 
 import numpy as np
@@ -17,8 +17,6 @@ def fitter_list():
             ]
 
     return fitter_list
-
-
 
 def labels(fitter): 
     # Label definitions for each fitter type
@@ -81,9 +79,7 @@ def labels(fitter):
 
     return label_select[fitter]
 
-
-
-def options(fitter):
+def options(fitter, data_id=None, params=None):
     # Default options for each fitter type
     default_options_select = {
             "nmr1to1": {
@@ -118,50 +114,43 @@ def options(fitter):
                 },
             }
     
-    return default_options_select[fitter]
+    if data_id is not None and params is not None:
+        return {
+            "fitter": fitter,
+            "data_id": data_id,
+            "params": [ {"value": p} for p in params ]
+            }
+    else:
+        return default_options_select[fitter]
 
-
-
-def fit (fitter, data, fit, params, residuals, species_coeff, species_molefrac):
+def fit(y, params, residuals, molefrac, coeffs):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
 
     Arguments:
-        fitter: string  Fitter type (eg: nmr1to1, uv1to2)
-        data  : dict    Input data as per Data.to_dict() model
-        fit   : array   Array of y arrays of values of fit results (vs. geq/h0/g0)
-        params: array   Fitted parameters
+        y:         3D array   Array of 2D matrices of fit results 
+        params:    1D array   Fitted parameters
+        residuals: 1D array   Residual sums
+        molefrac:  2D array   Fitted species molefractions
+        coeffs:    2D array   Fitted species coefficients
     """
     response = {
-            "data" : {
-                "h0" : data["h0"],
-                "g0" : data["g0"],
-                "geq": data["geq"],
-                "y"  : data["ynorm"],
-                },
-
-            "fit"  : {
-                "y"  : fit,
-                },
-
+            "y"        : y,
             "params"   : [ {"value": p} for p in params ],
-
             "residuals": residuals,
-
-            "species_coeff" : species_coeff,
-            "species_molefrac": species_molefrac,
+            "molefrac" : molefrac,
+            "coeffs"   : coeffs,
             }
-
-    # TODO move this into a fitter-specific function hash
-    # Fitter-type-specific post-processing
-    if fitter == "uv1to2" or fitter == "uv1to1":
-        response["data"]["y"] = np.abs(response["data"]["y"])
-        response["fit"]["y"] = np.abs(response["fit"]["y"])
-
     return response
 
-
+def data(x, y, yn):
+    response = {
+            "x" : x,
+            "y" : y,
+            "yn": yn,
+            }
+    return response
 
 def save(fit_id):
     response = {
