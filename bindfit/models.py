@@ -145,6 +145,5 @@ class Fit(models.Model):
                 "options": formatter.options(self.options_fitter,
                                              self.data.id,
                                              self.options_params),
-                "labels" : formatter.labels(self.options_fitter),
                 }
         return response
