@@ -188,24 +188,26 @@ class FitExportView(APIView):
         # Munge some data
         # Transpose 1D arrays -> 2D column arrays for hstack later
         # Input data
-        data_h0  = np.array(request.data["result"]["data"]["x"][0],  dtype=dt)[np.newaxis].T
-        data_g0  = np.array(request.data["result"]["data"]["x"][1],  dtype=dt)[np.newaxis].T
-        #data_geq = TODO calculate geq here
-        data_y   = np.array(request.data["result"]["data"]["y"],   dtype=dt).T
+        data_h0  = np.array(request.data["data"]["x"][0],  dtype=dt)[np.newaxis].T
+        data_g0  = np.array(request.data["data"]["x"][1],  dtype=dt)[np.newaxis].T
+        data_geq = data_g0/data_h0
+        # PLACEHOLDER deal with multi-D y inputs here later
+        data_y   = np.array(request.data["data"]["y"][0],  dtype=dt).T
 
         # Input options
         options_fitter = request.data["options"]["fitter"]
         options_params = np.array([ p["value"] for p in request.data["options"]["params"] ], dtype=dt)
 
         # Fit results 
-        fit_y    = np.array(request.data["result"]["fit"]["y"],    dtype=dt).T
-        fit_params = np.array([ p["value"] for p in request.data["result"]["params"] ], dtype=dt)
-        fit_molefrac  = np.array(request.data["result"]["species_molefrac"]).T
-        fit_coeffs    = np.array(request.data["result"]["species_coeff"])
-        fit_residuals = np.array(request.data["result"]["residuals"])
+        # PLACEHOLDER deal with multi-D y inputs here later
+        fit_y         = np.array(request.data["fit"]["y"][0],      dtype=dt).T
+        fit_params    = np.array([ p["value"] for p in request.data["fit"]["params"] ], dtype=dt)
+        fit_molefrac  = np.array(request.data["fit"]["molefrac"],  dtype=dt).T
+        fit_coeffs    = np.array(request.data["fit"]["coeffs"],    dtype=dt)
+        fit_residuals = np.array(request.data["fit"]["residuals"], dtype=dt)
 
         # Labels
-        labels = request.data["labels"]
+        labels = formatter.labels(options_fitter)
 
         # Create output arrays
         data_array    = np.hstack((data_h0, data_g0, data_geq, data_y))
@@ -217,13 +219,13 @@ class FitExportView(APIView):
         params_array  = fit_params 
 
         # Generate appropriate column titles
-        data_names      = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
+        data_names      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
         data_names.extend([  "Data "+str(i+1) for i in range(fit_y.shape[1])  ])
 
         options_names      = ["Fitter"]
         options_names.extend([ p["label"] for p in labels["params"] ])
 
-        fit_names_1      = ["[G]0", "[H]0", "[G]0/[H]0 equivalent total"]
+        fit_names_1      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
         fit_names_1.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
         fit_names_1.extend([ "Fit molefrac "+str(i+1) for i in range(fit_molefrac.shape[1]) ])
 
