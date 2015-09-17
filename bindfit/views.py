@@ -135,32 +135,32 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        name    = request.data["metadata"]["name"]
-        notes   = request.data["metadata"]["notes"]
+        meta_name  = request.data["meta"]["name"]
+        meta_notes = request.data["meta"]["notes"]
 
-        fitter    = request.data["options"]["fitter"]
-        data_id   = request.data["options"]["data_id"]
-        params_in = [ p["value"] for p in request.data["options"]["params"] ]
+        options_fitter  = request.data["options"]["fitter"]
+        options_data_id = request.data["options"]["data_id"]
+        options_params  = [ p["value"] for p in request.data["options"]["params"] ]
 
-        params_out = [ p["value"] for p in request.data["result"]["params"] ]
-        y          = request.data["result"]["fit"]["y"]
+        fit_params = [ p["value"] for p in request.data["fit"]["params"] ]
+        fit_y      = request.data["fit"]["y"]
 
-        residuals        = request.data["result"]["residuals"]
-        species_molefrac = request.data["result"]["species_molefrac"]
-        species_coeff    = request.data["result"]["species_coeff"]
+        fit_residuals = request.data["fit"]["residuals"]
+        fit_molefrac  = request.data["fit"]["molefrac"]
+        fit_coeffs    = request.data["fit"]["coeffs"]
 
-        data = models.Data.objects.get(id=data_id)
+        data = models.Data.objects.get(id=options_data_id)
 
-        fit = models.Fit(name=name, 
-                         notes=notes,
+        fit = models.Fit(meta_name=meta_name, 
+                         meta_notes=meta_notes,
                          data=data,
-                         fitter=fitter,
-                         params_guess=params_in,
-                         params=params_out,
-                         y=y,
-                         residuals=residuals,
-                         species_molefrac=species_molefrac,
-                         species_coeff=species_coeff,
+                         options_fitter=options_fitter,
+                         options_params=options_params,
+                         fit_params=fit_params,
+                         fit_y=fit_y,
+                         fit_residuals=fit_residuals,
+                         fit_molefrac=fit_molefrac,
+                         fit_coeffs=fit_coeffs,
                          )
         fit.save()
 
