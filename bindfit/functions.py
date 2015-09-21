@@ -9,6 +9,7 @@ from __future__ import print_function
 
 from math import sqrt
 import numpy as np
+import numpy.matlib as ml
 import scipy as sp
 
 import logging
@@ -32,6 +33,21 @@ class Function():
             float:  Sum of least squares
         """
 
+        # Normalise all input datasets for fitting
+        y = data["y"]
+        yn = y.copy()
+
+        # TODO do this the proper matrix way instead of looping
+        # (loop over potentially more than one input dataset)
+        # Transpose magic for easier repmat'n
+        for i in range(y.shape[0]):
+            initialmat = ml.repmat(y[i].T[0,:], len(y[i].T), 1)
+            yn[i] = (y[i].T - initialmat).T
+
+        logger.debug("Function.lstsq: y, yn")
+        logger.debug(y[0].T)
+        logger.debug(yn[0].T)
+
         # Call self.f to calculate predicted HG complex concentrations for this 
         # set of k
         molefrac = self.f(k, data)
@@ -41,17 +57,36 @@ class Function():
 
         # PLACEHOLDER, only uses first dimension of potentially multi
         # dimensional y input array
-        coeffs, residuals, rank, s = np.linalg.lstsq(molefrac, data["yn"][0].T)
+        coeffs, residuals, rank, s = np.linalg.lstsq(molefrac, yn[0].T)
 
         if sum_residuals:
             # For use during optimisation
             return residuals.sum()
         else:
-            data_calculated = molefrac.dot(coeffs)
+            # PLACEHOLDER, only calculates first dimension of potentially multi
+            # dimensional y fit array
 
-            logger.debug("Function.lstsq: linear regression molefrac and coeff")
-            logger.debug(molefrac)
-            logger.debug(coeffs)
+            # Calculate data from fitted parameters 
+            # (will be normalised since input data was norm'd)
+            # Result is column matrix (transform this before returning)
+            data_calculated_norm = molefrac.dot(coeffs)
+
+            logger.debug("Function.lstsq: data_calculated_norm")
+            logger.debug(data_calculated_norm)
+
+            # De-normalize calculated data (add initial values back)
+            # PLACEHOLDER se only y[0] - the first of potential multiple inputs
+            # TODO do this the proper matrix way instead of looping
+            # Transpose magic for easier repmat'n
+            initialmat = ml.repmat(y[0].T[0,:], len(y[0].T), 1)
+
+            logger.debug("Function.lstsq: initialmat")
+            logger.debug(initialmat)
+
+            data_calculated = (data_calculated_norm + initialmat)
+
+            logger.debug("Function.lstsq: data_calculated")
+            logger.debug(data_calculated)
 
             # Transpose any column-matrices to rows
             return data_calculated.T, residuals, coeffs, molefrac.T

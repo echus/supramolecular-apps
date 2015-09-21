@@ -69,9 +69,12 @@ class FitView(APIView):
         # Convert params dictionary to array for input to fitter
         self.params = [ float(p["value"]) for p in request.data["params"] ]
 
-        # Get input data
+        # Get input data entry
         data = models.Data.objects.get(id=request.data["data_id"])
         self.data = data.to_dict()
+
+        logger.debug("views.FitView: data.to_dict() after retrieving")
+        logger.debug(self.data)
 
         # Call appropriate fitter
         self.fit = self.run_fitter()
@@ -86,7 +89,7 @@ class FitView(APIView):
         params = self.fit.result
 
         response = {
-                "data": self.data,
+                "data": data,
                 "fit" : formatter.fit(y=fit[0],
                                       params=params,
                                       residuals=fit[1],

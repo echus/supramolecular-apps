@@ -5,7 +5,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 import numpy as np
-import numpy.matlib as ml
 import hashlib
 import uuid
 
@@ -87,15 +86,7 @@ class Data(models.Model):
         x = np.array(self.x)
         y = np.array(self.y)
 
-        # Calculate normalised y for each dimension
-        # Transpose magic for easier repmat'n
-        # TODO do this the proper matrix way instead of looping
-        ynorm = y
-        for i in range(y.shape[0]):
-            initialmat = ml.repmat(y[i].T[0,:], len(y[i].T), 1)
-            ynorm[i] = (y[i].T - initialmat).T
-
-        return formatter.data(x, y, ynorm)
+        return formatter.data(x, y)
 
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
