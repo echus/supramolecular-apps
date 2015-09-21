@@ -12,6 +12,7 @@ from django.conf import settings
 import os
 import string
 import random
+import datetime
 import pandas as pd
 import numpy  as np
 
@@ -135,8 +136,15 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        meta_name  = request.data["meta"]["name"]
-        meta_notes = request.data["meta"]["notes"]
+        meta_author    = request.data["meta"]["author"]
+        meta_name      = request.data["meta"]["name"]
+        meta_date      = request.data["meta"]["date"]
+        meta_ref       = request.data["meta"]["ref"]
+        meta_host      = request.data["meta"]["host"]
+        meta_guest     = request.data["meta"]["guest"]
+        meta_solvent   = request.data["meta"]["solvent"]
+        meta_temp      = float(request.data["meta"]["temp"])
+        meta_notes     = request.data["meta"]["notes"]
 
         options_fitter  = request.data["options"]["fitter"]
         options_data_id = request.data["options"]["data_id"]
@@ -151,7 +159,14 @@ class FitSaveView(APIView):
 
         data = models.Data.objects.get(id=options_data_id)
 
-        fit = models.Fit(meta_name=meta_name, 
+        fit = models.Fit(meta_author=meta_author, 
+                         meta_name=meta_name, 
+                         meta_date=meta_date, 
+                         meta_ref=meta_ref, 
+                         meta_host=meta_host, 
+                         meta_guest=meta_guest, 
+                         meta_solvent=meta_solvent, 
+                         meta_temp=meta_temp, 
                          meta_notes=meta_notes,
                          data=data,
                          options_fitter=options_fitter,

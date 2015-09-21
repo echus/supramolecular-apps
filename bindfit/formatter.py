@@ -123,10 +123,27 @@ def options(fitter, data_id=None, params=None):
     else:
         return default_options_select[fitter]
 
-def meta(name, notes):
+def meta(author, 
+         name, 
+         date, 
+         timestamp, 
+         ref, 
+         host, 
+         guest, 
+         solvent, 
+         temp, 
+         notes):
     response = {
-            "name":  name,
-            "notes": notes,
+            "author"   : author,
+            "name"     : name,
+            "date"     : str(date),
+            "timestamp": str(timestamp),
+            "ref"      : ref,
+            "host"     : host,
+            "guest"    : guest,
+            "solvent"  : solvent,
+            "temp"     : str(temp),
+            "notes"    : notes,
             }
     return response
 

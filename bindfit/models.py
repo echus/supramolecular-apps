@@ -101,8 +101,16 @@ class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Metadata
-    meta_name = models.CharField(max_length=200, blank=True)
-    meta_notes = models.CharField(max_length=10000, blank=True)
+    meta_author    = models.CharField(max_length=200, blank=True)
+    meta_name      = models.CharField(max_length=200, blank=True)
+    meta_date      = models.DateTimeField(blank=True, null=True)
+    meta_timestamp = models.DateTimeField(auto_now_add=True)
+    meta_ref       = models.CharField(max_length=200, blank=True)
+    meta_host      = models.CharField(max_length=200, blank=True)
+    meta_guest     = models.CharField(max_length=200, blank=True)
+    meta_solvent   = models.CharField(max_length=200, blank=True)
+    meta_temp      = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)
+    meta_notes     = models.CharField(max_length=10000, blank=True)
 
     # Link to raw data used for fit
     data = models.ForeignKey(Data)
@@ -140,7 +148,15 @@ class Fit(models.Model):
                                       self.fit_residuals,
                                       self.fit_molefrac,
                                       self.fit_coeffs),
-                "meta": formatter.meta(self.meta_name,
+                "meta": formatter.meta(self.meta_author,
+                                       self.meta_name,
+                                       self.meta_date,
+                                       self.meta_timestamp,
+                                       self.meta_ref,
+                                       self.meta_host,
+                                       self.meta_guest,
+                                       self.meta_solvent,
+                                       self.meta_temp,
                                        self.meta_notes),
                 "options": formatter.options(self.options_fitter,
                                              self.data.id,
