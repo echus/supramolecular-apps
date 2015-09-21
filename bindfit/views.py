@@ -136,15 +136,16 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        meta_author    = request.data["meta"]["author"]
-        meta_name      = request.data["meta"]["name"]
-        meta_date      = request.data["meta"]["date"]
-        meta_ref       = request.data["meta"]["ref"]
-        meta_host      = request.data["meta"]["host"]
-        meta_guest     = request.data["meta"]["guest"]
-        meta_solvent   = request.data["meta"]["solvent"]
-        meta_temp      = float(request.data["meta"]["temp"])
-        meta_notes     = request.data["meta"]["notes"]
+        meta = request.data["meta"] # For readability
+        meta_author    = meta.get("author", "")
+        meta_name      = meta.get("name", "")
+        meta_date      = meta.get("date", None)
+        meta_ref       = meta.get("ref", "")
+        meta_host      = meta.get("host", "")
+        meta_guest     = meta.get("guest", "")
+        meta_solvent   = meta.get("solvent", "")
+        meta_temp      = meta.get("temp", None)
+        meta_notes     = meta.get("notes", "")
 
         options_fitter  = request.data["options"]["fitter"]
         options_data_id = request.data["options"]["data_id"]
