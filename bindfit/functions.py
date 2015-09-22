@@ -83,15 +83,18 @@ class Function():
             logger.debug("Function.lstsq: initialmat")
             logger.debug(initialmat)
 
-            data_calculated = (data_calculated_norm + initialmat)
+            # PLACEHOLDER add 3rd axis to calculated fit to mimic multiple
+            # datasets and transpose to row matrix
+            data_calculated = (data_calculated_norm + initialmat).T[np.newaxis]
 
             logger.debug("Function.lstsq: data_calculated")
             logger.debug(data_calculated)
 
+            # Calculate residuals (fitted data - input data)
+            residuals_full = data_calculated - y
+
             # Transpose any column-matrices to rows
-            # PLACEHOLDER add 3rd axis to calculated fit to mimic multiple
-            # datasets
-            return data_calculated.T[np.newaxis], residuals, coeffs, molefrac.T
+            return data_calculated, residuals_full, coeffs, molefrac.T
 
 
 

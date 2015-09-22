@@ -121,7 +121,11 @@ class Fit(models.Model):
                 )
             )
     
-    fit_residuals = ArrayField(models.FloatField())
+    fit_residuals = ArrayField(
+            ArrayField(
+                ArrayField(models.FloatField())
+                )
+            )
 
     fit_molefrac = ArrayField(
             ArrayField(models.FloatField())

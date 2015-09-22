@@ -223,19 +223,21 @@ class FitExportView(APIView):
         fit_params    = np.array([ p["value"] for p in request.data["fit"]["params"] ], dtype=dt)
         fit_molefrac  = np.array(request.data["fit"]["molefrac"],  dtype=dt).T
         fit_coeffs    = np.array(request.data["fit"]["coeffs"],    dtype=dt)
-        fit_residuals = np.array(request.data["fit"]["residuals"], dtype=dt)
+        # PLACEHOLDER deal with multi-D y inputs here later
+        fit_residuals = np.array(request.data["fit"]["residuals"][0], dtype=dt).T
 
         # Labels
         labels = formatter.labels(options_fitter)
 
         # Create output arrays
-        data_array    = np.hstack((data_h0, data_g0, data_geq, data_y))
-        options_array = np.concatenate(([options_fitter], options_params))
-        fit_array_1   = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_molefrac))
-        fit_array_2   = fit_coeffs
-        fit_array_3   = fit_residuals[np.newaxis] # To force horizontal array
-                                                  # in DataFrame
-        params_array  = fit_params 
+        data_array     = np.hstack((data_h0, data_g0, data_geq, data_y))
+        options_array  = np.concatenate(([options_fitter], options_params))
+        fit_array      = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_molefrac))
+        qof_array      = fit_residuals
+
+        params_array_1 = fit_params[np.newaxis] # To force horizontal array in
+                                                # DataFrame
+        params_array_2 = fit_coeffs
 
         # Generate appropriate column titles
         data_names      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
@@ -244,27 +246,26 @@ class FitExportView(APIView):
         options_names      = ["Fitter"]
         options_names.extend([ p["label"] for p in labels["params"] ])
 
-        fit_names_1      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
-        fit_names_1.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
-        fit_names_1.extend([ "Fit molefrac "+str(i+1) for i in range(fit_molefrac.shape[1]) ])
+        fit_names      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
+        fit_names.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
+        fit_names.extend([ "Fit molefrac "+str(i+1) for i in range(fit_molefrac.shape[1]) ])
 
-        fit_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
-        fit_names_3 = [ "Fit residuals sum "+str(i+1) for i in range(fit_residuals.shape[0]) ]
+        qof_names = [ "Fit residuals "+str(i+1) for i in range(fit_residuals.shape[1]) ]
 
-        params_names = [ p["label"] for p in labels["params"] ]
+        params_names_1 = [ p["label"] for p in labels["params"] ]
+        params_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
 
         # Create data frames for export
         data_output    = pd.DataFrame(data_array,    columns=data_names)
         options_output = pd.DataFrame(options_array, index=options_names) 
-        fit_output_1   = pd.DataFrame(fit_array_1,   columns=fit_names_1)
-        fit_output_2   = pd.DataFrame(fit_array_2,   columns=fit_names_2)
-        fit_output_3   = pd.DataFrame(fit_array_3,   columns=fit_names_3)
-        fit_output     = pd.concat([fit_output_1, 
-                                    fit_output_2,
-                                    fit_output_3],
-                                    axis=1, 
-                                    join_axes=[fit_output_1.index])
-        params_output  = pd.DataFrame(params_array,  index=params_names)
+        fit_output     = pd.DataFrame(fit_array,     columns=fit_names)
+        qof_output     = pd.DataFrame(qof_array,     columns=qof_names)
+        params_output_1 = pd.DataFrame(params_array_1, columns=params_names_1)
+        params_output_2 = pd.DataFrame(params_array_2, columns=params_names_2)
+        params_output   = pd.concat([params_output_1,
+                                     params_output_2],
+                                     axis=1,
+                                     join_axes=[params_output_1.index])
 
         # Create export file
         # Randomly generate export filename
@@ -275,8 +276,9 @@ class FitExportView(APIView):
         writer = pd.ExcelWriter(export_path)
         data_output.to_excel(writer, "Input Data", index=False)
         options_output.to_excel(writer, "Input Options", header=False)
-        params_output.to_excel(writer, "Output Parameters", header=False)
+        params_output.to_excel(writer, "Output Parameters", index=False)
         fit_output.to_excel(writer, "Output Fit", index=False)
+        qof_output.to_excel(writer, "Output Fit Quality", index=False)
         writer.save()
 
         export_url = settings.ROOT_URL+settings.MEDIA_URL+"output/"+filename
