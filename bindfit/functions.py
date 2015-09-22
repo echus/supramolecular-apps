@@ -89,7 +89,9 @@ class Function():
             logger.debug(data_calculated)
 
             # Transpose any column-matrices to rows
-            return data_calculated.T, residuals, coeffs, molefrac.T
+            # PLACEHOLDER add 3rd axis to calculated fit to mimic multiple
+            # datasets
+            return data_calculated.T[np.newaxis], residuals, coeffs, molefrac.T
 
 
 

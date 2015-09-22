@@ -42,7 +42,4 @@ class Fitter():
 
     def predict(self, data):
         y, residuals, coeffs, molefrac = self.function.lstsq(self.result, data)
-        # PLACEHOLDER add 3rd access to 2D y result
-        # In the future many different y results will need to be collated
-        # here in a 3D array
-        return y[np.newaxis], residuals, coeffs, molefrac
+        return y, residuals, coeffs, molefrac
