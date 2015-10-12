@@ -148,6 +148,7 @@ class FitSaveView(APIView):
         meta_guest     = meta.get("guest", "")
         meta_solvent   = meta.get("solvent", "")
         meta_temp      = meta.get("temp", None)
+        meta_temp_unit = meta.get("temp_unit", None)
         meta_notes     = meta.get("notes", "")
 
         # Hack to deal with receiving "None" string

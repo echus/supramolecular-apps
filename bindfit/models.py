@@ -101,6 +101,7 @@ class Fit(models.Model):
     meta_guest     = models.CharField(max_length=200, blank=True)
     meta_solvent   = models.CharField(max_length=200, blank=True)
     meta_temp      = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)
+    meta_temp_unit = models.CharField(max_length=1, default="C")
     meta_notes     = models.CharField(max_length=10000, blank=True)
 
     # Link to raw data used for fit
@@ -152,6 +153,7 @@ class Fit(models.Model):
                                        self.meta_guest,
                                        self.meta_solvent,
                                        self.meta_temp,
+                                       self.meta_temp_unit,
                                        self.meta_notes),
                 "options": formatter.options(self.options_fitter,
                                              self.data.id,

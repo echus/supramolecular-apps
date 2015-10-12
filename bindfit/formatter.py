@@ -132,6 +132,7 @@ def meta(author,
          guest, 
          solvent, 
          temp, 
+         temp_unit,
          notes):
     response = {
             "author"   : author,
@@ -142,7 +143,8 @@ def meta(author,
             "host"     : host,
             "guest"    : guest,
             "solvent"  : solvent,
-            "temp"     : str(temp),
+            "temp"     : temp,
+            "temp_unit": temp_unit,
             "notes"    : notes,
             }
     return response
