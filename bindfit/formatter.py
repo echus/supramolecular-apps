@@ -1,8 +1,17 @@
 """
-" Module defining API's standardised JSON responses to major endpoint requests.
+" Module defining API's standardised JSON responses to major endpoint requests
+" Also defines standard computed properties for API responses 
+" (eg: RMS, covariances)
+"
+" (Note: Computed properties placed here (not in DB model) for consistency and 
+" minimum code duplication between saved fits and freshly fitted data in 
+" views.py)
 """
 
 import numpy as np
+
+import logging
+logger = logging.getLogger('supramolecular')
 
 def fitter_list():
     """ 
@@ -157,14 +166,36 @@ def fit(y, params, residuals, molefrac, coeffs):
     Arguments:
         y:         3D array   Array of 2D matrices of fit results 
         params:    1D array   Fitted parameters
-        residuals: 1D array   Residual sums
+        residuals: 3D array   Residuals for each fit
+        molefrac:  2D array   Fitted species molefractions
+        coeffs:    2D array   Fitted species coefficients
+
+    Returns:
+        {json}
+        y:         3D array   Array of 2D matrices of fit results 
+        params:    1D array   Fitted parameters
+        residuals: 3D array   Residuals for each fit
+        rms:       2D array   [computed] RMS errors for each fit set
+        cov:       2D array   [computed] Covariances for each fit set
         molefrac:  2D array   Fitted species molefractions
         coeffs:    2D array   Fitted species coefficients
     """
+
+    # Calculate RMS errors from residuals
+    # TODO TEMP move this RMS calculation to a helper??
+    # For each input set of fits' residuals
+    rms = []
+    for fits in residuals:
+        a = np.array(fits)
+        r = np.sqrt(np.sum(np.square(a), axis=1))
+        rms.append(r)
+
     response = {
             "y"        : y,
             "params"   : [ {"value": p} for p in params ],
             "residuals": residuals,
+            "rms"      : rms,
+            "cov"      : [],
             "molefrac" : molefrac,
             "coeffs"   : coeffs,
             }
