@@ -50,19 +50,21 @@ class Function():
 
         # PLACEHOLDER, only uses first dimension of potentially multi
         # dimensional y input array
-        coeffs, residuals, rank, s = np.linalg.lstsq(molefrac, yn[0].T)
+        coeffs, rsum, rank, s = np.linalg.lstsq(molefrac, yn[0].T)
 
         if sum_residuals:
             # For use during optimisation
-            return residuals.sum()
+            return rsum.sum()
         else:
-            # PLACEHOLDER, this only calculates first dimension of potentially multi
-            # dimensional y fit array
+            # PLACEHOLDER, this only calculates first dimension of potentially 
+            # multi dimensional y fit array
 
             # Calculate data from fitted parameters 
             # (will be normalised since input data was norm'd)
-            # Result is column matrix (transform this before returning)
-            fit_norm = molefrac.dot(coeffs)
+            # Result is column matrix - transform this into same shape as input
+            # data array
+            
+            fit_norm = molefrac.dot(coeffs).T[np.newaxis]
             fit = helpers.denormalise(y, fit_norm)
 
             logger.debug("Function.lstsq: fit_norm")
@@ -71,10 +73,10 @@ class Function():
             logger.debug(fit)
 
             # Calculate residuals (fitted data - input data)
-            residuals_full = fit - y
+            residuals = fit - y
 
             # Transpose any column-matrices to rows
-            return fit, residuals_full, coeffs, molefrac.T
+            return fit, residuals, coeffs, molefrac.T
 
 
 
