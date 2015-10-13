@@ -233,6 +233,8 @@ class FitExportView(APIView):
         fit_coeffs    = np.array(request.data["fit"]["coeffs"],    dtype=dt)
         # PLACEHOLDER deal with multi-D y inputs here later
         fit_residuals = np.array(request.data["fit"]["residuals"][0], dtype=dt).T
+        fit_rms       = np.array(request.data["fit"]["rms"][0], dtype=dt).T
+        fit_cov       = np.array(request.data["fit"]["cov"][0], dtype=dt).T
 
         # Labels
         labels = formatter.labels(options_fitter)
@@ -240,8 +242,9 @@ class FitExportView(APIView):
         # Create output arrays
         data_array     = np.hstack((data_h0, data_g0, data_geq, data_y))
         options_array  = np.concatenate(([options_fitter], options_params))
-        fit_array      = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_molefrac))
-        qof_array      = fit_residuals
+        fit_array      = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_residuals, fit_molefrac))
+        qof_array_1    = fit_rms 
+        qof_array_2    = fit_cov
 
         params_array_1 = fit_params[np.newaxis] # To force horizontal array in
                                                 # DataFrame
@@ -256,18 +259,25 @@ class FitExportView(APIView):
 
         fit_names      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
         fit_names.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
+        fit_names.extend([ "Fit residuals "+str(i+1) for i in range(fit_residuals.shape[1]) ])
         fit_names.extend([ "Fit molefrac "+str(i+1) for i in range(fit_molefrac.shape[1]) ])
 
-        qof_names = [ "Fit residuals "+str(i+1) for i in range(fit_residuals.shape[1]) ]
+        qof_names_1 = [ "Fit RMS "+str(i+1) for i in range(len(fit_rms)) ]
+        qof_names_2 = [ "Fit covariance "+str(i+1) for i in range(len(fit_cov)) ]
 
         params_names_1 = [ p["label"] for p in labels["params"] ]
         params_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
 
         # Create data frames for export
-        data_output    = pd.DataFrame(data_array,    columns=data_names)
-        options_output = pd.DataFrame(options_array, index=options_names) 
-        fit_output     = pd.DataFrame(fit_array,     columns=fit_names)
-        qof_output     = pd.DataFrame(qof_array,     columns=qof_names)
+        data_output     = pd.DataFrame(data_array,     columns=data_names)
+        options_output  = pd.DataFrame(options_array,  index=options_names) 
+        fit_output      = pd.DataFrame(fit_array,      columns=fit_names)
+        qof_output_1    = pd.DataFrame(qof_array_1,    index=qof_names_1)
+        qof_output_2    = pd.DataFrame(qof_array_2,    index=qof_names_2)
+        qof_output      = pd.concat([qof_output_1,
+                                     qof_output_2],
+                                     axis=0,
+                                     join_axes=[qof_output_1.columns])
         params_output_1 = pd.DataFrame(params_array_1, columns=params_names_1)
         params_output_2 = pd.DataFrame(params_array_2, columns=params_names_2)
         params_output   = pd.concat([params_output_1,
@@ -286,7 +296,7 @@ class FitExportView(APIView):
         options_output.to_excel(writer, "Input Options", header=False)
         params_output.to_excel(writer, "Output Parameters", index=False)
         fit_output.to_excel(writer, "Output Fit", index=False)
-        qof_output.to_excel(writer, "Output Fit Quality", index=False)
+        qof_output.to_excel(writer, "Output Fit Quality", header=False)
         writer.save()
 
         export_url = settings.ROOT_URL+settings.MEDIA_URL+"output/"+filename
