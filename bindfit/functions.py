@@ -7,10 +7,10 @@
 from __future__ import division
 from __future__ import print_function
 
-from math import sqrt
 import numpy as np
 import numpy.matlib as ml
-import scipy as sp
+
+from . import helpers
 
 import logging
 logger = logging.getLogger('supramolecular')
@@ -35,14 +35,7 @@ class Function():
 
         # Normalise all input datasets for fitting
         y = data["y"]
-        yn = y.copy()
-
-        # TODO do this the proper matrix way instead of looping
-        # (loop over potentially more than one input dataset)
-        # Transpose magic for easier repmat'n
-        for i in range(y.shape[0]):
-            initialmat = ml.repmat(y[i].T[0,:], len(y[i].T), 1)
-            yn[i] = (y[i].T - initialmat).T
+        yn = helpers.normalise(y)
 
         logger.debug("Function.lstsq: y, yn")
         logger.debug(y[0].T)
@@ -63,38 +56,25 @@ class Function():
             # For use during optimisation
             return residuals.sum()
         else:
-            # PLACEHOLDER, only calculates first dimension of potentially multi
+            # PLACEHOLDER, this only calculates first dimension of potentially multi
             # dimensional y fit array
 
             # Calculate data from fitted parameters 
             # (will be normalised since input data was norm'd)
             # Result is column matrix (transform this before returning)
-            data_calculated_norm = molefrac.dot(coeffs)
+            fit_norm = molefrac.dot(coeffs)
+            fit = helpers.denormalise(y, fit_norm)
 
-            logger.debug("Function.lstsq: data_calculated_norm")
-            logger.debug(data_calculated_norm)
-
-            # De-normalize calculated data (add initial values back)
-            # PLACEHOLDER se only y[0] - the first of potential multiple inputs
-            # TODO do this the proper matrix way instead of looping
-            # Transpose magic for easier repmat'n
-            initialmat = ml.repmat(y[0].T[0,:], len(y[0].T), 1)
-
-            logger.debug("Function.lstsq: initialmat")
-            logger.debug(initialmat)
-
-            # PLACEHOLDER add 3rd axis to calculated fit to mimic multiple
-            # datasets and transpose to row matrix
-            data_calculated = (data_calculated_norm + initialmat).T[np.newaxis]
-
-            logger.debug("Function.lstsq: data_calculated")
-            logger.debug(data_calculated)
+            logger.debug("Function.lstsq: fit_norm")
+            logger.debug(fit_norm)
+            logger.debug("Function.lstsq: fit")
+            logger.debug(fit)
 
             # Calculate residuals (fitted data - input data)
-            residuals_full = data_calculated - y
+            residuals_full = fit - y
 
             # Transpose any column-matrices to rows
-            return data_calculated, residuals_full, coeffs, molefrac.T
+            return fit, residuals_full, coeffs, molefrac.T
 
 
 
