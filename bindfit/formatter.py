@@ -10,6 +10,8 @@
 
 import numpy as np
 
+from . import helpers
+
 import logging
 logger = logging.getLogger('supramolecular')
 
@@ -181,21 +183,12 @@ def fit(y, params, residuals, molefrac, coeffs):
         coeffs:    2D array   Fitted species coefficients
     """
 
-    # Calculate RMS errors from residuals
-    # TODO TEMP move this RMS calculation to a helper??
-    # For each input set of fits' residuals
-    rms = []
-    for fits in residuals:
-        a = np.array(fits)
-        r = np.sqrt(np.sum(np.square(a), axis=1))
-        rms.append(r)
-
     response = {
             "y"        : y,
             "params"   : [ {"value": p} for p in params ],
             "residuals": residuals,
-            "rms"      : rms,
-            "cov"      : [],
+            "rms"      : helpers.rms(residuals),
+            "cov"      : helpers.cov(y, residuals),
             "molefrac" : molefrac,
             "coeffs"   : coeffs,
             }
