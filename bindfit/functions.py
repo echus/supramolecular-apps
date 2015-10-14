@@ -38,8 +38,8 @@ class Function():
         yn = helpers.normalise(y)
 
         logger.debug("Function.lstsq: y, yn")
-        logger.debug(y[0].T)
-        logger.debug(yn[0].T)
+        logger.debug(y[0])
+        logger.debug(yn[0])
 
         # Call self.f to calculate predicted HG complex concentrations for this 
         # set of k
