@@ -90,7 +90,7 @@ def labels(fitter):
 
     return label_select[fitter]
 
-def options(fitter, data_id=None, params=None):
+def options(fitter, data_id=None, params=None, dilute=False):
     # Default options for each fitter type
     default_options_select = {
             "nmr1to1": {
@@ -99,6 +99,7 @@ def options(fitter, data_id=None, params=None):
                 "params": [
                     {"value": 1000},
                     ],
+                "dilute": False,
                 },
             "nmr1to2": {
                 "fitter": "nmr1to2",
@@ -107,6 +108,7 @@ def options(fitter, data_id=None, params=None):
                     {"value": 10000},
                     {"value": 1000},
                     ],
+                "dilute": False,
                 },
             "uv1to1": {
                 "fitter": "uv1to1",
@@ -114,6 +116,7 @@ def options(fitter, data_id=None, params=None):
                 "params": [
                     {"value": 1000},
                     ],
+                "dilute": True,
                 },
             "uv1to2": {
                 "fitter": "uv1to2",
@@ -122,6 +125,7 @@ def options(fitter, data_id=None, params=None):
                     {"value": 10000},
                     {"value": 1000},
                     ],
+                "dilute": True,
                 },
             }
     
@@ -129,7 +133,8 @@ def options(fitter, data_id=None, params=None):
         return {
             "fitter": fitter,
             "data_id": data_id,
-            "params": [ {"value": p} for p in params ]
+            "params": [ {"value": p} for p in params ],
+            "dilute": dilute
             }
     else:
         return default_options_select[fitter]

@@ -92,7 +92,7 @@ def denormalise(y, fit_norm):
 
     return fit
 
-def dilute(y, h0):
+def dilute(x, y):
     """
     Apply dilution factor to a dataset
 
@@ -104,6 +104,7 @@ def dilute(y, h0):
         array  3D array of input data with dilution factor applied
     """
 
+    h0 = x[0]
     # PLACEHOLDER this only calculates dilution for the first dataset
     y0 = y[0]
 

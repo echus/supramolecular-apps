@@ -71,7 +71,8 @@ class FitView(APIView):
 
         # Get input data entry
         data = models.Data.objects.get(id=request.data["data_id"])
-        self.data = data.to_dict()
+        dilute = request.data["dilute"] # Dilution factor flag
+        self.data = data.to_dict(dilute)
 
         logger.debug("views.FitView: data.to_dict() after retrieving")
         logger.debug(self.data)
@@ -161,6 +162,7 @@ class FitSaveView(APIView):
         options_fitter  = request.data["options"]["fitter"]
         options_data_id = request.data["options"]["data_id"]
         options_params  = [ p["value"] for p in request.data["options"]["params"] ]
+        options_dilute  = request.data["options"]["dilute"]
 
         fit_params = [ p["value"] for p in request.data["fit"]["params"] ]
         fit_y      = request.data["fit"]["y"]
@@ -183,6 +185,7 @@ class FitSaveView(APIView):
                          data=data,
                          options_fitter=options_fitter,
                          options_params=options_params,
+                         options_dilute=options_dilute,
                          fit_params=fit_params,
                          fit_y=fit_y,
                          fit_residuals=fit_residuals,

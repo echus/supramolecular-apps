@@ -2,7 +2,7 @@ from __future__ import division
 from __future__ import print_function
 
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField 
 
 import numpy as np
 import hashlib
@@ -12,6 +12,7 @@ import uuid
 from xlrd import open_workbook
 
 from . import formatter 
+from . import helpers 
 
 import logging
 logger = logging.getLogger('supramolecular')
@@ -25,7 +26,8 @@ class Data(models.Model):
             ArrayField(models.FloatField())
             )
 
-    # 3D array of variable length 2D input y value fields (eg: Proton 1, Proton 2, etc)
+    # 3D array of variable length 2D input y value fields 
+    # (eg: Proton 1, Proton 2, etc)
     y = ArrayField(
             ArrayField(
                 ArrayField(models.FloatField())
@@ -82,9 +84,13 @@ class Data(models.Model):
 
         return cls(id=id, x=x, y=y)
 
-    def to_dict(self):
+    def to_dict(self, dilute=False):
         x = np.array(self.x)
         y = np.array(self.y)
+
+        # Apply dilution factor if dilute option is set 
+        if dilute:
+            y = helpers.dilute(x, y)
 
         return formatter.data(x, y)
 
@@ -110,6 +116,7 @@ class Fit(models.Model):
     # Fit options 
     options_fitter = models.CharField(max_length=20)
     options_params = ArrayField(base_field=models.FloatField())
+    options_dilute = models.BooleanField(default=False) # Dilution factor flag
 
     # Fit results
     # 1D array of fitted parameters
@@ -138,7 +145,7 @@ class Fit(models.Model):
 
     def to_dict(self):
         response = {
-                "data": self.data.to_dict(),
+                "data": self.data.to_dict(self.options_dilute),
                 "fit" : formatter.fit(self.fit_y, 
                                       self.fit_params, 
                                       self.fit_residuals,
@@ -157,6 +164,7 @@ class Fit(models.Model):
                                        self.meta_notes),
                 "options": formatter.options(self.options_fitter,
                                              self.data.id,
-                                             self.options_params),
+                                             self.options_params,
+                                             self.options_dilute),
                 }
         return response
