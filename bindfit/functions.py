@@ -27,19 +27,16 @@ class Function():
 
         Arguments:
             k   : float  Array of binding parameter guesses
-            data: dict   Data dictionary of observed NMR resonances
+            data: dict   Normalised data dictionary of observed NMR resonances
 
         Returns:
             float:  Sum of least squares
         """
 
-        # Normalise all input datasets for fitting
         y = data["y"]
-        yn = helpers.normalise(y)
 
-        logger.debug("Function.lstsq: y, yn")
+        logger.debug("Function.lstsq: y")
         logger.debug(y[0])
-        logger.debug(yn[0])
 
         # Call self.f to calculate predicted HG complex concentrations for this 
         # set of k
@@ -50,9 +47,10 @@ class Function():
 
         # PLACEHOLDER, only uses first dimension of potentially multi
         # dimensional y input array
-        coeffs, rsum, rank, s = np.linalg.lstsq(molefrac, yn[0].T)
+        coeffs, rsum, rank, s = np.linalg.lstsq(molefrac, y[0].T)
 
         if sum_residuals:
+            # Return only sums of residuals
             # For use during optimisation
             return rsum.sum()
         else:
@@ -64,11 +62,8 @@ class Function():
             # Result is column matrix - transform this into same shape as input
             # data array
             
-            fit_norm = molefrac.dot(coeffs).T[np.newaxis]
-            fit = helpers.denormalise(y, fit_norm)
+            fit = molefrac.dot(coeffs).T[np.newaxis]
 
-            logger.debug("Function.lstsq: fit_norm")
-            logger.debug(fit_norm)
             logger.debug("Function.lstsq: fit")
             logger.debug(fit)
 

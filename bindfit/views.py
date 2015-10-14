@@ -76,7 +76,7 @@ class FitView(APIView):
         logger.debug("views.FitView: data.to_dict() after retrieving")
         logger.debug(self.data)
 
-        # Call appropriate fitter
+        # Create and run appropriate fitter
         self.fit = self.run_fitter()
         
         # Build response dict
@@ -85,8 +85,8 @@ class FitView(APIView):
 
     def build_response(self):
         data = self.data
-        fit  = self.fit.predict(self.data)
-        params = self.fit.result
+        fit  = self.fit.fit
+        params = self.fit.params
 
         response = {
                 "data": data,
@@ -102,10 +102,10 @@ class FitView(APIView):
     def run_fitter(self):
         # Initialise appropriate Fitter with specified minimisation function
         function = functions.select[self.fitter]
-        fitter = Fitter(function)
+        fitter = Fitter(self.data, function)
 
         # Run fitter on data
-        fitter.fit(self.data, self.params)
+        fitter.run(self.params)
 
         return fitter 
 
