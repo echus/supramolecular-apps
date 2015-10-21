@@ -199,10 +199,14 @@ def fit(y, params, residuals, molefrac, coeffs):
             }
     return response
 
-def data(x, y):
+def data(x, y, x_labels, y_labels):
     response = {
             "x" : x,
             "y" : y,
+            "labels": {
+                "x": x_labels,
+                "y": y_labels,
+                },
             }
     return response
 

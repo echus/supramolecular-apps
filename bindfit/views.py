@@ -218,6 +218,8 @@ class FitExportView(APIView):
         # Munge some data
         # Transpose 1D arrays -> 2D column arrays for hstack later
         # Input data
+        data_x_labels = request.data["data"]["labels"]["x"]
+        data_y_labels = request.data["data"]["labels"]["y"]
         data_h0  = np.array(request.data["data"]["x"][0],  dtype=dt)[np.newaxis].T
         data_g0  = np.array(request.data["data"]["x"][1],  dtype=dt)[np.newaxis].T
         data_geq = data_g0/data_h0
@@ -254,16 +256,22 @@ class FitExportView(APIView):
         params_array_2 = fit_coeffs
 
         # Generate appropriate column titles
-        data_names      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
-        data_names.extend([  "Data "+str(i+1) for i in range(fit_y.shape[1])  ])
+        data_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
+        data_names.extend(["x3: G/H equivalent total"])
+        data_names.extend([ "y"+str(i+1)+": "+l for i, l in enumerate(data_y_labels) ])
+        logger.debug("DATA_NAMES")
+        logger.debug(data_names)
 
         options_names      = ["Fitter"]
         options_names.extend([ p["label"] for p in labels["params"] ])
 
-        fit_names      = ["[H]0", "[G]0", "[G]0/[H]0 equivalent total"]
-        fit_names.extend([ "Fit "+str(i+1) for i in range(data_y.shape[1]) ])
-        fit_names.extend([ "Fit residuals "+str(i+1) for i in range(fit_residuals.shape[1]) ])
-        fit_names.extend([ "Fit molefrac "+str(i+1) for i in range(fit_molefrac.shape[1]) ])
+        fit_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
+        fit_names.extend(["x3: G/H equivalent total"])
+        fit_names.extend([ "y"+str(i+1)+": "+l for i, l in enumerate(data_y_labels) ])
+        fit_names.extend([ "y"+str(i+1)+": Residuals" for i in range(fit_residuals.shape[1]) ])
+        fit_names.extend([ "y"+str(i+1)+": Molefractions" for i in range(fit_molefrac.shape[1]) ])
+        logger.debug("FIT_NAMES")
+        logger.debug(fit_names)
 
         qof_names_1 = [ "Fit RMS "+str(i+1) for i in range(len(fit_rms)) ]
         qof_names_2 = [ "Fit covariance "+str(i+1) for i in range(len(fit_cov)) ]

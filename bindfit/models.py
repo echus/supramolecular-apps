@@ -34,6 +34,10 @@ class Data(models.Model):
                 )
             )
 
+    # Parsed header labels for each value
+    x_labels = ArrayField(models.CharField(max_length=100, blank=True))
+    y_labels = ArrayField(models.CharField(max_length=100, blank=True))
+
     @classmethod
     def from_csv(cls, f):
         raw = np.loadtxt(f, delimiter=",", skiprows=1)
@@ -47,23 +51,30 @@ class Data(models.Model):
         
         # Read data from xls/x into python list
         # TODO use openpyxl here, uninstall xlrd
+        header = []
         data = []
         
         with open_workbook(file_contents=f.read()) as wb:
             ws = wb.sheet_by_index(0)
             for r in range(ws.nrows):
+                if r == 0:
+                    header = ws.row_values(r)
                 if r < skiprows:
                     continue
                 data.append(ws.row_values(r))
 
         # Convert to float array
-        raw = np.array(data, dtype=dtype)
+        data_parsed = np.array(data, dtype=dtype)
+
+        # Parse header
+        header_parsed = np.array(header)
         
-        return cls.from_np(raw)
+        return cls.from_np(header_parsed, data_parsed)
 
     @classmethod
-    def from_np(cls, array, fmt=None):
+    def from_np(cls, header, array, fmt=None):
         # Use SHA1 hash of array as primary key to avoid duplication
+        # TODO change this to hash both header and array??
         id = hashlib.sha1(np.ascontiguousarray(array.data)).hexdigest()
 
         if fmt == "2d":
@@ -71,9 +82,11 @@ class Data(models.Model):
             pass
         else:
             # Default format, 2 x cols and 1 2D y input
+            x_labels = list(header[0:2])
             x_raw = array[:,0:2]
             x = [ list(x_raw[:,col]) for col in range(x_raw.shape[1]) ]
 
+            y_labels = list(header[2:])
             y_raw = array[:,2:]
             # Add 3rd dimension to y for consistency w/ true 3D y inputs
             y = [[ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]]
@@ -82,7 +95,7 @@ class Data(models.Model):
         logger.debug(x)
         logger.debug(y)
 
-        return cls(id=id, x=x, y=y)
+        return cls(id=id, x=x, y=y, x_labels=x_labels, y_labels=y_labels)
 
     def to_dict(self, dilute=False):
         x = np.array(self.x)
@@ -92,7 +105,7 @@ class Data(models.Model):
         if dilute:
             y = helpers.dilute(x, y)
 
-        return formatter.data(x, y)
+        return formatter.data(x, y, self.x_labels, self.y_labels)
 
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
