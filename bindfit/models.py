@@ -40,8 +40,16 @@ class Data(models.Model):
 
     @classmethod
     def from_csv(cls, f):
-        raw = np.loadtxt(f, delimiter=",", skiprows=1)
-        return cls.from_np(raw)
+        # Read data into np array
+        data = np.loadtxt(f, delimiter=",", skiprows=1)
+
+        # Read header into list
+        # TODO only read header line here
+        # Read entire csv in again just to get column names to avoid
+        # having to convert struct array to ndarray, because laziness
+        struct = np.genfromtxt(f, dtype=float, delimiter=',', names=True) 
+        header = list(struct.dtype.names)
+        return cls.from_np(header, data)
 
     @classmethod
     def from_xls(cls, f):
