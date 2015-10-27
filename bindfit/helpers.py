@@ -8,7 +8,7 @@ from __future__ import print_function
 import numpy as np
 import numpy.matlib as ml
 
-def cov(y, residuals):
+def cov(y, residuals, total=False):
     cov = []
     
     # For each dataset
@@ -17,9 +17,16 @@ def cov(y, residuals):
         var = np.var(r, axis=1)/np.var(d, axis=1)
         cov.append(var)
 
-    return cov
+    if total:
+        # TODO calculate this the proper matrix way?
+        mean = []
+        for c in cov:
+            mean.append(sum(c)/len(c))
+        return mean
+    else:
+        return cov
 
-def rms(residuals):
+def rms(residuals, total=False):
     """
     Calculate RMS errors from residuals
 
@@ -37,7 +44,13 @@ def rms(residuals):
         a = np.array(r)
         rms.append(np.sqrt(np.sum(np.square(a), axis=1)))
 
-    return rms
+    if total:
+        mean = []
+        for r in rms:
+            mean.append(sum(r)/len(r))
+        return mean
+    else:
+        return rms 
 
 def normalise(y):
     """ 

@@ -194,6 +194,8 @@ def fit(y, params, residuals, molefrac, coeffs):
             "residuals": residuals,
             "rms"      : helpers.rms(residuals),
             "cov"      : helpers.cov(y, residuals),
+            "rms_total": helpers.rms(residuals, total=True),
+            "cov_total": helpers.cov(y, residuals, total=True),
             "molefrac" : molefrac,
             "coeffs"   : coeffs,
             }
