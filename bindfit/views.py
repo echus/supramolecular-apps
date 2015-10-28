@@ -240,6 +240,8 @@ class FitExportView(APIView):
         fit_residuals = np.array(request.data["fit"]["residuals"][0], dtype=dt).T
         fit_rms       = np.array(request.data["fit"]["rms"][0], dtype=dt).T
         fit_cov       = np.array(request.data["fit"]["cov"][0], dtype=dt).T
+        fit_rms_total = request.data["fit"]["rms_total"][0]
+        fit_cov_total = request.data["fit"]["cov_total"][0]
 
         # Labels
         labels = formatter.labels(options_fitter)
@@ -248,8 +250,8 @@ class FitExportView(APIView):
         data_array     = np.hstack((data_h0, data_g0, data_geq, data_y))
         options_array  = np.concatenate(([options_fitter], options_params))
         fit_array      = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_residuals, fit_molefrac))
-        qof_array_1    = fit_rms 
-        qof_array_2    = fit_cov
+        qof_array_1    = np.append(fit_rms, fit_rms_total)
+        qof_array_2    = np.append(fit_cov, fit_cov_total)
 
         params_array_1 = fit_params[np.newaxis] # To force horizontal array in
                                                 # DataFrame
@@ -273,8 +275,10 @@ class FitExportView(APIView):
         logger.debug("FIT_NAMES")
         logger.debug(fit_names)
 
-        qof_names_1 = [ "Fit RMS "+str(i+1) for i in range(len(fit_rms)) ]
-        qof_names_2 = [ "Fit covariance "+str(i+1) for i in range(len(fit_cov)) ]
+        qof_names_1 = [ "RMS: "+l for l in data_y_labels ]
+        qof_names_1.append("RMS: Total")
+        qof_names_2 = [ "Covariance: "+l for l in data_y_labels ]
+        qof_names_2.append("Covariance: Total")
 
         params_names_1 = [ p["label"] for p in labels["params"] ]
         params_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
