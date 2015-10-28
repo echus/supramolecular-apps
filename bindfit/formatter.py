@@ -165,7 +165,7 @@ def meta(author,
             }
     return response
 
-def fit(y, params, residuals, molefrac, coeffs):
+def fit(y, params, residuals, molefrac, coeffs, time):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -198,6 +198,7 @@ def fit(y, params, residuals, molefrac, coeffs):
             "cov_total": helpers.cov(y, residuals, total=True),
             "molefrac" : molefrac,
             "coeffs"   : coeffs,
+            "time"     : time,
             }
     return response
 

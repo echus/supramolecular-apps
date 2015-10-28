@@ -3,6 +3,7 @@ from __future__ import print_function
 
 from math import sqrt
 from copy import deepcopy
+import time
 import numpy as np
 import numpy.matlib as ml
 import scipy
@@ -27,6 +28,7 @@ class Fitter():
         self.normalise = normalise
 
         self.params = None
+        self.time = None
 
     def _preprocess(self, data):
         # Preprocess data based on Fitter options
@@ -58,6 +60,7 @@ class Fitter():
         else:
             opt = {}
 
+        tic = time.clock()
         result = scipy.optimize.minimize(self.function.lstsq,
                                          k_guess,
                                          args=(self._preprocess(self.data), 
@@ -66,9 +69,11 @@ class Fitter():
                                          tol=tol,
                                          options=opt,
                                         )
+        toc = time.clock()
 
         # Set optimised parameters
         self.params = result.x
+        self.time = toc - tic 
 
         logger.debug("Fitter.fit: params - "+str(self.params))
 

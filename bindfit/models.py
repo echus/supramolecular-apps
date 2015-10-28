@@ -164,6 +164,8 @@ class Fit(models.Model):
             ArrayField(models.FloatField())
             )
 
+    fit_time = models.FloatField()
+
     def to_dict(self):
         response = {
                 "data": self.data.to_dict(self.options_dilute),
@@ -171,7 +173,8 @@ class Fit(models.Model):
                                       self.fit_params, 
                                       self.fit_residuals,
                                       self.fit_molefrac,
-                                      self.fit_coeffs),
+                                      self.fit_coeffs,
+                                      self.fit_time),
                 "meta": formatter.meta(self.meta_author,
                                        self.meta_name,
                                        self.meta_date,

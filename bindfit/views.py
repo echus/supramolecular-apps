@@ -85,17 +85,14 @@ class FitView(APIView):
         return Response(response)
 
     def build_response(self):
-        data = self.data
-        fit  = self.fit.fit
-        params = self.fit.params
-
         response = {
-                "data": data,
-                "fit" : formatter.fit(y=fit[0],
-                                      params=params,
-                                      residuals=fit[1],
-                                      coeffs=fit[2],
-                                      molefrac=fit[3])
+                "data": self.data,
+                "fit" : formatter.fit(y=self.fit.fit[0],
+                                      params=self.fit.params,
+                                      residuals=self.fit.fit[1],
+                                      coeffs=self.fit.fit[2],
+                                      molefrac=self.fit.fit[3],
+                                      time=self.fit.time)
                 }
 
         return response
@@ -170,6 +167,7 @@ class FitSaveView(APIView):
         fit_residuals = request.data["fit"]["residuals"]
         fit_molefrac  = request.data["fit"]["molefrac"]
         fit_coeffs    = request.data["fit"]["coeffs"]
+        fit_time      = request.data["fit"]["time"]
 
         data = models.Data.objects.get(id=options_data_id)
 
@@ -191,6 +189,7 @@ class FitSaveView(APIView):
                          fit_residuals=fit_residuals,
                          fit_molefrac=fit_molefrac,
                          fit_coeffs=fit_coeffs,
+                         fit_time=fit_time,
                          )
         fit.save()
 
