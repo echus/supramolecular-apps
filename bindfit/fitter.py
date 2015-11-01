@@ -19,16 +19,20 @@ class Fitter():
     def __init__(self, data, function, 
                  algorithm='Nelder-Mead',
                  normalise=True):
-        # Original input data, no processing applied
-        self.data = data
+        self.data = data # Original input data, no processing applied
         self.function = function
 
+        # Fitter options
         self.algorithm = algorithm
-
         self.normalise = normalise
 
+        # Populated on Fitter.run
         self.params = None
         self.time = None
+        self.fit = None
+        self.residuals = None
+        self.coeffs = None
+        self.molefrac = None
 
     def _preprocess(self, data):
         # Preprocess data based on Fitter options
@@ -52,6 +56,7 @@ class Fitter():
     def run(self, k_guess, tol=10e-18, niter=None):
         logger.debug("Fitter.fit: called")
 
+        # Generate options for optimizer
         if niter is not None:
             opt = {
                   "maxiter": niter,
@@ -60,6 +65,7 @@ class Fitter():
         else:
             opt = {}
 
+        # Run optimizer 
         tic = time.clock()
         result = scipy.optimize.minimize(self.function.lstsq,
                                          k_guess,
@@ -71,22 +77,45 @@ class Fitter():
                                         )
         toc = time.clock()
 
-        # Set optimised parameters
-        self.params = result.x
+        # Time taken to fit
         self.time = toc - tic 
 
-        logger.debug("Fitter.fit: params - "+str(self.params))
+        # Final optimised parameters
+        self.params = result.x
 
-    @property
-    def fit(self):
-        """
-        Return fitted parameters and data
-        """
         # Calculate fitted data with optimised parameters
         fit_norm, residuals, coeffs, molefrac = self.function.lstsq(self.params, 
                                                    self._preprocess(self.data))
 
-        # Postprocess data (denormalise)
+        # Postprocess fitted data (denormalise)
         fit = self._postprocess(fit_norm)
 
-        return fit, residuals, coeffs, molefrac
+        self.fit = fit
+        self.residuals = residuals
+        self.coeffs = coeffs
+        self.molefrac = molefrac
+
+        # TODO molefrac postprocessing goes here
+
+    @property
+    def statistics(self):
+        """
+        Return fit statistics
+
+        Returns:
+            Standard deviation of calculated y
+            Standard deviation of calculated coefficients
+            Asymptotic error for non-linear parameter estimate
+        """
+        fit, residuals, coeffs, molefrac = self.fit # Fit results
+        # TODO deal with multi-y fit 3rd axis here? residuals is 3D
+        residuals_sum = np.square(residuals) # Sum of squares of residuals
+
+        # PLACEHOLDER add multi-y fit handling here
+        # Calculate degrees of freedom 
+        # = number of experimental datapoints - number of fitted parameters - 
+        # number of calculated coefficients
+        n = len(self.data["y"][0]) - len(self.params) - fit[2].size
+        sd_y = np.sqrt(ss/n)
+
+        pass

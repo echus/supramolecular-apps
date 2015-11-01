@@ -87,11 +87,11 @@ class FitView(APIView):
     def build_response(self):
         response = {
                 "data": self.data,
-                "fit" : formatter.fit(y=self.fit.fit[0],
+                "fit" : formatter.fit(y=self.fit.fit,
                                       params=self.fit.params,
-                                      residuals=self.fit.fit[1],
-                                      coeffs=self.fit.fit[2],
-                                      molefrac=self.fit.fit[3],
+                                      residuals=self.fit.residuals,
+                                      coeffs=self.fit.coeffs,
+                                      molefrac=self.fit.molefrac,
                                       time=self.fit.time)
                 }
 

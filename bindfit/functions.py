@@ -22,8 +22,9 @@ class Function():
     def lstsq(self, k, data, sum_residuals=False):
         """
         Performs least squares regression fitting via matrix division on provided
-        NMR data for a given binding constant K, and returns its sum of least
-        squares for optimisation.
+        NMR/UV dataset for a given binding constant K, and returns its sum of 
+        least squares for optimisation OR full parameters, residuals and fitted
+        results.
 
         Arguments:
             k   : float  Array of binding parameter guesses
@@ -43,7 +44,7 @@ class Function():
         molefrac = self.f(k, data)
 
         # Solve by matrix division - linear regression by least squares
-        # Equivalent to << params = hg\obs >> in Matlab
+        # Equivalent to << coeffs = molefrac\y (EA = HG\DA) >> in Matlab
 
         # PLACEHOLDER, only uses first dimension of potentially multi
         # dimensional y input array
