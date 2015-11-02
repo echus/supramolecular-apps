@@ -93,9 +93,11 @@ class Fitter():
         self.fit = fit
         self.residuals = residuals
         self.coeffs = coeffs
-        self.molefrac = molefrac
 
-        # TODO molefrac postprocessing goes here
+        # Calculate host molefraction from complexes and add as first row
+        molefrac_host = np.ones(molefrac.shape[1])
+        molefrac_host -= molefrac.sum(axis=0)
+        self.molefrac = np.vstack((molefrac_host, molefrac))
 
     @property
     def statistics(self):
