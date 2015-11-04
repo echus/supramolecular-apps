@@ -13,6 +13,7 @@ import os
 import string
 import random
 import datetime
+from copy import deepcopy
 import pandas as pd
 import numpy  as np
 
@@ -30,34 +31,41 @@ class FitView(APIView):
     def post(self, request):
         """
         Request:
-            data_id  : string  Reference to input data to use
+            data_id: string  Reference to input data to use
 
-            params   : array   Array of objects
-                [
-                {value: float},   User guess of first parameter
-                {value: float},   User guess of first parameter
-                ...  : ...
-                ]
-
-            algorithm: string  User selected fitting algorithm
-
-            Note: Each param represented as dictionary instead of simple
-                  primitive to avoid issues with binding to arrays of 
-                  primitives in some JS frontend frameworks.
+            params: {
+                    k1: float   User guess of first parameter
+                    k2: float   User guess of second parameter
+                    ..: ...     ...
+                    }
 
         Response:
-            data     : array  [ n x [array of [x, y] points] ]
-                               Where n = number of experiments
-                               x: Equivalent [G]/[H] concentration
-                               y_n: Observed spectrum n
-            fit      : array  As for data.
-            residuals:
-            params   :
-                [
-                {value: float},   User guess of first parameter
-                {value: float},   User guess of first parameter
-                ...  : ...
-                ]
+            data:
+                x:
+                y:
+            fit:
+                y:
+                coeffs:
+                molefrac:
+                params: {
+                        k1: float   Optimised first parameter value
+                        k2: float   Optimised second parameter value
+                        ..: ...     ...
+                        }
+            qof:
+                residuals:
+                cov:
+                cov_total:
+                rms:
+                rms_total:
+            time:
+            labels:
+                fit: 
+                    y: {
+                        row_labels:
+                        axis_label:
+                        axis_units:
+                        }
         """
 
         logger.debug("FitterView.post: called")
@@ -65,45 +73,42 @@ class FitView(APIView):
         # Parse request options
         self.fitter = request.data["fitter"]
 
-        params = request.data["params"]
-        # Convert params dictionary to array for input to fitter
-        self.params = [ float(p["value"]) for p in request.data["params"] ]
-
-        # Get input data entry
-        data = models.Data.objects.get(id=request.data["data_id"])
-        dilute = request.data["dilute"] # Dilution factor flag
-        self.data = data.to_dict(dilute)
-
+        # Get input data to fit from daabase
+        dilute = request.data["options"]["dilute"] # Dilution factor flag
+        data = models.Data.objects.get(id=request.data["data_id"]).to_dict(dilute)
         logger.debug("views.FitView: data.to_dict() after retrieving")
-        logger.debug(self.data)
+        logger.debug(data)
+        datax = data["data"]["x"]
+        datay = data["data"]["y"]
+
+        params = { key: float(value) for key, value in request.data["params"].items() }
 
         # Create and run appropriate fitter
-        self.fit = self.run_fitter()
+        fitter = self.run_fitter(datax, datay, params)
         
         # Build response dict
-        response = self.build_response()
+        response = self.build_response(data, fitter)
         return Response(response)
 
-    def build_response(self):
-        response = {
-                "data": self.data,
-                "fit" : formatter.fit(y=self.fit.fit,
-                                      params=self.fit.params,
-                                      residuals=self.fit.residuals,
-                                      coeffs=self.fit.coeffs,
-                                      molefrac=self.fit.molefrac,
-                                      time=self.fit.time)
-                }
-
+    def build_response(self, data, fitter):
+        # Combined fitter and data dictionaries
+        fit  = formatter.fit(y         =fitter.fit,
+                             params    =fitter.params,
+                             residuals =fitter.residuals,
+                             coeffs    =fitter.coeffs,
+                             molefrac  =fitter.molefrac,
+                             time      =fitter.time)
+        response = deepcopy(data)
+        response.update(fit)
         return response
 
-    def run_fitter(self):
-        # Initialise appropriate Fitter with specified minimisation function
+    def run_fitter(self, datax, datay, params):
+        # Initialise Fitter with approriate objective function
         function = functions.select[self.fitter]
-        fitter = Fitter(self.data, function)
+        fitter = Fitter(datax, datay, function)
 
-        # Run fitter on data
-        fitter.run(self.params)
+        # Run fitter
+        fitter.run(params)
 
         return fitter 
 
@@ -347,8 +352,7 @@ class UploadDataView(APIView):
 
         d.save()
         
-        response = formatter.upload(d.id)
-        
+        response = d.to_dict(dilute=False)
         return Response(response, status=200)
 
 

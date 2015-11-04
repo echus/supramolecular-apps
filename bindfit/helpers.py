@@ -8,21 +8,11 @@ from __future__ import print_function
 import numpy as np
 import numpy.matlib as ml
 
-def cov(y, residuals, total=False):
-    cov = []
-    
-    # For each dataset
-    # TODO do this the proper matrix way
-    for d, r in zip(y, residuals):
-        var = np.var(r, axis=1)/np.var(d, axis=1)
-        cov.append(var)
+def cov(data, residuals, total=False):
+    cov = np.var(residuals, axis=1)/np.var(data, axis=1)
 
     if total:
-        # TODO calculate this the proper matrix way?
-        mean = []
-        for c in cov:
-            mean.append(sum(c)/len(c))
-        return mean
+        return sum(cov)/len(cov)
     else:
         return cov
 
@@ -38,92 +28,65 @@ def rms(residuals, total=False):
         array  2D array of RMS values for each fit
     """
 
-    # For each input set of fits' residuals
-    rms = []
-    for r in residuals:
-        a = np.array(r)
-        rms.append(np.sqrt(np.sum(np.square(a), axis=1)))
+    r = np.array(residuals)
+    rms = np.sqrt(np.sum(np.square(r), axis=1))
 
     if total:
-        mean = []
-        for r in rms:
-            mean.append(sum(r)/len(r))
-        return mean
+        return sum(rms)/len(rms) 
     else:
         return rms 
 
-def normalise(y):
+def normalise(data):
     """ 
-    Normalise a 3D array of datasets.
+    Normalise a 2D array of observations.
 
     Arguments:
-        y: array  3D array of input datasets
+        data: ndarray  n x m array of n dependent variables, m observations
 
     Returns:
-        array  3D array of normalised input datasets
+        ndarray  n x m array of normalised input data
     """
-
-    #y_norm = y.copy()
-    y_norm = np.zeros(y.shape)
 
     # Create matrix of initial values to subtract from original matrix
-    # TODO do this the proper matrix way instead of looping
-    # (loop over potentially more than one input dataset)
-    # Transpose magic for easier repmat'n
-    for i in range(y.shape[0]):
-        initialmat = ml.repmat(y[i].T[0,:], len(y[i].T), 1)
-        y_norm[i] = (y[i].T - initialmat).T
+    initialmat = ml.repmat(data.T[0,:], len(data.T), 1).T
+    data_norm = data - initialmat
+    return data_norm
 
-    return y_norm
-
-def denormalise(y, fit_norm):
+def denormalise(data, data_norm):
     """
-    Denormalise a fit given original non-normalised input data and fitted data
+    Denormalise a normalised dataset given original non-normalised input data
 
     Arguments:
-        y:     array  3D array of non-normalised input datasets
-        fit_norm: array  3D array of normalised fitted data
+        data:      ndarray  original n x m array
+        data_norm: ndarray  normalised n x m array
     
     Returns:
-        array  3D array of non-normalised fitted data
+        ndarray  n x m array of denormalised input data_norm
     """
-    # PLACEHOLDER, this only calculates first dimension of potentially 
-    # multi dimensional y fit array
-
     # Create matrix of initial data values to add to fit 
-    # TODO do this the proper matrix way instead of looping
-    # PLACEHOLDER uses only y[0] - the first of potential multiple inputs
-    y0 = y[0]
-    initialmat = ml.repmat(y0[:,0][np.newaxis].T, 1, y0.shape[1])
-    #initialmat = ml.repmat(y[0].T[0,:], len(y[0].T), 1)
+    initialmat = ml.repmat(data[:,0][np.newaxis].T, 1, data.shape[1])
+    # De-normalize normalised data (add initial values back)
+    data_denorm = data_norm + initialmat
+    return data_denorm 
 
-    # PLACEHOLDER 3rd axis added to calculated fit to mimic multiple
-    # datasets and transpose to row matrix
-    # De-normalize calculated y (add initial values back)
-    fit_norm0 = fit_norm[0]
-    fit = (fit_norm0 + initialmat)[np.newaxis]
-
-    return fit
-
-def dilute(x, y):
+def dilute(xdata, ydata):
     """
     Apply dilution factor to a dataset
 
     Arguments:
-        y:  array  3D array of non-normalised input dataset
-        h0: array  1D array of input [H]0 concentrations
+        xdata: ndarray  x x m array of m observations of independent variables
+        ydata: ndarray  y x m array of non-normalised observations of dependent
+                      variables
 
     Returns:
-        array  3D array of input data with dilution factor applied
+        ndarray  y x m array of input data with dilution factor applied
     """
 
-    h0 = x[0]
+    h0 = xdata[0]
     # PLACEHOLDER this only calculates dilution for the first dataset
-    y0 = y[0]
+    y = ydata
 
     dilfac = h0/h0[0]
-    dilmat = ml.repmat(dilfac, y0.shape[0], 1)
-    
-    # PLACEHOLDER add extra axis to simulate 3D dataset
-    y_dil = (y0*dilmat)[np.newaxis]
+    dilmat = ml.repmat(dilfac, y.shape[0], 1)
+    y_dil = (y*dilmat)[np.newaxis]
     return y_dil

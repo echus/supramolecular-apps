@@ -113,7 +113,7 @@ class Data(models.Model):
         if dilute:
             y = helpers.dilute(x, y)
 
-        return formatter.data(x, y, self.x_labels, self.y_labels)
+        return formatter.data(self.id, x, y, self.x_labels, self.y_labels)
 
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

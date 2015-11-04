@@ -19,60 +19,57 @@ class Function():
     def __init__(self, f):
         self.f = f
 
-    def lstsq(self, k, data, sum_residuals=False):
+    def objective(self, params, xdata, ydata, detailed=False):
         """
+        Objective function:
         Performs least squares regression fitting via matrix division on provided
         NMR/UV dataset for a given binding constant K, and returns its sum of 
         least squares for optimisation OR full parameters, residuals and fitted
         results.
 
         Arguments:
-            k   : float  Array of binding parameter guesses
-            data: dict   Normalised data dictionary of observed NMR resonances
+            params: Parameter  lmfit Parameter object containing binding 
+                               constant guesses
+            datax : ndarray    x x m array of x independent variables, m obs
+            datay : ndarray    y x m array of y dependent variables, m obs
 
         Returns:
             float:  Sum of least squares
         """
 
-        y = data["y"]
+        logger.debug("Function.objective: params, xdata, ydata")
+        logger.debug(params)
+        logger.debug(xdata)
+        logger.debug(ydata)
 
-        logger.debug("Function.lstsq: y")
-        logger.debug(y[0])
-
-        # Call self.f to calculate predicted HG complex concentrations for this 
-        # set of k
-        molefrac = self.f(k, data)
+        # Calculate predicted HG complex concentrations for this set of 
+        # parameters and concentrations
+        molefrac = self.f(params, xdata)
 
         # Solve by matrix division - linear regression by least squares
-        # Equivalent to << coeffs = molefrac\y (EA = HG\DA) >> in Matlab
+        # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
+        coeffs, rssq, rank, s = np.linalg.lstsq(molefrac, ydata.T)
 
-        # PLACEHOLDER, only uses first dimension of potentially multi
-        # dimensional y input array
-        coeffs, rsum, rank, s = np.linalg.lstsq(molefrac, y[0].T)
+        # Calculate data from fitted parameters 
+        # (will be normalised since input data was norm'd)
+        # Result is column matrix - transform this into same shape as input
+        # data array
+        fit = molefrac.dot(coeffs).T
 
-        if sum_residuals:
-            # Return only sums of residuals
-            # For use during optimisation
-            return rsum.sum()
-        else:
-            # PLACEHOLDER, this only calculates first dimension of potentially 
-            # multi dimensional y fit array
+        logger.debug("Function.objective: fit")
+        logger.debug(fit)
 
-            # Calculate data from fitted parameters 
-            # (will be normalised since input data was norm'd)
-            # Result is column matrix - transform this into same shape as input
-            # data array
-            
-            fit = molefrac.dot(coeffs).T[np.newaxis]
+        # Calculate residuals (fitted data - input data)
+        residuals = fit - ydata
 
-            logger.debug("Function.lstsq: fit")
-            logger.debug(fit)
-
-            # Calculate residuals (fitted data - input data)
-            residuals = fit - y
-
-            # Transpose any column-matrices to rows
+        # Transpose any column-matrices to rows
+        if detailed:
             return fit, residuals, coeffs, molefrac.T
+        else:
+            ret = residuals.sum(axis=0)
+            logger.debug("Function.objective: residuals sum")
+            logger.debug(ret)
+            return ret
 
 
 
@@ -80,13 +77,15 @@ class Function():
 # Function definitions
 #
 
-def nmr_1to1(k, data):
+def nmr_1to1(params, xdata):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data["x"][0]
-    g0  = data["x"][1]
+    k = params["k"]
+ 
+    h0 = xdata[0]
+    g0 = xdata[1]
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess

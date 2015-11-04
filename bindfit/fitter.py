@@ -6,8 +6,7 @@ from copy import deepcopy
 import time
 import numpy as np
 import numpy.matlib as ml
-import scipy
-import scipy.optimize
+import lmfit
 
 from . import functions
 from . import helpers 
@@ -16,14 +15,12 @@ import logging
 logger = logging.getLogger('supramolecular')
 
 class Fitter():
-    def __init__(self, data, function, 
-                 algorithm='Nelder-Mead',
-                 normalise=True):
-        self.data = data # Original input data, no processing applied
+    def __init__(self, xdata, ydata, function, normalise=True):
+        self.xdata = xdata # Original input data, no processing applied
+        self.ydata = ydata # Original input data, no processing applied
         self.function = function
 
         # Fitter options
-        self.algorithm = algorithm
         self.normalise = normalise
 
         # Populated on Fitter.run
@@ -34,64 +31,73 @@ class Fitter():
         self.coeffs = None
         self.molefrac = None
 
-    def _preprocess(self, data):
+    def _preprocess(self, ydata):
         # Preprocess data based on Fitter options
         # Returns modified processed copy of input data
-        d = deepcopy(data)
+        d = ydata
 
         if self.normalise:
-            d["y"] = helpers.normalise(d["y"])
+            d = helpers.normalise(d)
 
         return d
 
-    def _postprocess(self, fit):
+    def _postprocess(self, ydata, yfit):
         # Postprocess fitted data based on Fitter options 
-        f = fit
+        f = yfit 
 
         if self.normalise:
-            f = helpers.denormalise(self.data["y"], fit)
+            f = helpers.denormalise(ydata, yfit)
 
-        return f
+        return f 
 
-    def run(self, k_guess, tol=10e-18, niter=None):
-        logger.debug("Fitter.fit: called")
-
-        # Generate options for optimizer
-        if niter is not None:
-            opt = {
-                  "maxiter": niter,
-                  "maxfev": niter,  
-                  }
-        else:
-            opt = {}
-
+    def run(self, params):
+        """
+        Arguments:
+            params: dict  Initial parameter guesses for fitter    
+        """
+        logger.debug("Fitter.fit: called. Input params:")
+        logger.debug(params)
+        
+        p = lmfit.Parameters()
+        for key, value in params.items():
+            p.add(key, value=value)
+        
         # Run optimizer 
+        x = self.xdata
+        y = self._preprocess(self.ydata)
+
         tic = time.clock()
-        result = scipy.optimize.minimize(self.function.lstsq,
-                                         k_guess,
-                                         args=(self._preprocess(self.data), 
-                                               True),
-                                         method=self.algorithm,
-                                         tol=tol,
-                                         options=opt,
-                                        )
+        result = lmfit.minimize(self.function.objective, p, args=(x, y), method="nelder")
         toc = time.clock()
+
+        logger.debug("Fitter.fit: fit finished")
+        if hasattr(result, "success"):
+            logger.debug(result.success)
+        if hasattr(result, "message"):
+            logger.debug(result.message)
+        logger.debug(result.nfev)
+        logger.debug(result.init_vals)
+        logger.debug(result.params.valuesdict())
 
         # Time taken to fit
         self.time = toc - tic 
 
-        # Final optimised parameters
-        self.params = result.x
+        # Save final optimised parameters as dictionary
+        self.params = result.params.valuesdict()
 
         # Calculate fitted data with optimised parameters
-        fit_norm, residuals, coeffs, molefrac = self.function.lstsq(self.params, 
-                                                   self._preprocess(self.data))
+        fit_norm, residuals, coeffs, molefrac = self.function.objective(
+                                                    self.params, 
+                                                    x, 
+                                                    y, 
+                                                    detailed=True)
 
         # Postprocess fitted data (denormalise)
-        fit = self._postprocess(fit_norm)
-
+        fit = self._postprocess(self.ydata, fit_norm)
         self.fit = fit
+
         self.residuals = residuals
+
         self.coeffs = coeffs
 
         # Calculate host molefraction from complexes and add as first row

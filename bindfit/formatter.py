@@ -96,10 +96,17 @@ def options(fitter, data_id=None, params=None, dilute=False):
             "nmr1to1": {
                 "fitter": "nmr1to1",
                 "data_id": "",
-                "params": [
-                    {"value": 1000},
-                    ],
-                "dilute": False,
+                "params": {
+                    "k": 1000,
+                    },
+                "options": {
+                    "dilute": False,
+                    },
+                "labels": {
+                    "params": {
+                        "k": {"label": "K", "units": "M\u207B\u00B9"},
+                        },
+                    },
                 },
             "nmr1to2": {
                 "fitter": "nmr1to2",
@@ -171,62 +178,102 @@ def fit(y, params, residuals, molefrac, coeffs, time):
     (defines format used as JSON response in views)
 
     Arguments:
-        y:         3D array   Array of 2D matrices of fit results 
-        params:    1D array   Fitted parameters
-        residuals: 3D array   Residuals for each fit
-        molefrac:  2D array   Fitted species molefractions
-        coeffs:    2D array   Fitted species coefficients
+        y:         ndarray  n x m array of fitted data
+        params:    dict     Fitted parameters
+        residuals: ndarray  Residuals for each fit
+        molefrac:  ndarray  Fitted species molefractions
+        coeffs:    ndarray  Fitted species coefficients
+        time:      ndarray  Time taken to fit
 
     Returns:
-        {json}
-        y:         3D array   Array of 2D matrices of fit results 
-        params:    1D array   Fitted parameters
-        residuals: 3D array   Residuals for each fit
-        rms:       2D array   [computed] RMS errors for each fit set
-        cov:       2D array   [computed] Covariances for each fit set
-        molefrac:  2D array   Fitted species molefractions
-        coeffs:    2D array   Fitted species coefficients
+        fit:
+            y:
+            coeffs:
+            molefrac:
+            params: 
+                {
+                    k1: float   Optimised first parameter value
+                    k2: float   Optimised second parameter value
+                    ..: ...     ...
+                }
+        qof:
+            residuals:
+            cov:
+            cov_total:
+            rms:
+            rms_total:
+        time:
+        labels:
+            fit: 
+                y: 
+                {
+                    row_labels:
+                    axis_label:
+                    axis_units:
+                }
     """
 
     response = {
-            "y"        : y,
-            "params"   : [ {"value": p} for p in params ],
-            "residuals": residuals,
-            "rms"      : helpers.rms(residuals),
-            "cov"      : helpers.cov(y, residuals),
-            "rms_total": helpers.rms(residuals, total=True),
-            "cov_total": helpers.cov(y, residuals, total=True),
-            "molefrac" : molefrac,
-            "coeffs"   : coeffs,
-            "time"     : time,
+            "fit": {
+                "y":        y,
+                "coeffs":   coeffs,
+                "molefrac": molefrac,
+                "params":   params,
+                },
+            "qof": {
+                "residuals": residuals,
+                "rms"      : helpers.rms(residuals),
+                "cov"      : helpers.cov(y, residuals),
+                "rms_total": helpers.rms(residuals, total=True),
+                "cov_total": helpers.cov(y, residuals, total=True),
+                },
+            "time": time,
+            "labels": {
+                "y": {
+                    "row_labels": None,
+                    "axis_label": None,
+                    "axis_units": None,
+                    },
+                },
             }
     return response
 
-def data(x, y, x_labels, y_labels):
+def data(data_id, x, y, x_labels, y_labels):
     response = {
-            "x" : x,
-            "y" : y,
+            "data_id": data_id,
+            "data": {
+                "x": x,
+                "y": y[0],
+                },
             "labels": {
-                "x": x_labels,
-                "y": y_labels,
+                "x": {
+                    "row_labels": x_labels,
+                    "axis_label": None,
+                    "axis_units": None,
+                    },
+                "y": {
+                    "row_labels": y_labels,
+                    "axis_label": None,
+                    "axis_units": None,
+                    }
                 },
             }
     return response
 
 def save(fit_id):
     response = {
-            "id": fit_id
+            "fit_id": fit_id
             }
     return response
 
 def export(url):
     response = {
-            "url": url
+            "export_url": url
             }
     return response
 
 def upload(data_id):
     response = {
-            "id": data_id
+            "data_id": data_id
             }
     return response
