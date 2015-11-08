@@ -172,12 +172,13 @@ def meta(author,
             }
     return response
 
-def fit(y, params, residuals, molefrac, coeffs, time):
+def fit(fitter, y, params, residuals, molefrac, coeffs, time):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
 
     Arguments:
+        fitter:    string   Name (key) of fitter used
         y:         ndarray  n x m array of fitted data
         params:    dict     Fitted parameters
         residuals: ndarray  Residuals for each fit
@@ -205,12 +206,16 @@ def fit(y, params, residuals, molefrac, coeffs, time):
         time:
         labels:
             fit: 
-                y: 
-                {
+                y: {
                     row_labels:
                     axis_label:
                     axis_units:
-                }
+                    }
+                params: {
+                    k1:
+                    k2:
+                    ...
+                    }
     """
 
     response = {
@@ -229,12 +234,16 @@ def fit(y, params, residuals, molefrac, coeffs, time):
                 },
             "time": time,
             "labels": {
-                "y": {
-                    "row_labels": None,
-                    "axis_label": None,
-                    "axis_units": None,
+                "fit": {
+                    "y": {
+                        "row_labels": None,
+                        "axis_label": None,
+                        "axis_units": None,
+                        },
+                    # Get parameter labels from options definition
+                    "params": options(fitter)["labels"]["params"],
                     },
-                },
+                }
             }
     return response
 
@@ -246,16 +255,18 @@ def data(data_id, x, y, x_labels, y_labels):
                 "y": y[0],
                 },
             "labels": {
-                "x": {
-                    "row_labels": x_labels,
-                    "axis_label": None,
-                    "axis_units": None,
+                "data": {
+                    "x": {
+                        "row_labels": x_labels,
+                        "axis_label": None,
+                        "axis_units": None,
+                        },
+                    "y": {
+                        "row_labels": y_labels,
+                        "axis_label": None,
+                        "axis_units": None,
+                        }
                     },
-                "y": {
-                    "row_labels": y_labels,
-                    "axis_label": None,
-                    "axis_units": None,
-                    }
                 },
             }
     return response

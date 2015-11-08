@@ -40,6 +40,7 @@ class FitView(APIView):
                     }
 
         Response:
+            data_id:
             data:
                 x:
                 y:
@@ -60,6 +61,9 @@ class FitView(APIView):
                 rms_total:
             time:
             labels:
+                data: {
+                    ... etc ... (see formatter.data for format)
+                }
                 fit: 
                     y: {
                         row_labels:
@@ -71,9 +75,9 @@ class FitView(APIView):
         logger.debug("FitterView.post: called")
 
         # Parse request options
-        self.fitter = request.data["fitter"]
+        self.fitter_name = request.data["fitter"]
 
-        # Get input data to fit from daabase
+        # Get input data to fit from database
         dilute = request.data["options"]["dilute"] # Dilution factor flag
         data = models.Data.objects.get(id=request.data["data_id"]).to_dict(dilute)
         logger.debug("views.FitView: data.to_dict() after retrieving")
@@ -92,7 +96,8 @@ class FitView(APIView):
 
     def build_response(self, data, fitter):
         # Combined fitter and data dictionaries
-        fit  = formatter.fit(y         =fitter.fit,
+        fit  = formatter.fit(fitter    =self.fitter_name,
+                             y         =fitter.fit,
                              params    =fitter.params,
                              residuals =fitter.residuals,
                              coeffs    =fitter.coeffs,
@@ -100,11 +105,16 @@ class FitView(APIView):
                              time      =fitter.time)
         response = deepcopy(data)
         response.update(fit)
+
+        # Manually merge multi-level labels data ...
+        labels = deepcopy(data["labels"])
+        labels.update(fit["labels"])
+        response["labels"] = labels
         return response
 
     def run_fitter(self, datax, datay, params):
         # Initialise Fitter with approriate objective function
-        function = functions.select[self.fitter]
+        function = functions.select[self.fitter_name]
         fitter = Fitter(datax, datay, function)
 
         # Run fitter
