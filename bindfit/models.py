@@ -107,7 +107,7 @@ class Data(models.Model):
 
     def to_dict(self, dilute=False):
         x = np.array(self.x)
-        y = np.array(self.y)
+        y = np.array(self.y)[0]
 
         # Apply dilution factor if dilute option is set 
         if dilute:

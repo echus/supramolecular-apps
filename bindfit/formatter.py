@@ -263,7 +263,7 @@ def data(data_id, x, y, x_labels, y_labels):
             "data_id": data_id,
             "data": {
                 "x": x,
-                "y": y[0],
+                "y": y,
                 },
             "labels": {
                 "data": {
