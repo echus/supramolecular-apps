@@ -252,14 +252,15 @@ class FitExportView(APIView):
         fit_molefrac  = np.array(fit["fit"]["molefrac"],  dtype=dt).T
         fit_coeffs    = np.array(fit["fit"]["coeffs"],    dtype=dt)
         # PLACEHOLDER deal with multi-D y inputs here later
-        fit_residuals = np.array(request.data["fit"]["residuals"][0], dtype=dt).T
-        fit_rms       = np.array(request.data["fit"]["rms"][0], dtype=dt).T
-        fit_cov       = np.array(request.data["fit"]["cov"][0], dtype=dt).T
-        fit_rms_total = request.data["fit"]["rms_total"][0]
-        fit_cov_total = request.data["fit"]["cov_total"][0]
+        fit_residuals = np.array(fit["qof"]["residuals"], dtype=dt).T
+        fit_rms       = np.array(fit["qof"]["rms"], dtype=dt).T
+        fit_cov       = np.array(fit["qof"]["cov"], dtype=dt).T
+        fit_rms_total = fit["qof"]["rms_total"]
+        fit_cov_total = fit["qof"]["cov_total"]
 
         # Labels
-        labels = formatter.labels(options_fitter)
+        params_labels_dict = fit["labels"]["fit"]["params"]
+        params_labels = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
 
         # Create output arrays
         data_array     = np.hstack((data_h0, data_g0, data_geq, data_y))
@@ -280,7 +281,7 @@ class FitExportView(APIView):
         logger.debug(data_names)
 
         options_names      = ["Fitter"]
-        options_names.extend([ p["label"] for p in labels["params"] ])
+        options_names.extend([ p["label"] for p in params_labels ])
 
         fit_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
         fit_names.extend(["x3: G/H equivalent total"])
@@ -295,7 +296,7 @@ class FitExportView(APIView):
         qof_names_2 = [ "Covariance: "+l for l in data_y_labels ]
         qof_names_2.append("Covariance: Total")
 
-        params_names_1 = [ p["label"] for p in labels["params"] ]
+        params_names_1 = [ p["label"] for p in params_labels ]
         params_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
 
         # Create data frames for export
