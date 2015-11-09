@@ -2,7 +2,7 @@ from __future__ import division
 from __future__ import print_function
 
 from django.db import models
-from django.contrib.postgres.fields import ArrayField 
+from django.contrib.postgres.fields import ArrayField, HStoreField
 
 import numpy as np
 import hashlib
@@ -35,8 +35,8 @@ class Data(models.Model):
             )
 
     # Parsed header labels for each value
-    x_labels = ArrayField(models.CharField(max_length=100, blank=True))
-    y_labels = ArrayField(models.CharField(max_length=100, blank=True))
+    labels_x = ArrayField(models.CharField(max_length=100, blank=True))
+    labels_y = ArrayField(models.CharField(max_length=100, blank=True))
 
     @classmethod
     def from_csv(cls, f):
@@ -103,7 +103,7 @@ class Data(models.Model):
         logger.debug(x)
         logger.debug(y)
 
-        return cls(id=id, x=x, y=y, x_labels=x_labels, y_labels=y_labels)
+        return cls(id=id, x=x, y=y, labels_x=x_labels, labels_y=y_labels)
 
     def to_dict(self, dilute=False):
         x = np.array(self.x)
@@ -136,12 +136,14 @@ class Fit(models.Model):
 
     # Fit options 
     options_fitter = models.CharField(max_length=20)
-    options_params = ArrayField(base_field=models.FloatField())
+    # options_params = ArrayField(base_field=models.FloatField())
+    options_params = HStoreField()
     options_dilute = models.BooleanField(default=False) # Dilution factor flag
 
     # Fit results
     # 1D array of fitted parameters
-    fit_params = ArrayField(base_field=models.FloatField())
+    # fit_params = ArrayField(base_field=models.FloatField())
+    fit_params = HStoreField()
 
     # 2D matrix of (calculated) fitted input y data
     fit_y = ArrayField(
