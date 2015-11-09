@@ -143,17 +143,13 @@ class Fit(models.Model):
     # 1D array of fitted parameters
     fit_params = ArrayField(base_field=models.FloatField())
 
-    # 3D array of 2D matrices of fitted data for each input y data
+    # 2D matrix of (calculated) fitted input y data
     fit_y = ArrayField(
-            ArrayField(
-                ArrayField(models.FloatField())
-                )
+            ArrayField(models.FloatField())
             )
     
     fit_residuals = ArrayField(
-            ArrayField(
-                ArrayField(models.FloatField())
-                )
+            ArrayField(models.FloatField())
             )
 
     fit_molefrac = ArrayField(
@@ -168,8 +164,9 @@ class Fit(models.Model):
 
     def to_dict(self):
         response = {
-                "data": self.data.to_dict(self.options_dilute),
-                "fit" : formatter.fit(self.fit_y, 
+                "fit" : formatter.fit(self.options_fitter,
+                                      self.data.to_dict(self.options_dilute),
+                                      self.fit_y, 
                                       self.fit_params, 
                                       self.fit_residuals,
                                       self.fit_molefrac,

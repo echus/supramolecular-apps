@@ -145,7 +145,10 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        meta = request.data["meta"] # For readability
+        fit  = request.data["fit"]
+        options = request.data["options"]
+        meta = request.data["meta"]
+
         meta_author    = meta.get("author", "")
         meta_name      = meta.get("name", "")
         meta_date      = meta.get("date", None)
@@ -164,18 +167,18 @@ class FitSaveView(APIView):
         if meta_date == "None":
             meta_date = None
 
-        options_fitter  = request.data["options"]["fitter"]
-        options_data_id = request.data["options"]["data_id"]
-        options_params  = [ p["value"] for p in request.data["options"]["params"] ]
-        options_dilute  = request.data["options"]["dilute"]
+        options_fitter  = options["fitter"]
+        options_data_id = options["data_id"]
+        options_params  = [ options["params"][key] for key in sorted(options["params"]) ]
+        options_dilute  = options["options"]["dilute"]
 
-        fit_params = [ p["value"] for p in request.data["fit"]["params"] ]
-        fit_y      = request.data["fit"]["y"]
+        fit_params = [ fit["fit"]["params"][key] for key in sorted(fit["fit"]["params"]) ]
+        fit_y      = fit["fit"]["y"]
 
-        fit_residuals = request.data["fit"]["residuals"]
-        fit_molefrac  = request.data["fit"]["molefrac"]
-        fit_coeffs    = request.data["fit"]["coeffs"]
-        fit_time      = request.data["fit"]["time"]
+        fit_molefrac  = fit["fit"]["molefrac"]
+        fit_coeffs    = fit["fit"]["coeffs"]
+        fit_time      = fit["time"]
+        fit_residuals = fit["qof"]["residuals"]
 
         data = models.Data.objects.get(id=options_data_id)
 

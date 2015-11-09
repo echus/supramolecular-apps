@@ -180,6 +180,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
 
     Arguments:
         fitter:    string   Name (key) of fitter used
+        data:      dict     Data/labels dict from data() to merge with fit info
         y:         ndarray  n x m array of fitted data
         params:    dict     Fitted parameters
         residuals: ndarray  Residuals for each fit
