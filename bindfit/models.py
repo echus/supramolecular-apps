@@ -113,7 +113,7 @@ class Data(models.Model):
         if dilute:
             y = helpers.dilute(x, y)
 
-        return formatter.data(self.id, x, y, self.x_labels, self.y_labels)
+        return formatter.data(self.id, x, y, self.labels_x, self.labels_y)
 
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -136,13 +136,11 @@ class Fit(models.Model):
 
     # Fit options 
     options_fitter = models.CharField(max_length=20)
-    # options_params = ArrayField(base_field=models.FloatField())
     options_params = HStoreField()
     options_dilute = models.BooleanField(default=False) # Dilution factor flag
 
     # Fit results
     # 1D array of fitted parameters
-    # fit_params = ArrayField(base_field=models.FloatField())
     fit_params = HStoreField()
 
     # 2D matrix of (calculated) fitted input y data

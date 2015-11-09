@@ -169,10 +169,12 @@ class FitSaveView(APIView):
 
         options_fitter  = options["fitter"]
         options_data_id = options["data_id"]
-        options_params  = [ options["params"][key] for key in sorted(options["params"]) ]
+        # Convert parameters to strings for HStore
+        options_params = { key: str(value) for (key, value) in options["params"].items() }
         options_dilute  = options["options"]["dilute"]
 
-        fit_params = [ fit["fit"]["params"][key] for key in sorted(fit["fit"]["params"]) ]
+        # Convert parameters to strings for HStore
+        fit_params = { key: str(value) for (key, value) in fit["fit"]["params"].items() }
         fit_y      = fit["fit"]["y"]
 
         fit_molefrac  = fit["fit"]["molefrac"]
