@@ -13,7 +13,6 @@ import os
 import string
 import random
 import datetime
-from copy import deepcopy
 import pandas as pd
 import numpy  as np
 
@@ -96,20 +95,14 @@ class FitView(APIView):
 
     def build_response(self, data, fitter):
         # Combined fitter and data dictionaries
-        fit  = formatter.fit(fitter    =self.fitter_name,
+        response = formatter.fit(fitter    =self.fitter_name,
+                             data      =data,
                              y         =fitter.fit,
                              params    =fitter.params,
                              residuals =fitter.residuals,
                              coeffs    =fitter.coeffs,
                              molefrac  =fitter.molefrac,
                              time      =fitter.time)
-        response = deepcopy(data)
-        response.update(fit)
-
-        # Manually merge multi-level labels data ...
-        labels = deepcopy(data["labels"])
-        labels.update(fit["labels"])
-        response["labels"] = labels
         return response
 
     def run_fitter(self, datax, datay, params):
@@ -229,27 +222,35 @@ class FitExportView(APIView):
     def post(self, request):
         dt = 'f8'
 
+        fit  = request.data["fit"]
+        options = request.data["options"]
+        meta = request.data["meta"]
+
         # Munge some data
         # Transpose 1D arrays -> 2D column arrays for hstack later
         # Input data
-        data_x_labels = request.data["data"]["labels"]["x"]
-        data_y_labels = request.data["data"]["labels"]["y"]
-        data_h0  = np.array(request.data["data"]["x"][0],  dtype=dt)[np.newaxis].T
-        data_g0  = np.array(request.data["data"]["x"][1],  dtype=dt)[np.newaxis].T
+        data_x_labels = fit["labels"]["data"]["x"]["row_labels"]
+        data_y_labels = fit["labels"]["data"]["y"]["row_labels"]
+        data_h0  = np.array(fit["data"]["x"][0],  dtype=dt)[np.newaxis].T
+        data_g0  = np.array(fit["data"]["x"][1],  dtype=dt)[np.newaxis].T
         data_geq = data_g0/data_h0
         # PLACEHOLDER deal with multi-D y inputs here later
-        data_y   = np.array(request.data["data"]["y"][0],  dtype=dt).T
+        data_y   = np.array(fit["data"]["y"],  dtype=dt).T
 
         # Input options
-        options_fitter = request.data["options"]["fitter"]
-        options_params = np.array([ p["value"] for p in request.data["options"]["params"] ], dtype=dt)
+        options_fitter = options["fitter"]
+        options_params = np.array(
+                [ options["params"][key] for key in sorted(options["params"]) ], 
+                dtype=dt)
 
         # Fit results 
         # PLACEHOLDER deal with multi-D y inputs here later
-        fit_y         = np.array(request.data["fit"]["y"][0],      dtype=dt).T
-        fit_params    = np.array([ p["value"] for p in request.data["fit"]["params"] ], dtype=dt)
-        fit_molefrac  = np.array(request.data["fit"]["molefrac"],  dtype=dt).T
-        fit_coeffs    = np.array(request.data["fit"]["coeffs"],    dtype=dt)
+        fit_y         = np.array(fit["fit"]["y"],      dtype=dt).T
+        fit_params    = np.array(
+                [ fit["fit"]["params"][key] for key in sorted(fit["fit"]["params"]) ], 
+                dtype=dt)
+        fit_molefrac  = np.array(fit["fit"]["molefrac"],  dtype=dt).T
+        fit_coeffs    = np.array(fit["fit"]["coeffs"],    dtype=dt)
         # PLACEHOLDER deal with multi-D y inputs here later
         fit_residuals = np.array(request.data["fit"]["residuals"][0], dtype=dt).T
         fit_rms       = np.array(request.data["fit"]["rms"][0], dtype=dt).T

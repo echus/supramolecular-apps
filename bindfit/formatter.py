@@ -9,6 +9,7 @@
 """
 
 import numpy as np
+from copy import deepcopy
 
 from . import helpers
 
@@ -172,7 +173,7 @@ def meta(author,
             }
     return response
 
-def fit(fitter, y, params, residuals, molefrac, coeffs, time):
+def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -218,7 +219,7 @@ def fit(fitter, y, params, residuals, molefrac, coeffs, time):
                     }
     """
 
-    response = {
+    fit = {
             "fit": {
                 "y":        y,
                 "coeffs":   coeffs,
@@ -245,6 +246,16 @@ def fit(fitter, y, params, residuals, molefrac, coeffs, time):
                     },
                 }
             }
+    
+    # Merge with data dictionary
+    response = deepcopy(data)
+    response.update(fit)
+
+    # Manusally merge multi-level labels data ...
+    labels = deepcopy(data["labels"])
+    labels.update(fit["labels"])
+    response["labels"] = labels
+
     return response
 
 def data(data_id, x, y, x_labels, y_labels):
