@@ -32,60 +32,96 @@ def fitter_list():
 
 def labels(fitter): 
     # Label definitions for each fitter type
+
     label_select = {
             "nmr1to1": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
                     },
-                "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
+                "fit": {
+                    "params": {
+                        "k": {"label": "K", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
                     },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
                 },
+            
             "nmr1to2": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
                     },
-                "y": {
-                    "label": "\u03B4",
-                    "units": "ppm",
+                "fit": {
+                    "params": {
+                        "k1": {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                        "k2": {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
                     },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
                 },
+
             "uv1to1": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
                     },
-                "y": {
-                    "label": "Absorbance",
-                    "units": "",
+                "fit": {
+                    "params": {
+                        "k": {"label": "K", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
                     },
-                "params": [
-                    {"label": "K", "units": "M\u207B\u00B9"},
-                    ]
                 },
+
             "uv1to2": {
-                "x": {
-                    "label": "Equivalent total [G]\u2080/[H]\u2080",
-                    "units": "",
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
                     },
-                "y": {
-                    "label": "Absorbance",
-                    "units": "",
+                "fit": {
+                    "params": {
+                        "k1": {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                        "k2": {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
                     },
-                "params": [
-                    {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                    {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
-                    ]
                 },
             }
 
@@ -103,37 +139,41 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute": False,
                     },
-                "labels": {
-                    "params": {
-                        "k": {"label": "K", "units": "M\u207B\u00B9"},
-                        },
-                    },
                 },
+
             "nmr1to2": {
                 "fitter": "nmr1to2",
                 "data_id": "",
-                "params": [
-                    {"value": 10000},
-                    {"value": 1000},
-                    ],
-                "dilute": False,
+                "params": {
+                    "k1": 10000,
+                    "k2": 1000,
+                    },
+                "options": {
+                    "dilute": False,
+                    },
                 },
+
             "uv1to1": {
                 "fitter": "uv1to1",
                 "data_id": "",
-                "params": [
-                    {"value": 1000},
-                    ],
-                "dilute": True,
+                "params": {
+                    "k": 1000,
+                    },
+                "options": {
+                    "dilute": True,
+                    },
                 },
+
             "uv1to2": {
                 "fitter": "uv1to2",
                 "data_id": "",
-                "params": [
-                    {"value": 10000},
-                    {"value": 1000},
-                    ],
-                "dilute": True,
+                "params": {
+                    "k1": 10000,
+                    "k2": 1000,
+                    },
+                "options": {
+                    "dilute": True,
+                    },
                 },
             }
     
@@ -141,8 +181,10 @@ def options(fitter, data_id=None, params=None, dilute=False):
         return {
             "fitter": fitter,
             "data_id": data_id,
-            "params": [ {"value": p} for p in params ],
-            "dilute": dilute
+            "params": { key: float(value) for (key, value) in params.items() },
+            "options": {
+                "dilute": dilute,
+                },
             }
     else:
         return default_options_select[fitter]
@@ -180,7 +222,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
 
     Arguments:
         fitter:    string   Name (key) of fitter used
-        data:      dict     Data/labels dict from data() to merge with fit info
+        data:      dict     Dictionary containing formatted input data
         y:         ndarray  n x m array of fitted data
         params:    dict     Fitted parameters
         residuals: ndarray  Residuals for each fit
@@ -206,18 +248,6 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
             rms:
             rms_total:
         time:
-        labels:
-            fit: 
-                y: {
-                    row_labels:
-                    axis_label:
-                    axis_units:
-                    }
-                params: {
-                    k1:
-                    k2:
-                    ...
-                    }
     """
 
     fit = {
@@ -225,7 +255,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
                 "y":        y,
                 "coeffs":   coeffs,
                 "molefrac": molefrac,
-                "params":   params,
+                "params":   { key: float(value) for (key, value) in params.items() },
                 },
             "qof": {
                 "residuals": residuals,
@@ -235,31 +265,20 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
                 "cov_total": helpers.cov(y, residuals, total=True),
                 },
             "time": time,
-            "labels": {
-                "fit": {
-                    "y": {
-                        "row_labels": None,
-                        "axis_label": None,
-                        "axis_units": None,
-                        },
-                    # Get parameter labels from options definition
-                    "params": options(fitter)["labels"]["params"],
-                    },
-                }
             }
     
     # Merge with data dictionary
     response = deepcopy(data)
     response.update(fit)
 
-    # Manusally merge multi-level labels data ...
-    labels = deepcopy(data["labels"])
-    labels.update(fit["labels"])
-    response["labels"] = labels
+    # Manually merge multi-level labels data ...
+    #labels = deepcopy(data["labels"])
+    #labels.update(fit["labels"])
+    #response["labels"] = labels
 
     return response
 
-def data(data_id, x, y, x_labels, y_labels):
+def data(data_id, x, y, labels_x, labels_y):
     response = {
             "data_id": data_id,
             "data": {
@@ -269,15 +288,11 @@ def data(data_id, x, y, x_labels, y_labels):
             "labels": {
                 "data": {
                     "x": {
-                        "row_labels": x_labels,
-                        "axis_label": None,
-                        "axis_units": None,
+                        "row_labels": labels_x,
                         },
                     "y": {
-                        "row_labels": y_labels,
-                        "axis_label": None,
-                        "axis_units": None,
-                        }
+                        "row_labels": labels_y,
+                        },
                     },
                 },
             }

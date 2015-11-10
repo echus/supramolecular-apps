@@ -106,13 +106,15 @@ def nmr_1to1(params, xdata):
 
     return hg
 
-def uv_1to1(k, data):
+def uv_1to1(params, xdata):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    h0  = data["x"][0]
-    g0  = data["x"][1]
+    k = params["k"]
+ 
+    h0 = xdata[0]
+    g0 = xdata[1]
 
     # Calculate predicted [HG] concentration given input [H]0, [G]0 matrices 
     # and Ka guess
@@ -130,18 +132,17 @@ def uv_1to1(k, data):
 
     return hg
 
-def uv_1to2(k, data):
+def uv_1to2(params, xdata):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
     """
 
-    # Convenience
-    k11 = k[0]
-    k12 = k[1]
-    h0  = data["x"][0]
-    g0  = data["x"][1]
-
+    k11 = params["k1"]
+    k12 = params["k2"]
+ 
+    h0 = xdata[0]
+    g0 = xdata[1]
 
     #
     # Calculate free guest concentration [G]: solve cubic
@@ -185,18 +186,17 @@ def uv_1to2(k, data):
 
     return hg_mat
 
-def nmr_1to2(k, data):
+def nmr_1to2(params, xdata):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
     """
 
-    # Convenience
-    k11 = k[0]
-    k12 = k[1]
-    h0  = data["x"][0]
-    g0  = data["x"][1]
+    k11 = params["k1"]
+    k12 = params["k2"]
 
+    h0  = xdata[0]
+    g0  = xdata[1]
 
     #
     # Calculate free guest concentration [G]: solve cubic

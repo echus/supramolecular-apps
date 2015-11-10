@@ -43,6 +43,11 @@ class FitView(APIView):
             data:
                 x:
                 y:
+            labels:
+                data:
+                    x:
+                    y:
+
             fit:
                 y:
                 coeffs:
@@ -59,16 +64,6 @@ class FitView(APIView):
                 rms:
                 rms_total:
             time:
-            labels:
-                data: {
-                    ... etc ... (see formatter.data for format)
-                }
-                fit: 
-                    y: {
-                        row_labels:
-                        axis_label:
-                        axis_units:
-                        }
         """
 
         logger.debug("FitterView.post: called")
@@ -90,19 +85,19 @@ class FitView(APIView):
         fitter = self.run_fitter(datax, datay, params)
         
         # Build response dict
-        response = self.build_response(data, fitter)
+        response = self.build_response(fitter, data)
         return Response(response)
 
-    def build_response(self, data, fitter):
+    def build_response(self, fitter, data):
         # Combined fitter and data dictionaries
         response = formatter.fit(fitter    =self.fitter_name,
-                             data      =data,
-                             y         =fitter.fit,
-                             params    =fitter.params,
-                             residuals =fitter.residuals,
-                             coeffs    =fitter.coeffs,
-                             molefrac  =fitter.molefrac,
-                             time      =fitter.time)
+                                 data      =data,
+                                 y         =fitter.fit,
+                                 params    =fitter.params,
+                                 residuals =fitter.residuals,
+                                 coeffs    =fitter.coeffs,
+                                 molefrac  =fitter.molefrac,
+                                 time      =fitter.time)
         return response
 
     def run_fitter(self, datax, datay, params):
@@ -231,11 +226,14 @@ class FitExportView(APIView):
         options = request.data["options"]
         meta = request.data["meta"]
 
+        labels = formatter.labels(options["fitter"])
+        user_labels = fit["labels"]
+
         # Munge some data
         # Transpose 1D arrays -> 2D column arrays for hstack later
         # Input data
-        data_x_labels = fit["labels"]["data"]["x"]["row_labels"]
-        data_y_labels = fit["labels"]["data"]["y"]["row_labels"]
+        data_x_labels = user_labels["data"]["x"]["row_labels"]
+        data_y_labels = user_labels["data"]["y"]["row_labels"]
         data_h0  = np.array(fit["data"]["x"][0],  dtype=dt)[np.newaxis].T
         data_g0  = np.array(fit["data"]["x"][1],  dtype=dt)[np.newaxis].T
         data_geq = data_g0/data_h0
@@ -264,7 +262,7 @@ class FitExportView(APIView):
         fit_cov_total = fit["qof"]["cov_total"]
 
         # Labels
-        params_labels_dict = fit["labels"]["fit"]["params"]
+        params_labels_dict = labels["fit"]["params"]
         params_labels = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
 
         # Create output arrays

@@ -8,6 +8,9 @@ from __future__ import print_function
 import numpy as np
 import numpy.matlib as ml
 
+import logging
+logger = logging.getLogger('supramolecular')
+
 def cov(data, residuals, total=False):
     cov = np.var(residuals, axis=1)/np.var(data, axis=1)
 
@@ -46,6 +49,10 @@ def normalise(data):
     Returns:
         ndarray  n x m array of normalised input data
     """
+
+    logger.debug("helpers.normalise: called")
+    logger.debug("helpers.normalise: input data")
+    logger.debug(data)
 
     # Create matrix of initial values to subtract from original matrix
     initialmat = ml.repmat(data.T[0,:], len(data.T), 1).T
@@ -88,5 +95,5 @@ def dilute(xdata, ydata):
 
     dilfac = h0/h0[0]
     dilmat = ml.repmat(dilfac, y.shape[0], 1)
-    y_dil = (y*dilmat)[np.newaxis]
+    y_dil = (y*dilmat)
     return y_dil
