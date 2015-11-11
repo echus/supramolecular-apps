@@ -257,10 +257,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
                 "y":        y,
                 "coeffs":   coeffs,
                 "molefrac": molefrac,
-                "params":   { key: {"value": float(param["value"]), 
-                                    "stderr": float(param["stderr"]), 
-                                    "init": float(param["init"])} 
-                              for (key, param) in params.items() },
+                "params":   params,
                 },
             "qof": {
                 "residuals": residuals,

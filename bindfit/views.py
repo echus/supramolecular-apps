@@ -143,8 +143,7 @@ class FitSaveView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        fit  = request.data["fit"]
-        options = request.data["options"]
+        fit  = request.data
         meta = request.data["meta"]
 
         meta_author    = meta.get("author", "")
@@ -165,14 +164,19 @@ class FitSaveView(APIView):
         if meta_date == "None":
             meta_date = None
 
-        options_fitter  = options["fitter"]
-        options_data_id = options["data_id"]
-        # Convert parameters to strings for HStore
-        options_params = { key: str(value) for (key, value) in options["params"].items() }
-        options_dilute  = options["options"]["dilute"]
+        options_fitter  = fit["fitter"]
+        options_data_id = fit["data_id"]
+        options_dilute  = fit["options"]["dilute"]
 
-        # Convert parameters to strings for HStore
-        fit_params = { key: str(value) for (key, value) in fit["fit"]["params"].items() }
+        fit_params        = fit["fit"]["params"]
+        fit_params_keys   = [ key for key in sorted(fit_params) ]
+        fit_params_init   = [ fit_params[key]["init"]  
+                              for key in sorted(fit_params) ]
+        fit_params_value  = [ fit_params[key]["value"] 
+                              for key in sorted(fit_params) ]
+        fit_params_stderr = [ fit_params[key]["stderr"]
+                              for key in sorted(fit_params) ]
+
         fit_y      = fit["fit"]["y"]
 
         fit_molefrac  = fit["fit"]["molefrac"]
@@ -192,15 +196,17 @@ class FitSaveView(APIView):
                          meta_temp=meta_temp, 
                          meta_notes=meta_notes,
                          data=data,
-                         options_fitter=options_fitter,
-                         options_params=options_params,
+                         fitter_name=options_fitter,
                          options_dilute=options_dilute,
-                         fit_params=fit_params,
+                         fit_params_keys=fit_params_keys,
+                         fit_params_init=fit_params_init,
+                         fit_params_value=fit_params_value,
+                         fit_params_stderr=fit_params_stderr,
                          fit_y=fit_y,
-                         fit_residuals=fit_residuals,
                          fit_molefrac=fit_molefrac,
                          fit_coeffs=fit_coeffs,
-                         fit_time=fit_time,
+                         qof_residuals=fit_residuals,
+                         time=fit_time,
                          )
         fit.save()
 

@@ -135,20 +135,18 @@ class Fit(models.Model):
     data = models.ForeignKey(Data)
 
     # Fit options 
-    options_fitter = models.CharField(max_length=20)
-    options_params = HStoreField()
+    fitter_name = models.CharField(max_length=20)
     options_dilute = models.BooleanField(default=False) # Dilution factor flag
 
     # Fit results
     # 1D array of fitted parameters
-    fit_params = HStoreField()
+    fit_params_keys   = ArrayField(models.CharField(max_length=20))
+    fit_params_init   = ArrayField(models.FloatField())
+    fit_params_value  = ArrayField(models.FloatField())
+    fit_params_stderr = ArrayField(models.FloatField())
 
     # 2D matrix of (calculated) fitted input y data
     fit_y = ArrayField(
-            ArrayField(models.FloatField())
-            )
-    
-    fit_residuals = ArrayField(
             ArrayField(models.FloatField())
             )
 
@@ -160,33 +158,40 @@ class Fit(models.Model):
             ArrayField(models.FloatField())
             )
 
-    fit_time = models.FloatField()
+    qof_residuals = ArrayField(
+            ArrayField(models.FloatField())
+            )
+
+    time = models.FloatField()
 
     def to_dict(self):
-        response = {
-                "fit" : formatter.fit(self.options_fitter,
-                                      self.data.to_dict(self.options_dilute),
-                                      self.fit_y, 
-                                      self.fit_params, 
-                                      self.fit_residuals,
-                                      self.fit_molefrac,
-                                      self.fit_coeffs,
-                                      self.fit_time,
-                                      self.options_dilute),
-                "meta": formatter.meta(self.meta_author,
-                                       self.meta_name,
-                                       self.meta_date,
-                                       self.meta_timestamp,
-                                       self.meta_ref,
-                                       self.meta_host,
-                                       self.meta_guest,
-                                       self.meta_solvent,
-                                       self.meta_temp,
-                                       self.meta_temp_unit,
-                                       self.meta_notes),
-                "options": formatter.options(self.options_fitter,
-                                             self.data.id,
-                                             self.options_params,
-                                             self.options_dilute),
-                }
+        # Convert parameter arrays to appropriate nested dict input to formatter
+        params = { key: {"init": init, "value": value, "stderr": stderr}
+                   for (key, init, value, stderr)
+                   in zip(self.fit_params_keys,
+                          self.fit_params_init,
+                          self.fit_params_value,
+                          self.fit_params_stderr) }
+
+        response = formatter.fit(self.fitter_name,
+                                 self.data.to_dict(self.options_dilute),
+                                 self.fit_y, 
+                                 params, 
+                                 self.qof_residuals,
+                                 self.fit_molefrac,
+                                 self.fit_coeffs,
+                                 self.time,
+                                 self.options_dilute)
+
+        response["meta"] = formatter.meta(self.meta_author,
+                                          self.meta_name,
+                                          self.meta_date,
+                                          self.meta_timestamp,
+                                          self.meta_ref,
+                                          self.meta_host,
+                                          self.meta_guest,
+                                          self.meta_solvent,
+                                          self.meta_temp,
+                                          self.meta_temp_unit,
+                                          self.meta_notes)
         return response
