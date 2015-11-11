@@ -225,11 +225,10 @@ class FitExportView(APIView):
     def post(self, request):
         dt = 'f8'
 
-        fit  = request.data["fit"]
-        options = request.data["options"]
+        fit  = request.data
         meta = request.data["meta"]
 
-        labels = formatter.labels(options["fitter"])
+        labels = formatter.labels(fit["fitter"])
         user_labels = fit["labels"]
 
         # Munge some data
@@ -244,16 +243,18 @@ class FitExportView(APIView):
         data_y   = np.array(fit["data"]["y"],  dtype=dt).T
 
         # Input options
-        options_fitter = options["fitter"]
+        options_fitter = fit["fitter"]
         options_params = np.array(
-                [ options["params"][key] for key in sorted(options["params"]) ], 
+                [ fit["fit"]["params"][key]["init"] 
+                  for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
 
         # Fit results 
         # PLACEHOLDER deal with multi-D y inputs here later
         fit_y         = np.array(fit["fit"]["y"],      dtype=dt).T
         fit_params    = np.array(
-                [ fit["fit"]["params"][key] for key in sorted(fit["fit"]["params"]) ], 
+                [ fit["fit"]["params"][key]["value"] 
+                  for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
         fit_molefrac  = np.array(fit["fit"]["molefrac"],  dtype=dt).T
         fit_coeffs    = np.array(fit["fit"]["coeffs"],    dtype=dt)

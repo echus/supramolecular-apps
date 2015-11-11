@@ -252,6 +252,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
     """
 
     fit = {
+            "fitter": fitter,
             "fit": {
                 "y":        y,
                 "coeffs":   coeffs,
