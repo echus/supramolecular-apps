@@ -50,16 +50,16 @@ class Fitter():
 
         return f 
 
-    def run(self, params):
+    def run(self, params_init):
         """
         Arguments:
             params: dict  Initial parameter guesses for fitter    
         """
         logger.debug("Fitter.fit: called. Input params:")
-        logger.debug(params)
+        logger.debug(params_init)
         
         p = lmfit.Parameters()
-        for key, value in params.items():
+        for key, value in params_init.items():
             p.add(key, value=value)
         
         # Run optimizer 
@@ -67,32 +67,40 @@ class Fitter():
         y = self._preprocess(self.ydata)
 
         tic = time.clock()
-        result = lmfit.minimize(self.function.objective, p, args=(x, y), method="nelder")
+        mini = lmfit.Minimizer(self.function.objective, p, fcn_args=(x, y))
+        result = mini.minimize(method="leastsq")
+        #ci = lmfit.conf_interval(mini, result)
+        #logger.debug(str(lmfit.printfuncs.report_ci(ci)))
+        #result = lmfit.minimize(self.function.objective, p, args=(x, y), method="nelder")
         toc = time.clock()
 
-        logger.debug("Fitter.fit: fit finished")
+        logger.debug("Fitter.run: FIT FINISHED")
+        logger.debug(lmfit.fit_report(result.params))
         if hasattr(result, "success"):
             logger.debug(result.success)
         if hasattr(result, "message"):
             logger.debug(result.message)
         logger.debug(result.nfev)
         logger.debug(result.init_vals)
-        logger.debug(result.params.valuesdict())
-
-        # Time taken to fit
-        self.time = toc - tic 
-
-        # Save final optimised parameters as dictionary
-        self.params = result.params.valuesdict()
 
         # Calculate fitted data with optimised parameters
         fit_norm, residuals, coeffs, molefrac = self.function.objective(
-                                                    self.params, 
+                                                    result.params, 
                                                     x, 
                                                     y, 
                                                     detailed=True)
 
-        # Postprocess fitted data (denormalise)
+        # Save time taken to fit
+        self.time = toc - tic 
+
+        # Save final optimised parameters and errors as dictionary
+        #self.params = result.params.valuesdict()
+        self.params = { key: {"value": param.value, "stderr": param.stderr, "init": params_init[key]} for (key, param) in result.params.items() }
+
+        logger.debug("Fitter.run: PARAMS")
+        logger.debug(self.params)
+
+        # Postprocess (denormalise) and save fitted data
         fit = self._postprocess(self.ydata, fit_norm)
         self.fit = fit
 

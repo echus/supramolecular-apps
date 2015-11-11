@@ -53,8 +53,8 @@ class FitView(APIView):
                 coeffs:
                 molefrac:
                 params: {
-                        k1: float   Optimised first parameter value
-                        k2: float   Optimised second parameter value
+                        k1: dict    First parameter optimised results
+                        k2: dict    Second parameter optimised results
                         ..: ...     ...
                         }
             qof:
@@ -64,6 +64,8 @@ class FitView(APIView):
                 rms:
                 rms_total:
             time:
+            options:
+                dilute:
         """
 
         logger.debug("FitterView.post: called")
@@ -85,10 +87,10 @@ class FitView(APIView):
         fitter = self.run_fitter(datax, datay, params)
         
         # Build response dict
-        response = self.build_response(fitter, data)
+        response = self.build_response(fitter, data, dilute)
         return Response(response)
 
-    def build_response(self, fitter, data):
+    def build_response(self, fitter, data, dilute):
         # Combined fitter and data dictionaries
         response = formatter.fit(fitter    =self.fitter_name,
                                  data      =data,
@@ -97,7 +99,8 @@ class FitView(APIView):
                                  residuals =fitter.residuals,
                                  coeffs    =fitter.coeffs,
                                  molefrac  =fitter.molefrac,
-                                 time      =fitter.time)
+                                 time      =fitter.time,
+                                 dilute    =dilute)
         return response
 
     def run_fitter(self, datax, datay, params):

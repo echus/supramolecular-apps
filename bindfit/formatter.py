@@ -215,7 +215,7 @@ def meta(author,
             }
     return response
 
-def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
+def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -229,6 +229,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
         molefrac:  ndarray  Fitted species molefractions
         coeffs:    ndarray  Fitted species coefficients
         time:      ndarray  Time taken to fit
+        dilute:    bool     (option) Dilution factor flag
 
     Returns:
         fit:
@@ -255,7 +256,10 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
                 "y":        y,
                 "coeffs":   coeffs,
                 "molefrac": molefrac,
-                "params":   { key: float(value) for (key, value) in params.items() },
+                "params":   { key: {"value": float(param["value"]), 
+                                    "stderr": float(param["stderr"]), 
+                                    "init": float(param["init"])} 
+                              for (key, param) in params.items() },
                 },
             "qof": {
                 "residuals": residuals,
@@ -265,6 +269,9 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time):
                 "cov_total": helpers.cov(y, residuals, total=True),
                 },
             "time": time,
+            "options": {
+                "dilute": dilute,
+                },
             }
     
     # Merge with data dictionary
