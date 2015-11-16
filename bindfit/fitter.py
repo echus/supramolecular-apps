@@ -68,10 +68,11 @@ class Fitter():
 
         tic = time.clock()
         mini = lmfit.Minimizer(self.function.objective, p, fcn_args=(x, y))
-        result = mini.minimize(method="leastsq")
+        result = mini.minimize(method="lbfgsb", tol=1e-18)
         #ci = lmfit.conf_interval(mini, result)
         #logger.debug(str(lmfit.printfuncs.report_ci(ci)))
-        #result = lmfit.minimize(self.function.objective, p, args=(x, y), method="lbfgsb")
+        #result = lmfit.minimize(self.function.objective, p, args=(x, y), method="nelder", tol=1e-18)
+        #scipy.optimize.minimize(self.function.objective, p0, args=(x, y), method="L-BFGS-B", tol=1e-18)
         toc = time.clock()
 
         logger.debug("Fitter.run: FIT FINISHED")

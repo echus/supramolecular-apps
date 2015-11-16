@@ -69,7 +69,8 @@ class Function():
             # scipy.leastsq requires a list
             # (returning an ndarray works for 1:1 fitters but not 1:2 - go 
             # figure)
-            ret = list(residuals.sum(axis=0))
+            rsum = residuals.sum(axis=0)
+            ret = [ float(r) for r in rsum ]
             logger.debug("Function.objective: residuals sum")
             logger.debug(ret)
             logger.debug(len(ret))
