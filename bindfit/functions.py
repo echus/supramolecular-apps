@@ -66,9 +66,13 @@ class Function():
         if detailed:
             return fit, residuals, coeffs, molefrac.T
         else:
-            ret = residuals.sum(axis=0)
+            # scipy.leastsq requires a list
+            # (returning an ndarray works for 1:1 fitters but not 1:2 - go 
+            # figure)
+            ret = list(residuals.sum(axis=0))
             logger.debug("Function.objective: residuals sum")
             logger.debug(ret)
+            logger.debug(len(ret))
             return ret
 
 

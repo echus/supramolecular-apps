@@ -158,10 +158,10 @@ class FitSaveView(APIView):
         meta_notes     = meta.get("notes", "")
 
         # Hack to deal with receiving "None" string
-        if meta_temp == "None":
+        if meta_temp == "None" or meta_temp == "":
             meta_temp = None
 
-        if meta_date == "None":
+        if meta_date == "None" or meta_date == "":
             meta_date = None
 
         options_fitter  = fit["fitter"]

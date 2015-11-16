@@ -5,6 +5,7 @@
 from __future__ import division
 from __future__ import print_function
 
+from math import sqrt
 import numpy as np
 import numpy.matlib as ml
 
@@ -25,14 +26,25 @@ def rms(residuals, total=False):
 
     Arguments:
         residuals: array  3D array of residuals corresponding to each input
-                          dataset
+                          y 
 
     Returns:
-        array  2D array of RMS values for each fit
+        array  1D array of RMS values for each fitted y
     """
 
+    logger.debug("helpers.rms: called")
+
     r = np.array(residuals)
-    rms = np.sqrt(np.sum(np.square(r), axis=1))
+    logger.debug("helpers.rms: r")
+    logger.debug(r)
+    sqr = np.square(r)
+    logger.debug("helpers.rms: sqr")
+    logger.debug(sqr)
+    sumsqr = np.sum(sqr, axis=1)
+    logger.debug("helpers.rms: sumsqr")
+    logger.debug(sumsqr)
+    #rms = sqrt(sumsqr) - doesn't work when array elements are numpy.float64s!
+    rms = [ sqrt(s) for s in sumsqr ]
 
     if total:
         return sum(rms)/len(rms) 

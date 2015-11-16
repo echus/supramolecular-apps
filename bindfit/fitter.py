@@ -71,16 +71,22 @@ class Fitter():
         result = mini.minimize(method="leastsq")
         #ci = lmfit.conf_interval(mini, result)
         #logger.debug(str(lmfit.printfuncs.report_ci(ci)))
-        #result = lmfit.minimize(self.function.objective, p, args=(x, y), method="nelder")
+        #result = lmfit.minimize(self.function.objective, p, args=(x, y), method="lbfgsb")
         toc = time.clock()
 
         logger.debug("Fitter.run: FIT FINISHED")
         logger.debug(lmfit.fit_report(result.params))
+        logger.debug("Fitter.run: Fitter.function")
+        logger.debug(self.function)
         if hasattr(result, "success"):
+            logger.debug("result.success")
             logger.debug(result.success)
         if hasattr(result, "message"):
+            logger.debug("result.message")
             logger.debug(result.message)
+        logger.debug("result.nfev")
         logger.debug(result.nfev)
+        logger.debug("result.init_vals")
         logger.debug(result.init_vals)
 
         # Calculate fitted data with optimised parameters
