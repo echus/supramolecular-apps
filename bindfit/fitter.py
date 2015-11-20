@@ -8,6 +8,9 @@ import numpy as np
 import numpy.matlib as ml
 import lmfit
 
+import scipy
+import scipy.optimize
+
 from . import functions
 from . import helpers 
 
@@ -49,6 +52,68 @@ class Fitter():
             f = helpers.denormalise(ydata, yfit)
 
         return f 
+
+    def run_scipy(self, params_init):
+        """
+        Arguments:
+            params: dict  Initial parameter guesses for fitter    
+        """
+        logger.debug("Fitter.fit: called. Input params:")
+        logger.debug(params_init)
+        
+        p = []
+        for key, value in sorted(params_init.items()):
+            p.append(value)
+        
+        # Run optimizer 
+        x = self.xdata
+        y = self._preprocess(self.ydata)
+
+        tic = time.clock()
+        result = scipy.optimize.minimize(self.function.objective,
+                                         p,
+                                         args=(x, y, True),
+                                         method='Nelder-Mead',
+                                         tol=1e-18,
+                                        )
+        toc = time.clock()
+
+        logger.debug("Fitter.run: FIT FINISHED")
+        logger.debug("Fitter.run: Fitter.function")
+        logger.debug(self.function)
+        logger.debug("Fitter.run: result.x")
+        logger.debug(result.x)
+
+        # Calculate fitted data with optimised parameters
+        fit_norm, residuals, coeffs, molefrac = self.function.objective(
+                                                    result.x, 
+                                                    x, 
+                                                    y, 
+                                                    detailed=True)
+
+        # Save time taken to fit
+        self.time = toc - tic 
+
+        # Save final optimised parameters and errors as dictionary
+        self.params = { key: {"value": param, "stderr": None, "init": params_init[key]} 
+                        for (key, param) 
+                        in zip(sorted(params_init), result.x) }
+
+        logger.debug("Fitter.run: PARAMS DICT")
+        logger.debug(self.params)
+
+        # Postprocess (denormalise) and save fitted data
+        fit = self._postprocess(self.ydata, fit_norm)
+        self.fit = fit
+
+        self.residuals = residuals
+
+        self.coeffs = coeffs
+
+        # Calculate host molefraction from complexes and add as first row
+        molefrac_host = np.ones(molefrac.shape[1])
+        molefrac_host -= molefrac.sum(axis=0)
+        self.molefrac = np.vstack((molefrac_host, molefrac))
 
     def run(self, params_init):
         """

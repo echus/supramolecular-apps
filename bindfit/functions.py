@@ -19,7 +19,7 @@ class Function():
     def __init__(self, f):
         self.f = f
 
-    def objective(self, params, xdata, ydata, detailed=False):
+    def objective(self, params, xdata, ydata, scalar=False, detailed=False):
         """
         Objective function:
         Performs least squares regression fitting via matrix division on provided
@@ -63,7 +63,9 @@ class Function():
         residuals = fit - ydata
 
         # Transpose any column-matrices to rows
-        if detailed:
+        if scalar:
+            return rssq.sum()
+        elif detailed:
             return fit, residuals, coeffs, molefrac.T
         else:
             # scipy.leastsq requires a list
@@ -87,7 +89,11 @@ def nmr_1to1(params, xdata):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    k = params["k"]
+    k = params[0]
+    # if isinstance(params, list):
+    #     k = params[0]
+    # else:
+    #     k = params["k"]
  
     h0 = xdata[0]
     g0 = xdata[1]
@@ -116,7 +122,11 @@ def uv_1to1(params, xdata):
     Calculates predicted [HG] given data object parameters as input.
     """
 
-    k = params["k"]
+    k = params[0]
+    # if isinstance(params, list):
+    #     k = params[0]
+    # else:
+    #     k = params["k"]
  
     h0 = xdata[0]
     g0 = xdata[1]
@@ -143,8 +153,14 @@ def uv_1to2(params, xdata):
     as input.
     """
 
-    k11 = params["k1"]
-    k12 = params["k2"]
+    k11 = params[0]
+    k12 = params[1]
+    # if isinstance(params, list):
+    #     k11 = params[0]
+    #     k12 = params[1]
+    # else:
+    #     k11 = params["k1"]
+    #     k12 = params["k2"]
  
     h0 = xdata[0]
     g0 = xdata[1]
@@ -197,8 +213,14 @@ def nmr_1to2(params, xdata):
     as input.
     """
 
-    k11 = params["k1"]
-    k12 = params["k2"]
+    k11 = params[0]
+    k12 = params[1]
+    # if isinstance(params, list):
+    #     k11 = params[0]
+    #     k12 = params[1]
+    # else:
+    #     k11 = params["k1"]
+    #     k12 = params["k2"]
 
     h0  = xdata[0]
     g0  = xdata[1]

@@ -109,7 +109,7 @@ class FitView(APIView):
         fitter = Fitter(datax, datay, function)
 
         # Run fitter
-        fitter.run(params)
+        fitter.run_scipy(params)
 
         return fitter 
 
