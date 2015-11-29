@@ -9,10 +9,10 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Supramolecular</title>
+        <title>Supramolecular - Bindsim</title>
 
         <!-- Global custom CSS -->
-        <link href="{% static "compass/stylesheets/styles.css" %}" rel="stylesheet" type="text/css" />
+        <!-- <link href="{% static "compass/stylesheets/styles.css" %}" rel="stylesheet" type="text/css" /> -->
 
         {% block css %}
         {% endblock %}
@@ -25,75 +25,68 @@
         <![endif]-->
     </head>
 
-
-
     <body>
-        <!-- Navigation -->
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
+        <header id="navbar-container" class="container-fluid">
+            <div class="navbar navbar-head navbar-inverse">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
-    </head>
-
-
-
-    <body>
-        <!-- Navigation -->
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
+                    <h1 class="navbar-brand">
+                        <a href="/">
+                            <span class="sr-only"></span>
+                            Bindsim
+                        </a>
+                    </h1>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".js-navbar-header">
+                        <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">
-                        supramolecular
-                    </a>
                 </div>
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="nav navbar-nav navbar-left">
-                        <li>
-                            <a href="#">Analysis</a>
-                        </li>
-                        <li>
-                            <a href="#">Simulators</a>
-                        </li>
-                        <li>
-                            <a href="#">Guides</a>
-                        </li>
-                        <li>
-                            <a href="#">Blog</a>
-                        </li>
-                        <li>
-                            <a href="#">About</a>
-                        </li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <a href="#" id="nav-logo-a">
-                                <img src="{% static "media/cbns_odf_nav.png" %}" id="nav-logo" class="hidden-md hidden-sm hidden-xs">
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <!-- /.navbar-collapse -->
-            </div>
-            <!-- /.container -->
-        </nav>
+                
+                <h2 class="sr-only">Shortcuts</h2>
+                <ul class="skip-links">
+                    <li><a href="/" title="[Alt + 0]" accesskey="0">Go to home</a></li>
+                    <li><a href="#page-navigation" title="[Alt + 1]" accesskey="1">Jump to navigation</a></li>
+                    <li><a href="#page-content" title="[Alt + 2]" accesskey="2">Jump to content</a></li>
+                    <li><a href="#page-footer" title="[Alt + 3]" accesskey="3">Contact</a></li>
+                </ul>
+
+                <div class="navbar-collapse collapse js-navbar-header">
+                        <nav class="nav navbar-main navbar-left" id="page-navigation" role="navigation">
+                            <h2 class="sr-only">Navigation</h2>
+                            <ul class="nav navbar-nav">
+                                <li class="child first">
+                                    <a href="http://supramolecular.echus.co:8000/en/">
+                                        <span>Back to Supramolecular Home</span>
+                                    </a>
+                                </li>
+                                <!--
+                                <li class="child children dropdown active last">
+                                    <a href="/apps/" class="dropdown-toggle" data-toggle="dropdown">
+                                        <span>Apps <span class="caret"></span></span>
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu">
+
+                                        <li class="child first last">
+                                            <a href="http://app.supramolecular.echus.co/bindfit/">
+                                                <span>Bindfit</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                -->
+
+                                <li class="divider" role="presentation"><span class="sr-only">Separator</span></li>
+                            </ul>
+                        </nav>
+                        <ul class="nav nabar-nav navbar-right">
+                            <li>
+                                <a href="#" id="nav-logo-a">
+                                    <!-- <img src="/static/img/logo-cbns%40print.png" id="nav-logo" class="hidden-md hidden-sm hidden-xs"> -->
+                                    <img src="http://supramolecular.echus.co:8000/static/img/logo-cbns%40print.png" alt="" id="nav-logo" class="hidden-md hidden-sm hidden-xs">
+                                </a>
+                            </li>
+                        </ul>
+                </div> <!-- navbar-collapse -->
+            </div> <!-- navbar -->
+        </header>
 
         <!-- Page Content -->
         {% block content %}
