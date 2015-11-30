@@ -14,12 +14,11 @@ logger = logging.getLogger('supramolecular')
 
 def cov(data, residuals, total=False):
     data_norm = normalise(data)
-    cov = np.var(residuals, axis=1)/np.var(data_norm, axis=1)
 
     if total:
         return np.var(residuals)/np.var(data_norm)
     else:
-        return cov
+        return np.var(residuals, axis=1)/np.var(data_norm, axis=1)
 
 def rms(residuals, total=False):
     """
@@ -36,21 +35,15 @@ def rms(residuals, total=False):
     logger.debug("helpers.rms: called")
 
     r = np.array(residuals)
-    logger.debug("helpers.rms: r")
-    logger.debug(r)
     sqr = np.square(r)
-    logger.debug("helpers.rms: sqr")
-    logger.debug(sqr)
-    sumsqr = np.sum(sqr, axis=1)
-    logger.debug("helpers.rms: sumsqr")
-    logger.debug(sumsqr)
-    #rms = sqrt(sumsqr) - doesn't work when array elements are numpy.float64s!
-    rms = [ sqrt(s) for s in sumsqr ]
+    # meansqr = np.mean(sqr, axis=1)
+    # #rms = sqrt(sumsqr) - doesn't work when array elements are numpy.float64s!
+    # rms = [ sqrt(s) for s in meansqr ]
 
     if total:
-        return sum(rms)/len(rms) 
+        return np.sqrt(np.mean(sqr)) 
     else:
-        return rms 
+        return np.sqrt(np.mean(sqr, axis=1))
 
 def normalise(data):
     """ 
