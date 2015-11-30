@@ -327,7 +327,7 @@ class FitExportView(APIView):
         params_output   = pd.concat([params_output_1,
                                      params_output_2],
                                      axis=1,
-                                     join_axes=[params_output_1.index])
+                                     join_axes=[params_output_2.index])
 
         # Create export file
         # Randomly generate export filename
