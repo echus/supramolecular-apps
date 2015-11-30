@@ -24,8 +24,10 @@ def fitter_list():
     fitter_list = [
             {"name": "NMR 1:1", "key": "nmr1to1"},
             {"name": "NMR 1:2", "key": "nmr1to2"},
+            {"name": "NMR 2:1", "key": "nmr2to1"},
             {"name": "UV 1:1",  "key": "uv1to1"},
             {"name": "UV 1:2",  "key": "uv1to2"},
+            {"name": "UV 2:1",  "key": "uv2to1"},
             ]
 
     return fitter_list
@@ -79,6 +81,29 @@ def labels(fitter):
                     },
                 },
 
+            "nmr2to1": {
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
+                    },
+                "fit": {
+                    "params": {
+                        "k1": {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                        "k2": {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
+                    },
+                },
+
             "uv1to1": {
                 "data": {
                     "x": {
@@ -102,6 +127,29 @@ def labels(fitter):
                 },
 
             "uv1to2": {
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
+                    },
+                "fit": {
+                    "params": {
+                        "k1": {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
+                        "k2": {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
+                    },
+                },
+
+            "uv2to1": {
                 "data": {
                     "x": {
                         "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
@@ -153,6 +201,18 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 },
 
+            "nmr2to1": {
+                "fitter": "nmr2to1",
+                "data_id": "",
+                "params": {
+                    "k1": 10000,
+                    "k2": 1000,
+                    },
+                "options": {
+                    "dilute": False,
+                    },
+                },
+
             "uv1to1": {
                 "fitter": "uv1to1",
                 "data_id": "",
@@ -166,6 +226,18 @@ def options(fitter, data_id=None, params=None, dilute=False):
 
             "uv1to2": {
                 "fitter": "uv1to2",
+                "data_id": "",
+                "params": {
+                    "k1": 10000,
+                    "k2": 1000,
+                    },
+                "options": {
+                    "dilute": True,
+                    },
+                },
+
+            "uv2to1": {
+                "fitter": "uv2to1",
                 "data_id": "",
                 "params": {
                     "k1": 10000,

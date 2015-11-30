@@ -267,6 +267,109 @@ def nmr_1to2(params, xdata):
 
     return hg_mat
 
+def nmr_2to1(params, xdata):
+    """
+    Calculates predicted [HG] and [H2G] given data object and binding constants
+    as input.
+    """
+
+    k11 = params[0]
+    k12 = params[1]
+    h0  = xdata[0]
+    g0  = xdata[1]
+
+    #
+    # Calculate free host concentration [H]: solve cubic
+    #
+    a = np.ones(h0.shape[0])*k11*k12
+    b = 2*k11*k12*g0 + k11 - h0*k11*k12
+    c = 1 + k11*g0 - k11*h0
+    d = -1. * h0
+
+    # Rows: data points, cols: poly coefficients
+    poly = np.column_stack((a, b, c, d))
+
+    # Solve cubic in [H] for each observation
+    h = np.zeros(h0.shape[0])
+
+    for i, p in enumerate(poly):
+        roots = np.roots(p)
+        # Smallest real +ve root is [H]
+        select = np.all([np.imag(roots) == 0, np.real(roots) >= 0], axis=0)
+        if select.any():
+            soln = roots[select].min()
+            soln = float(np.real(soln))
+        else:
+            # No positive real roots, set solution to 0
+            soln = 0.0
+
+        h[i] = soln
+
+    #
+    # Calculate [HG] and [H2G] complex concentrations 
+    #
+    hg = (g0*h*k11)/(h0*(1+(h*k11)+(h*h*k11*k12)))
+    h2g = ((g0*h*h*k11*k12))/(h0*(1+(h*k11)+(h*h*k11*k12)))
+
+    hg_mat = np.vstack((hg, h2g))
+
+    # Transpose for matrix calculations
+    hg_mat = hg_mat.T
+
+    return hg_mat
+
+def uv_2to1(params, xdata):
+    """
+    Calculates predicted [HG] and [H2G] given data object and binding constants
+    as input.
+    """
+
+    # Convenience
+    k11 = params[0]
+    k12 = params[1]
+    h0  = xdata[0]
+    g0  = xdata[1]
+
+    #
+    # Calculate free host concentration [H]: solve cubic
+    #
+    a = np.ones(h0.shape[0])*k11*k12
+    b = 2*k11*k12*g0 + k11 - h0*k11*k12
+    c = 1 + k11*g0 - k11*h0
+    d = -1. * h0
+
+    # Rows: data points, cols: poly coefficients
+    poly = np.column_stack((a, b, c, d))
+
+    # Solve cubic in [H] for each observation
+    h = np.zeros(h0.shape[0])
+
+    for i, p in enumerate(poly):
+        roots = np.roots(p)
+        # Smallest real +ve root is [H]
+        select = np.all([np.imag(roots) == 0, np.real(roots) >= 0], axis=0)
+        if select.any():
+            soln = roots[select].min()
+            soln = float(np.real(soln))
+        else:
+            # No positive real roots, set solution to 0
+            soln = 0.0
+
+        h[i] = soln
+
+    #
+    # Calculate [HG] and [H2G] complex concentrations 
+    #
+    hg = g0*((h*k11)/(1+(h*k11)+(h*h*k11*k12)))
+    h2g = g0*(((h*h*k11*k12))/(1+(h*k11)+(h*h*k11*k12)))
+
+    hg_mat = np.vstack((hg, h2g))
+
+    # Transpose for matrix calculations
+    hg_mat = hg_mat.T
+
+    return hg_mat
+
 
 
 # Initialise singletons for each function
@@ -275,6 +378,8 @@ def nmr_1to2(params, xdata):
 select = {
         "nmr1to1": Function(nmr_1to1),
         "nmr1to2": Function(nmr_1to2),
+        "nmr2to1": Function(nmr_2to1),
         "uv1to1" : Function(uv_1to1),
         "uv1to2" : Function(uv_1to2),
+        "uv2to1" : Function(uv_2to1),
         }
