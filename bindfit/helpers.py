@@ -13,10 +13,11 @@ import logging
 logger = logging.getLogger('supramolecular')
 
 def cov(data, residuals, total=False):
-    cov = np.var(residuals, axis=1)/np.var(data, axis=1)
+    data_norm = normalise(data)
+    cov = np.var(residuals, axis=1)/np.var(data_norm, axis=1)
 
     if total:
-        return sum(cov)/len(cov)
+        return np.var(residuals)/np.var(data_norm)
     else:
         return cov
 

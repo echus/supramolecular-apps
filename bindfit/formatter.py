@@ -334,9 +334,9 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
             "qof": {
                 "residuals": residuals,
                 "rms"      : helpers.rms(residuals),
-                "cov"      : helpers.cov(y, residuals),
+                "cov"      : helpers.cov(data["data"]["y"], residuals),
                 "rms_total": helpers.rms(residuals, total=True),
-                "cov_total": helpers.cov(y, residuals, total=True),
+                "cov_total": helpers.cov(data["data"]["y"], residuals, total=True),
                 },
             "time": time,
             "options": {
