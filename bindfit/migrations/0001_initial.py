@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import uuid
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.hstore
+import uuid
 
 
 class Migration(migrations.Migration):
@@ -16,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Data',
             fields=[
-                ('id', models.CharField(serialize=False, max_length=40, primary_key=True)),
+                ('id', models.CharField(primary_key=True, serialize=False, max_length=40)),
                 ('x', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
                 ('y', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None), size=None)),
                 ('labels_x', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100, blank=True), size=None)),
@@ -26,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Fit',
             fields=[
-                ('id', models.UUIDField(serialize=False, primary_key=True, default=uuid.uuid4, editable=False)),
+                ('id', models.UUIDField(primary_key=True, default=uuid.uuid4, serialize=False, editable=False)),
                 ('meta_author', models.CharField(max_length=200, blank=True)),
                 ('meta_name', models.CharField(max_length=200, blank=True)),
                 ('meta_date', models.DateTimeField(null=True, blank=True)),
@@ -35,18 +34,20 @@ class Migration(migrations.Migration):
                 ('meta_host', models.CharField(max_length=200, blank=True)),
                 ('meta_guest', models.CharField(max_length=200, blank=True)),
                 ('meta_solvent', models.CharField(max_length=200, blank=True)),
-                ('meta_temp', models.DecimalField(null=True, decimal_places=5, blank=True, max_digits=10)),
-                ('meta_temp_unit', models.CharField(max_length=1, default='C')),
+                ('meta_temp', models.DecimalField(null=True, decimal_places=5, max_digits=10, blank=True)),
+                ('meta_temp_unit', models.CharField(default='C', max_length=1)),
                 ('meta_notes', models.CharField(max_length=10000, blank=True)),
-                ('options_fitter', models.CharField(max_length=20)),
-                ('options_params', django.contrib.postgres.fields.hstore.HStoreField()),
+                ('fitter_name', models.CharField(max_length=20)),
                 ('options_dilute', models.BooleanField(default=False)),
-                ('fit_params', django.contrib.postgres.fields.hstore.HStoreField()),
+                ('fit_params_keys', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=20), size=None)),
+                ('fit_params_init', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
+                ('fit_params_value', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
+                ('fit_params_stderr', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
                 ('fit_y', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
-                ('fit_residuals', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
                 ('fit_molefrac', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
                 ('fit_coeffs', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
-                ('fit_time', models.FloatField()),
+                ('qof_residuals', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
+                ('time', models.FloatField()),
                 ('data', models.ForeignKey(to='bindfit.Data')),
             ],
         ),
