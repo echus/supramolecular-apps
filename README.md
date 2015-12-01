@@ -1,4 +1,4 @@
-# supramolecular.org apps API
+# Supramolecular.org apps API
 
 Developer documentation coming soon.
 
