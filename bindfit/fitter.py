@@ -89,7 +89,8 @@ class Fitter():
                                                     result.x, 
                                                     x, 
                                                     y, 
-                                                    detailed=True)
+                                                    detailed=True,
+                                                    force_molefrac=True)
 
         # Save time taken to fit
         self.time = toc - tic 

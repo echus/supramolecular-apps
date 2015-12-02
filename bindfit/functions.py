@@ -19,7 +19,10 @@ class Function():
     def __init__(self, f):
         self.f = f
 
-    def objective(self, params, xdata, ydata, scalar=False, detailed=False):
+    def objective(self, params, xdata, ydata, 
+                  scalar=False, 
+                  detailed=False, 
+                  force_molefrac=False):
         """
         Objective function:
         Performs least squares regression fitting via matrix division on provided
@@ -30,8 +33,12 @@ class Function():
         Arguments:
             params: Parameter  lmfit Parameter object containing binding 
                                constant guesses
-            datax : ndarray    x x m array of x independent variables, m obs
-            datay : ndarray    y x m array of y dependent variables, m obs
+            datax:    ndarray    x x m array of x independent variables, m obs
+            datay:    ndarray    y x m array of y dependent variables, m obs
+            scalar:   bool       
+            detailed: bool       
+            molefrac: bool       Force molefraction calculation (for UV 
+                                 objective functions)
 
         Returns:
             float:  Sum of least squares
@@ -44,7 +51,7 @@ class Function():
 
         # Calculate predicted HG complex concentrations for this set of 
         # parameters and concentrations
-        molefrac = self.f(params, xdata)
+        molefrac = self.f(params, xdata, force_molefrac)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -84,7 +91,7 @@ class Function():
 # Function definitions
 #
 
-def nmr_1to1(params, xdata):
+def nmr_1to1(params, xdata, **kwargs):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
@@ -117,7 +124,7 @@ def nmr_1to1(params, xdata):
 
     return hg
 
-def uv_1to1(params, xdata):
+def uv_1to1(params, xdata, molefrac=False):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
@@ -142,12 +149,16 @@ def uv_1to1(params, xdata):
     inds = np.imag(hg) > 0
     hg[inds] = np.sqrt(h0[inds] * g0[inds])
 
+    if molefrac:
+        # Convert [HG] concentration to molefraction 
+        hg /= h0
+
     # Make column vector
     hg = hg.reshape(len(hg), 1)
 
     return hg
 
-def uv_1to2(params, xdata):
+def uv_1to2(params, xdata, molefrac=False):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
@@ -207,7 +218,7 @@ def uv_1to2(params, xdata):
 
     return hg_mat
 
-def nmr_1to2(params, xdata):
+def nmr_1to2(params, xdata, **kwargs):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
@@ -267,7 +278,7 @@ def nmr_1to2(params, xdata):
 
     return hg_mat
 
-def nmr_2to1(params, xdata):
+def nmr_2to1(params, xdata, **kwargs):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
@@ -318,7 +329,7 @@ def nmr_2to1(params, xdata):
 
     return hg_mat
 
-def uv_2to1(params, xdata):
+def uv_2to1(params, xdata, molefrac=False):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
