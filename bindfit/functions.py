@@ -91,7 +91,7 @@ class Function():
 # Function definitions
 #
 
-def nmr_1to1(params, xdata, **kwargs):
+def nmr_1to1(params, xdata, *args, **kwargs):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
@@ -218,7 +218,7 @@ def uv_1to2(params, xdata, molefrac=False):
 
     return hg_mat
 
-def nmr_1to2(params, xdata, **kwargs):
+def nmr_1to2(params, xdata, *args, **kwargs):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
@@ -278,7 +278,7 @@ def nmr_1to2(params, xdata, **kwargs):
 
     return hg_mat
 
-def nmr_2to1(params, xdata, **kwargs):
+def nmr_2to1(params, xdata, *args, **kwargs):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
