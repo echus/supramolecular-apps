@@ -89,7 +89,7 @@ def dilute(xdata, ydata):
     Arguments:
         xdata: ndarray  x x m array of m observations of independent variables
         ydata: ndarray  y x m array of non-normalised observations of dependent
-                      variables
+                        variables
 
     Returns:
         ndarray  y x m array of input data with dilution factor applied
@@ -103,3 +103,36 @@ def dilute(xdata, ydata):
     dilmat = ml.repmat(dilfac, y.shape[0], 1)
     y_dil = (y*dilmat)
     return y_dil
+
+def calculate_coeffs(fitter, coeffs, ydata_init, h0_init=None):
+    """
+    Calculate "real" coefficients from their raw values and an input dataset
+
+    Arguments:
+        ydata_init: ndarray  1 x m array of non-normalised initial observations 
+                             of dependent variables
+        coeffs:     ndarray  
+        h0_init:    float    Optional initial h0 value, if provided ydata_init 
+                             is divided by this value before the calculation
+    """
+    
+
+    # H coefficients
+    h = np.copy(ydata_init)
+
+    # Divide initial ydata values by h0 in UV fitters
+    if "uv" in fitter and h0_init is not None:
+        h /= h0_init
+
+    rows = coeffs.shape[0]
+    if rows == 1:
+        # 1:1 system
+        hg = h + coeffs[0]
+        return np.vstack((h, hg))
+    elif rows == 2:
+        # 1:2 or 2:1 system
+        hg  = h - coeffs[0]
+        hg2 = h - coeffs[1]
+        return np.vstack((h, hg, hg2))
+    else:
+        pass # Throw error here

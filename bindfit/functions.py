@@ -210,6 +210,11 @@ def uv_1to2(params, xdata, molefrac=False):
     hg = h0*((g*k11)/(1+(g*k11)+(g*g*k11*k12)))
     hg2 = h0*(((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12)))
 
+    if molefrac:
+        # Convert free concentrations to molefractions
+        hg  /= h0
+        hg2 /= h0
+
     hg_mat = np.vstack((hg, hg2))
 
 
@@ -373,6 +378,11 @@ def uv_2to1(params, xdata, molefrac=False):
     #
     hg = g0*((h*k11)/(1+(h*k11)+(h*h*k11*k12)))
     h2g = g0*(((h*h*k11*k12))/(1+(h*k11)+(h*h*k11*k12)))
+
+    if molefrac:
+        # Convert free concentrations to molefractions
+        hg  /= h0
+        h2g /= h0
 
     hg_mat = np.vstack((hg, h2g))
 
