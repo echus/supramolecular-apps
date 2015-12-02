@@ -329,7 +329,7 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
             "fit": {
                 "y":           y,
                 "coeffs":      coeffs,
-                "calc_coeffs": helpers.calculate_coeffs(fitter,
+                "coeffs_calc": helpers.calculate_coeffs(fitter,
                                                         coeffs,
                                                         data["data"]["y"][:,0],
                                                         data["data"]["x"][0][0]),
