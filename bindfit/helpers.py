@@ -125,6 +125,7 @@ def calculate_coeffs(fitter, coeffs, ydata_init, h0_init=None):
         h /= h0_init
         coeffs = np.copy(coeffs)/h0_init
 
+    coeffs = np.array(coeffs)
     rows = coeffs.shape[0]
     if rows == 1:
         # 1:1 system
