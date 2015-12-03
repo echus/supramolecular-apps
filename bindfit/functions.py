@@ -203,7 +203,6 @@ def uv_1to2(params, xdata, molefrac=False):
         
         g[i] = soln
 
-
     #
     # Calculate [HG] and [HG2] complex concentrations 
     #
@@ -216,7 +215,6 @@ def uv_1to2(params, xdata, molefrac=False):
         hg2 /= h0
 
     hg_mat = np.vstack((hg, hg2))
-
 
     # Transpose for matrix calculations
     hg_mat = hg_mat.T
