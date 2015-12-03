@@ -55,6 +55,8 @@ def labels(fitter):
                         "axis_label": "\u03B4",
                         "axis_units": "ppm",
                         },
+                    "coeffs_calc": ["H", "HG"],
+                    "molefrac":    ["H", "HG"],
                     },
                 },
             
@@ -78,6 +80,8 @@ def labels(fitter):
                         "axis_label": "\u03B4",
                         "axis_units": "ppm",
                         },
+                    "coeffs_calc": ["H", "HG", "HG2"],
+                    "molefrac":    ["H", "HG", "HG2"],
                     },
                 },
 
@@ -101,6 +105,8 @@ def labels(fitter):
                         "axis_label": "\u03B4",
                         "axis_units": "ppm",
                         },
+                    "coeffs_calc": ["H", "HG", "H2G"],
+                    "molefrac":    ["H", "HG", "H2G"],
                     },
                 },
 
@@ -123,6 +129,8 @@ def labels(fitter):
                         "axis_label": "Absorbance",
                         "axis_units": "",
                         },
+                    "coeffs_calc": ["H", "HG"],
+                    "molefrac":    ["H", "HG"],
                     },
                 },
 
@@ -146,6 +154,8 @@ def labels(fitter):
                         "axis_label": "Absorbance",
                         "axis_units": "",
                         },
+                    "coeffs_calc": ["H", "HG", "HG2"],
+                    "molefrac":    ["H", "HG", "HG2"],
                     },
                 },
 
@@ -169,6 +179,8 @@ def labels(fitter):
                         "axis_label": "Absorbance",
                         "axis_units": "",
                         },
+                    "coeffs_calc": ["H", "HG", "H2G"],
+                    "molefrac":    ["H", "HG", "H2G"],
                     },
                 },
             }

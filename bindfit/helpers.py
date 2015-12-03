@@ -120,9 +120,10 @@ def calculate_coeffs(fitter, coeffs, ydata_init, h0_init=None):
     # H coefficients
     h = np.copy(ydata_init)
 
-    # Divide initial ydata values by h0 in UV fitters
+    # Divide initial ydata values and coeffs by h0 in UV fitters
     if "uv" in fitter and h0_init is not None:
         h /= h0_init
+        coeffs = np.copy(coeffs)/h0_init
 
     rows = coeffs.shape[0]
     if rows == 1:

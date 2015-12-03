@@ -263,7 +263,8 @@ class FitExportView(APIView):
                   for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
         fit_molefrac  = np.array(fit["fit"]["molefrac"],  dtype=dt).T
-        fit_coeffs    = np.array(fit["fit"]["coeffs"],    dtype=dt)
+        fit_coeffs    = np.array(fit["fit"]["coeffs"],    dtype=dt).T
+        fit_coeffs_calc = np.array(fit["fit"]["coeffs_calc"],    dtype=dt).T
         # PLACEHOLDER deal with multi-D y inputs here later
         fit_residuals = np.array(fit["qof"]["residuals"], dtype=dt).T
         fit_rms       = np.array(fit["qof"]["rms"], dtype=dt).T
@@ -273,7 +274,9 @@ class FitExportView(APIView):
 
         # Labels
         params_labels_dict = labels["fit"]["params"]
-        params_labels = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
+        params_labels      = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
+        coeffs_calc_labels = labels["fit"]["coeffs_calc"]
+        molefrac_labels    = labels["fit"]["molefrac"]
 
         # Create output arrays
         data_array     = np.hstack((data_h0, data_g0, data_geq, data_y))
@@ -284,7 +287,8 @@ class FitExportView(APIView):
 
         params_array_1 = fit_params[np.newaxis] # To force horizontal array in
                                                 # DataFrame
-        params_array_2 = fit_coeffs
+        params_array_2 = fit_coeffs_calc
+        params_array_3 = fit_coeffs
 
         # Generate appropriate column titles
         data_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
@@ -310,7 +314,8 @@ class FitExportView(APIView):
         qof_names_2.append("Covariance: Total")
 
         params_names_1 = [ p["label"] for p in params_labels ]
-        params_names_2 = [ "Fit coeffs "+str(i+1) for i in range(fit_coeffs.shape[1]) ]
+        params_names_2 = [ str(l)+" coeffs" for l in coeffs_calc_labels ]
+        params_names_3 = [ "Raw coeffs"+str(i+1) for i in range(fit_coeffs.shape[1]) ]
 
         # Create data frames for export
         data_output     = pd.DataFrame(data_array,     columns=data_names)
@@ -324,8 +329,10 @@ class FitExportView(APIView):
                                      join_axes=[qof_output_1.columns])
         params_output_1 = pd.DataFrame(params_array_1, columns=params_names_1)
         params_output_2 = pd.DataFrame(params_array_2, columns=params_names_2)
+        params_output_3 = pd.DataFrame(params_array_3, columns=params_names_3)
         params_output   = pd.concat([params_output_1,
-                                     params_output_2],
+                                     params_output_2,
+                                     params_output_3],
                                      axis=1,
                                      join_axes=[params_output_2.index])
 
