@@ -21,6 +21,5 @@ ROOT = ""
 urlpatterns = [
     url(r'^'+ROOT+'admin/',        include(admin.site.urls)),
     url(r'^'+ROOT+'bindsim/api/',  include('bindsim.urls')),
-    url(r'^'+ROOT+'bindsim/',      include('bindsim_client.urls')),
     url(r'^'+ROOT+'bindfit/',      include('bindfit.urls')),
 ]
