@@ -130,8 +130,6 @@ var bindsim = {
         var chart = new Highcharts.Chart({
             chart: {
                 renderTo: bindsim.i.plot_id,
-                backgroundColor:null,
-                style: {'font-family': 'Lato, Helvetica, Arial, Verdana', 'text-transform': 'none'}
             },
             title: {
                 text: "",
@@ -179,14 +177,6 @@ var bindsim = {
             }],
             tooltip: {
                 shared: true
-            },
-            legend: {
-                layout: 'vertical',
-                floating: true,
-                align: 'left',
-                verticalAlign: 'top',
-                x: 70,
-                borderWidth: 0
             },
             series: s
         });
@@ -341,7 +331,7 @@ bindsim.sim_nmr_1to1 = {
             tooltip: {
                 valueSuffix: " (ppm or Hz)"
             },
-            lineWidth: 5,
+            lineWidth: 2,
             color: bindsim.sim_nmr_1to1.i.color_dd
         }];
         
@@ -487,7 +477,7 @@ bindsim.sim_nmr_1to2 = {
             tooltip: {
                 valueSuffix: " (ppm or Hz)"
             },
-            lineWidth: 5,
+            lineWidth: 2,
             color: bindsim.sim_nmr_1to2.i.color_dd
         }];
         
