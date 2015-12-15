@@ -6,6 +6,22 @@ from . import simulators
 
 @api_view(['POST'])
 def nmr_1to1(request):
+    return sim_1to1("nmr_1to1", request)
+
+@api_view(['POST'])
+def nmr_1to2(request):
+    return sim_1to2("nmr_1to2", request)
+
+@api_view(['POST'])
+def uv_1to1(request):
+    return sim_1to1("uv_1to1", request)
+
+
+
+#
+# Generalised response builders
+#
+def sim_1to1(simulator, request):
     """
     Runs requested simulation and returns simulated isotherm and molefractions
     as a function of equivalent [G]0/[H]0 fraction.
@@ -27,7 +43,7 @@ def nmr_1to1(request):
     data_parsed = { k:str_to_num(v) for k, v in request.data.items() }
 
     # Run simulator
-    g0h0, dd, mf_h, mf_hg = simulators.nmr_1to1(**data_parsed)
+    g0h0, dd, mf_h, mf_hg = getattr(simulators, simulator)(**data_parsed)
 
     # Build response dict
     response = {
@@ -38,10 +54,7 @@ def nmr_1to1(request):
 
     return Response(response)
 
-
-
-@api_view(['POST'])
-def nmr_1to2(request):
+def sim_1to2(simulator, request):
     """
     Runs requested simulation and returns simulated isotherm and molefractions
     as a function of equivalent [G]0/[H]0 fraction.
@@ -69,7 +82,7 @@ def nmr_1to2(request):
     data_parsed = { k:str_to_num(v) for k, v in request.data.items() }
 
     # Run simulator
-    g0h0, dd, mf_h, mf_hg, mf_hg2 = simulators.nmr_1to2(**data_parsed)
+    g0h0, dd, mf_h, mf_hg, mf_hg2 = getattr(simulators, simulator)(**data_parsed)
 
     # Build response dict
     response = {

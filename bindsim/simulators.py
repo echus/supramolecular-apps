@@ -70,6 +70,70 @@ def nmr_1to1(k1=1000,
 
     return g0h0, dd, mf_h, mf_hg
 
+def uv_1to1(k1=1000,
+            h0_init=0.001,
+            g0h0_init=0,
+            g0h0_final=20,
+            dh=8,
+            dhg=9,
+            num=N):
+    """
+    UV 1:1 binding constant simulator
+
+    Args:
+        k1        : float  Binding constant Ka
+        h0_init   : float  Initial [H]0
+        g0h0_init : float  Min equiv. [G]0/[H]0
+        g0h0_final: float  Max equiv. [G]0/[H]0
+        dh        : float  Free host NMR resonance
+        dhg       : float  Host-Guest complex NMR resonance
+        num       : int    Number of steps to evaluate at
+
+    Returns:
+        (g0h0,     : tuple, length 4 of arrays of length num
+         dd,         Simulated isotherm and molefraction curves
+         mf_h,
+         mf_hg)
+
+    Raises:
+        [none]
+    """
+
+    # Initialise x array
+    g0h0 = np.linspace(g0h0_init, g0h0_final, num)
+
+    # Initialise y arrays
+    s = g0h0.shape
+    dd = np.zeros(s)       # Change in chemical shift delta (ppm or Hz)
+    mf_h = np.zeros(s)     # H free host molefraction
+    mf_hg = np.zeros(s)    # HG complex molefraction
+
+    for i, geq in enumerate(g0h0):
+        # For convenience
+        h0 = h0_init
+        g0 = geq * h0
+        ka = k1
+
+        dh = dh
+        dhg = dhg
+
+        # Calculate host and complex molefractions
+        cfrac = (h0 + (1/ka) + g0) - sqrt((h0+(1/ka)+g0)**2 - 4*h0*g0)
+        cfrac *= 0.5
+        cconc = cfrac # Save raw concentration for use in calculating delta
+        cfrac /= h0
+
+        hfrac = 1 - cfrac
+
+        # Calculate delta shift
+        delta = dh*(h0 - cconc) + dhg*cconc
+
+        dd[i] = delta
+        mf_h[i] = hfrac
+        mf_hg[i] = cfrac
+
+    return g0h0, dd, mf_h, mf_hg
+
 def nmr_1to2(k1=10000,
              k2=1000,
              h0_init=0.001,
