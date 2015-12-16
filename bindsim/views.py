@@ -16,6 +16,10 @@ def nmr_1to2(request):
 def uv_1to1(request):
     return sim_1to1("uv_1to1", request)
 
+@api_view(['POST'])
+def uv_1to2(request):
+    return sim_1to2("uv_1to2", request)
+
 
 
 #
