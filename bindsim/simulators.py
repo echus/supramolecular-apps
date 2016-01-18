@@ -298,7 +298,7 @@ def uv_1to2(k1=10000,
         mf_hg[i]  = (g*k1)/(1 + k1*g + k2*k1*(g**2))
         mf_hg2[i] = (k2*k1*(g**2))/(1 + k1*g + k2*k1*(g**2))
         mf_h[i]   = 1 - mf_hg[i] - mf_hg2[i]
-        dd[i]     = dh*mf_h[i] + dhg*mf_hg[i] + dhg2*mf_hg2[i]
+        dd[i]     = h0*(dh*mf_h[i] + dhg*mf_hg[i] + dhg2*mf_hg2[i])
 
     return g0h0, dd, mf_h, mf_hg, mf_hg2
 
@@ -386,14 +386,14 @@ def nmr_2to1(k1=10000,
 
     return g0h0, dd, mf_h, mf_hg, mf_h2g
 
-def uv_2to1(k1=10000,
-            k2=1000,
-            h0_init=0.001,
+def uv_2to1(k1=1000000,
+            k2=100000,
+            h0_init=0.00001,
             g0h0_init=0,
             g0h0_final=20,
-            dh=8,
-            dhg=7,
-            dh2g=9,
+            dh=20000,
+            dhg=10000,
+            dh2g=50000,
             num=N):
     """
     NMR 2:1 binding constant simulator
