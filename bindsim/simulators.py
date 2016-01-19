@@ -399,7 +399,7 @@ def uv_2to1(k1=1000000,
             dh2g=50000,
             num=N):
     """
-    NMR 2:1 binding constant simulator
+    UV 2:1 binding constant simulator
 
     Args:
         k1         : float  Binding constant K1
@@ -466,15 +466,9 @@ def uv_2to1(k1=1000000,
         h = roots[select].min()
         h = float(np.real(h))
 
-        # NMR 2:1 code for reference
-        # mf_hg[i]  = (g0*h*k1)/(h0*(1 + (k1*h) + (k2*k1*h*h)))
-        # mf_h2g[i] = (2*g0*k2*k1*h*h)/(h0*(1 + (k1*h) + (k2*k1*h*h)))
-        # mf_h[i]   = 1 - mf_hg[i] - mf_h2g[i]
-        # dd[i]     = dh*mf_h[i] + dhg*mf_hg[i] + dh2g*mf_h2g[i]
-
-        mf_hg[i]  = (g0*h*k1)/(1 + (k1*h) + (k2*k1*h*h))
-        mf_h2g[i] = (2*g0*k2*k1*h*h)/(1 + (k1*h) + (k2*k1*h*h))
-        mf_h[i]   = h0 - mf_hg[i] - mf_h2g[i]
-        dd[i]     = dh*mf_h[i] + dhg*mf_hg[i] + dh2g*mf_h2g[i]
+        mf_hg[i]  = (g0*h*k1)/(1 + (k1*h) + (k2*k1*h*h))/h0
+        mf_h2g[i] = (2*g0*k2*k1*h*h)/(1 + (k1*h) + (k2*k1*h*h))/h0
+        mf_h[i]   = 1 - mf_hg[i] - mf_h2g[i]
+        dd[i]     = dh*h0*mf_h[i] + dhg*h0*mf_hg[i] + dh2g*h0*mf_h2g[i]
 
     return g0h0, dd, mf_h, mf_hg, mf_h2g
