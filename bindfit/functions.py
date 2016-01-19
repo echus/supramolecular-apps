@@ -323,7 +323,7 @@ def nmr_2to1(params, xdata, *args, **kwargs):
     # Calculate [HG] and [H2G] complex concentrations 
     #
     hg = (g0*h*k11)/(h0*(1+(h*k11)+(h*h*k11*k12)))
-    h2g = ((g0*h*h*k11*k12))/(h0*(1+(h*k11)+(h*h*k11*k12)))
+    h2g = (2*g0*h*h*k11*k12)/(h0*(1+(h*k11)+(h*h*k11*k12)))
 
     hg_mat = np.vstack((hg, h2g))
 
@@ -375,7 +375,7 @@ def uv_2to1(params, xdata, molefrac=False):
     # Calculate [HG] and [H2G] complex concentrations 
     #
     hg = g0*((h*k11)/(1+(h*k11)+(h*h*k11*k12)))
-    h2g = g0*(((h*h*k11*k12))/(1+(h*k11)+(h*h*k11*k12)))
+    h2g = g0*((2*h*h*k11*k12)/(1+(h*k11)+(h*h*k11*k12)))
 
     if molefrac:
         # Convert free concentrations to molefractions
