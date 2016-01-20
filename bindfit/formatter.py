@@ -99,7 +99,7 @@ def labels(fitter):
                 "fit": {
                     "params": {
                         "k1": {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                        "k2": {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                        "k2": {"label": "K\u2082\u2081", "units": "M\u207B\u00B9"},
                         },
                     "y": {
                         "axis_label": "\u03B4",
@@ -173,7 +173,7 @@ def labels(fitter):
                 "fit": {
                     "params": {
                         "k1": {"label": "K\u2081\u2081", "units": "M\u207B\u00B9"},
-                        "k2": {"label": "K\u2081\u2082", "units": "M\u207B\u00B9"},
+                        "k2": {"label": "K\u2082\u2081", "units": "M\u207B\u00B9"},
                         },
                     "y": {
                         "axis_label": "Absorbance",
