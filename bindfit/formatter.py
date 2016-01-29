@@ -22,12 +22,14 @@ def fitter_list():
     """
 
     fitter_list = [
-            {"name": "NMR 1:1", "key": "nmr1to1"},
-            {"name": "NMR 1:2", "key": "nmr1to2"},
-            {"name": "NMR 2:1", "key": "nmr2to1"},
-            {"name": "UV 1:1",  "key": "uv1to1"},
-            {"name": "UV 1:2",  "key": "uv1to2"},
-            {"name": "UV 2:1",  "key": "uv2to1"},
+            {"name": "NMR",            "key": "nmrdata", "group": "Save data only (under construction)"},
+            {"name": "UV",             "key": "uvdata",  "group": "Save data only (under construction)"},
+            {"name": "NMR 1:1",        "key": "nmr1to1", "group": "NMR"},
+            {"name": "NMR 1:2",        "key": "nmr1to2", "group": "NMR"},
+            {"name": "NMR 2:1",        "key": "nmr2to1", "group": "NMR"},
+            {"name": "UV 1:1",         "key": "uv1to1",  "group": "UV"},
+            {"name": "UV 1:2",         "key": "uv1to2",  "group": "UV"},
+            {"name": "UV 2:1",         "key": "uv2to1",  "group": "UV"},
             ]
 
     return fitter_list
@@ -36,6 +38,32 @@ def labels(fitter):
     # Label definitions for each fitter type
 
     label_select = {
+            "nmrdata": {
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
+                        },
+                    },
+                },
+
+            "uvdata": {
+                "data": {
+                    "x": {
+                        "axis_label": "Equivalent total [G]\u2080/[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "Absorbance",
+                        "axis_units": "",
+                        },
+                    },
+                },
+            
             "nmr1to1": {
                 "data": {
                     "x": {
@@ -190,6 +218,24 @@ def labels(fitter):
 def options(fitter, data_id=None, params=None, dilute=False):
     # Default options for each fitter type
     default_options_select = {
+            "nmrdata": {
+                "fitter": "data",
+                "data_id": "",
+                "params": {},
+                "options": {
+                    "dilute": False,
+                    },
+                },
+
+            "uvdata": {
+                "fitter": "data",
+                "data_id": "",
+                "params": {},
+                "options": {
+                    "dilute": False,
+                    },
+                },
+
             "nmr1to1": {
                 "fitter": "nmr1to1",
                 "data_id": "",
