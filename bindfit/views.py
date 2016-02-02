@@ -169,7 +169,10 @@ class FitSaveView(APIView):
 
         data = models.Data.objects.get(id=options_data_id)
 
+        logger.debug("NO_FIT TEST: CURRENT FIT JSON")
+        logger.debug(fit)
         no_fit = fit["no_fit"]
+
         if not no_fit:
             options_dilute  = fit["options"]["dilute"]
 
