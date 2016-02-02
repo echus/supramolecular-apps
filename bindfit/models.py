@@ -135,34 +135,36 @@ class Fit(models.Model):
     data = models.ForeignKey(Data)
 
     # Fit options 
+    no_fit = models.BooleanField(default=False) # No fit (store data only) flag
+
     fitter_name = models.CharField(max_length=20)
     options_dilute = models.BooleanField(default=False) # Dilution factor flag
 
     # Fit results
     # 1D array of fitted parameters
-    fit_params_keys   = ArrayField(models.CharField(max_length=20))
-    fit_params_init   = ArrayField(models.FloatField())
-    fit_params_value  = ArrayField(models.FloatField())
-    fit_params_stderr = ArrayField(models.FloatField())
+    fit_params_keys   = ArrayField(models.CharField(max_length=20), blank=True, null=True)
+    fit_params_init   = ArrayField(models.FloatField(), blank=True, null=True)
+    fit_params_value  = ArrayField(models.FloatField(), blank=True, null=True)
+    fit_params_stderr = ArrayField(models.FloatField(), blank=True, null=True)
 
     # 2D matrix of (calculated) fitted input y data
     fit_y = ArrayField(
-            ArrayField(models.FloatField())
-            )
+            ArrayField(models.FloatField()),
+            blank=True, null=True)
 
     fit_molefrac = ArrayField(
-            ArrayField(models.FloatField())
-            )
+            ArrayField(models.FloatField()),
+            blank=True, null=True)
 
     fit_coeffs   = ArrayField(
-            ArrayField(models.FloatField())
-            )
+            ArrayField(models.FloatField()),
+            blank=True, null=True)
 
     qof_residuals = ArrayField(
-            ArrayField(models.FloatField())
-            )
+            ArrayField(models.FloatField()),
+            blank=True, null=True)
 
-    time = models.FloatField()
+    time = models.FloatField(blank=True, null=True)
 
     def to_dict(self):
         # Convert parameter arrays to appropriate nested dict input to formatter
