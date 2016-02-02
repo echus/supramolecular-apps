@@ -166,49 +166,68 @@ class FitSaveView(APIView):
 
         options_fitter  = fit["fitter"]
         options_data_id = fit["data_id"]
-        options_dilute  = fit["options"]["dilute"]
-
-        fit_params        = fit["fit"]["params"]
-        fit_params_keys   = [ key for key in sorted(fit_params) ]
-        fit_params_init   = [ fit_params[key]["init"]  
-                              for key in sorted(fit_params) ]
-        fit_params_value  = [ fit_params[key]["value"] 
-                              for key in sorted(fit_params) ]
-        fit_params_stderr = [ fit_params[key]["stderr"]
-                              for key in sorted(fit_params) ]
-
-        fit_y      = fit["fit"]["y"]
-
-        fit_molefrac  = fit["fit"]["molefrac"]
-        fit_coeffs    = fit["fit"]["coeffs"]
-        fit_time      = fit["time"]
-        fit_residuals = fit["qof"]["residuals"]
 
         data = models.Data.objects.get(id=options_data_id)
 
-        fit = models.Fit(meta_author=meta_author, 
-                         meta_name=meta_name, 
-                         meta_date=meta_date, 
-                         meta_ref=meta_ref, 
-                         meta_host=meta_host, 
-                         meta_guest=meta_guest, 
-                         meta_solvent=meta_solvent, 
-                         meta_temp=meta_temp, 
-                         meta_notes=meta_notes,
-                         data=data,
-                         fitter_name=options_fitter,
-                         options_dilute=options_dilute,
-                         fit_params_keys=fit_params_keys,
-                         fit_params_init=fit_params_init,
-                         fit_params_value=fit_params_value,
-                         fit_params_stderr=fit_params_stderr,
-                         fit_y=fit_y,
-                         fit_molefrac=fit_molefrac,
-                         fit_coeffs=fit_coeffs,
-                         qof_residuals=fit_residuals,
-                         time=fit_time,
-                         )
-        fit.save()
+        no_fit = fit["no_fit"]
+        if not no_fit:
+            options_dilute  = fit["options"]["dilute"]
+
+            fit_params        = fit["fit"]["params"]
+            fit_params_keys   = [ key for key in sorted(fit_params) ]
+            fit_params_init   = [ fit_params[key]["init"]  
+                                  for key in sorted(fit_params) ]
+            fit_params_value  = [ fit_params[key]["value"] 
+                                  for key in sorted(fit_params) ]
+            fit_params_stderr = [ fit_params[key]["stderr"]
+                                  for key in sorted(fit_params) ]
+
+            fit_y      = fit["fit"]["y"]
+
+            fit_molefrac  = fit["fit"]["molefrac"]
+            fit_coeffs    = fit["fit"]["coeffs"]
+            fit_time      = fit["time"]
+            fit_residuals = fit["qof"]["residuals"]
+
+            fit = models.Fit(no_fit=no_fit,
+                             meta_author=meta_author, 
+                             meta_name=meta_name, 
+                             meta_date=meta_date, 
+                             meta_ref=meta_ref, 
+                             meta_host=meta_host, 
+                             meta_guest=meta_guest, 
+                             meta_solvent=meta_solvent, 
+                             meta_temp=meta_temp, 
+                             meta_notes=meta_notes,
+                             data=data,
+                             fitter_name=options_fitter,
+                             options_dilute=options_dilute,
+                             fit_params_keys=fit_params_keys,
+                             fit_params_init=fit_params_init,
+                             fit_params_value=fit_params_value,
+                             fit_params_stderr=fit_params_stderr,
+                             fit_y=fit_y,
+                             fit_molefrac=fit_molefrac,
+                             fit_coeffs=fit_coeffs,
+                             qof_residuals=fit_residuals,
+                             time=fit_time,
+                             )
+            fit.save()
+        else:
+            fit = models.Fit(no_fit=no_fit,
+                             meta_author=meta_author, 
+                             meta_name=meta_name, 
+                             meta_date=meta_date, 
+                             meta_ref=meta_ref, 
+                             meta_host=meta_host, 
+                             meta_guest=meta_guest, 
+                             meta_solvent=meta_solvent, 
+                             meta_temp=meta_temp, 
+                             meta_notes=meta_notes,
+                             data=data,
+                             fitter_name=options_fitter,
+                             )
+            fit.save()
 
         response = formatter.save(fit.id)
         return Response(response)
