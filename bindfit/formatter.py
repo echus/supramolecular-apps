@@ -219,7 +219,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
     # Default options for each fitter type
     default_options_select = {
             "nmrdata": {
-                "fitter": "data",
+                "fitter": "nmrdata",
                 "data_id": "",
                 "params": {},
                 "options": {
@@ -228,7 +228,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 },
 
             "uvdata": {
-                "fitter": "data",
+                "fitter": "uvdata",
                 "data_id": "",
                 "params": {},
                 "options": {
