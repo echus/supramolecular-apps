@@ -345,7 +345,8 @@ def meta(author,
             }
     return response
 
-def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
+def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None, 
+        coeffs=None, time=None, dilute=None, no_fit=False):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -382,39 +383,41 @@ def fit(fitter, data, y, params, residuals, molefrac, coeffs, time, dilute):
         time:
     """
 
-    fit = {
-            "fitter": fitter,
-            "fit": {
-                "y":           y,
-                "coeffs":      coeffs,
-                "coeffs_calc": helpers.calculate_coeffs(fitter,
-                                                        coeffs,
-                                                        data["data"]["y"][:,0],
-                                                        data["data"]["x"][0][0]),
-                "molefrac":    molefrac,
-                "params":      params,
-                },
-            "qof": {
-                "residuals": residuals,
-                "rms"      : helpers.rms(residuals),
-                "cov"      : helpers.cov(data["data"]["y"], residuals),
-                "rms_total": helpers.rms(residuals, total=True),
-                "cov_total": helpers.cov(data["data"]["y"], residuals, total=True),
-                },
-            "time": time,
-            "options": {
-                "dilute": dilute,
-                },
-            }
-    
+    if not no_fit:
+        fit = {
+                "no_fit": no_fit,
+                "fitter": fitter,
+                "fit": {
+                    "y":           y,
+                    "coeffs":      coeffs,
+                    "coeffs_calc": helpers.calculate_coeffs(fitter,
+                                                            coeffs,
+                                                            data["data"]["y"][:,0],
+                                                            data["data"]["x"][0][0]),
+                    "molefrac":    molefrac,
+                    "params":      params,
+                    },
+                "qof": {
+                    "residuals": residuals,
+                    "rms"      : helpers.rms(residuals),
+                    "cov"      : helpers.cov(data["data"]["y"], residuals),
+                    "rms_total": helpers.rms(residuals, total=True),
+                    "cov_total": helpers.cov(data["data"]["y"], residuals, total=True),
+                    },
+                "time": time,
+                "options": {
+                    "dilute": dilute,
+                    },
+                }
+    else:
+        fit = {
+                "no_fit": no_fit,
+                "fitter": fitter,
+                }   
+
     # Merge with data dictionary
     response = deepcopy(data)
     response.update(fit)
-
-    # Manually merge multi-level labels data ...
-    #labels = deepcopy(data["labels"])
-    #labels.update(fit["labels"])
-    #response["labels"] = labels
 
     return response
 

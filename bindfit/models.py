@@ -167,23 +167,32 @@ class Fit(models.Model):
     time = models.FloatField(blank=True, null=True)
 
     def to_dict(self):
-        # Convert parameter arrays to appropriate nested dict input to formatter
-        params = { key: {"init": init, "value": value, "stderr": stderr}
-                   for (key, init, value, stderr)
-                   in zip(self.fit_params_keys,
-                          self.fit_params_init,
-                          self.fit_params_value,
-                          self.fit_params_stderr) }
+        if not self.no_fit:
+            # Return full fit
 
-        response = formatter.fit(self.fitter_name,
-                                 self.data.to_dict(self.options_dilute),
-                                 self.fit_y, 
-                                 params, 
-                                 self.qof_residuals,
-                                 self.fit_molefrac,
-                                 self.fit_coeffs,
-                                 self.time,
-                                 self.options_dilute)
+            # Convert parameter arrays to appropriate nested dict input to formatter
+            params = { key: {"init": init, "value": value, "stderr": stderr}
+                       for (key, init, value, stderr)
+                       in zip(self.fit_params_keys,
+                              self.fit_params_init,
+                              self.fit_params_value,
+                              self.fit_params_stderr) }
+
+            response = formatter.fit(self.fitter_name,
+                                     self.data.to_dict(self.options_dilute),
+                                     self.fit_y, 
+                                     params, 
+                                     self.qof_residuals,
+                                     self.fit_molefrac,
+                                     self.fit_coeffs,
+                                     self.time,
+                                     self.options_dilute,
+                                     self.no_fit)
+        else:
+            # No fit, return only saved input data
+            response = formatter.fit(self.fitter_name,
+                                     self.data.to_dict(self.options_dilute),
+                                     no_fit=self.no_fit)
 
         response["meta"] = formatter.meta(self.meta_author,
                                           self.meta_name,
