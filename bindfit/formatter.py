@@ -22,8 +22,8 @@ def fitter_list():
     """
 
     fitter_list = [
-            {"name": "NMR",            "key": "nmrdata", "group": "Save data only (under construction)"},
-            {"name": "UV",             "key": "uvdata",  "group": "Save data only (under construction)"},
+            {"name": "NMR",            "key": "nmrdata", "group": "Save data only"},
+            {"name": "UV",             "key": "uvdata",  "group": "Save data only"},
             {"name": "NMR 1:1",        "key": "nmr1to1", "group": "NMR"},
             {"name": "NMR 1:2",        "key": "nmr1to2", "group": "NMR"},
             {"name": "NMR 2:1",        "key": "nmr2to1", "group": "NMR"},
