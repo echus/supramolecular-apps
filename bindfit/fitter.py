@@ -134,8 +134,11 @@ class Fitter():
             # Standard deviation of calculated coefficients
         """
         # Calculate deLevie uncertainty
-        d = 1e-6 # delta
+        d = np.float64(1e-6) # delta
         params = self._params_raw
+
+        # TODO: DEBUG TEMP!
+        np.set_printoptions(precision=15)
 
         # 0. Calculate partial differentials for each parameter
         diffs = []
@@ -145,8 +148,13 @@ class Fitter():
             params_shift = np.copy(params)
             params_shift[i] = pi_shift
 
+            logger.debug("Fitter.statistics: params_shift, iteration "+str(i))
+            logger.debug(params_shift)
+
             # Calculate fit with modified parameter set
             x   = self.xdata
+            logger.debug("Fitter.statistics: self.xdata dtype")
+            logger.debug(xdata.dtype)
             y   = self._preprocess(self.ydata)
             fit_shift_norm, _, _, _ = self.function.objective(params_shift, 
                                                         x, 
@@ -155,38 +163,83 @@ class Fitter():
                                                         force_molefrac=True)
             fit_shift = self._postprocess(self.ydata, fit_shift_norm)
             
+            logger.debug("Fitter.statistics: fit_shift")
+            logger.debug(fit_shift.dtype)
+            logger.debug(fit_shift)
+            logger.debug("Fitter.statistics: fit")
+            logger.debug(self.fit.dtype)
+            logger.debug(self.fit)
+
             # Calculate partial differential
             # Flatten numerator into 1D array (TODO: is this correct?)
             num   = (fit_shift - self.fit).flatten()
             denom = pi_shift - pi
-            diffs.append(num/denom)
+            diffs.append(np.divide(num, denom))
+
+            logger.debug("Fitter.statistics: num (fit_shift - fit)")
+            logger.debug(num.dtype)
+            logger.debug(num)
+            logger.debug("Fitter.statistics: denom (pi_shift - pi)")
+            logger.debug(denom.dtype)
+            logger.debug(denom)
+            logger.debug("Fitter.statistics: num/denom")
+            logger.debug(num/denom)
 
         diffs = np.array(diffs)
+
+        logger.debug("Fitter.statistics: diffs array")
+        logger.debug(diffs.dtype)
+        logger.debug(diffs[0].dtype)
+        logger.debug(diffs)
 
         # 1. Calculate PxP matrix M and invert
         P = len(params)
         M = np.zeros((P, P))
         for i, j in product(range(P), range(P)):
             M[i, j] = np.sum(diffs[i]*diffs[j])
+
+        # TODO TEMP set M manually to match UV 1:2 result in Matlab
+        # M = np.array([[1.1951e-12, 8.7884e-12], [8.7884e-12, 264.9524e-12]])
+        # M = np.array([[np.sum(diffs[0]**2), np.sum(diffs[0]*diffs[1])], [np.sum(diffs[0]*diffs[1]), np.sum(diffs[1]**2)]])
+
         M_inv = np.linalg.inv(M)
         m_diag = np.diagonal(M_inv)
+        logger.debug("Fitter.statistics: M before inversion")
+        logger.debug(M)
+        logger.debug("Fitter.statistics: M after inversion")
+        logger.debug(M_inv)
+        logger.debug("Fitter.statistics: m_diag")
+        logger.debug(m_diag)
 
         # 2. Calculate standard deviations sigma of P parameters pi
         # Sum of squares of residuals
         ssr = np.sum(np.square(self.residuals))
+        logger.debug("Fitter.statistics: ssr")
+        logger.debug(ssr)
         # Degrees of freedom:
         # N datapoints - N fitted params - N calculated coefficients
-        d_free = len(self.ydata[0]) - len(params) - self.coeffs.size
+        d_free = self.ydata.size - len(params) - self.coeffs.size
+        logger.debug("Fitter.statistics: d_free")
+        logger.debug(d_free)
 
         # TODO why d_free - 1?
-        sigma = np.sqrt((m_diag*ssr)/d_free)
+        sigma = np.sqrt((m_diag*ssr)/(d_free - 1))
 
         # 3. Calculate confidence intervals
         # Calculate t-value at 95%
         # Studnt, n=d_free, p<0.05, 2-tail
         t = stats.t.ppf(1 - 0.025, d_free)
 
+        logger.debug("Fitter.statistics: t_value")
+        logger.debug(t)
+        logger.debug("Fitter.statistics: sigma")
+        logger.debug(sigma)
+
         ci = np.array([params - t*sigma, params + t*sigma])
-        ci_percent = (100*t*sigma)/params
+        ci_percent = (t*sigma)/params * 100
+
+        logger.debug("Fitter.statistics: ci, ci_percent")
+        logger.debug("+/- "+str(t*sigma))
+        logger.debug("% "+str(ci_percent))
 
         return ci_percent
