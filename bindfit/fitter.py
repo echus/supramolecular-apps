@@ -137,7 +137,125 @@ class Fitter():
         d = np.float64(1e-6) # delta
         params = self._params_raw
         ##### TODO: DEBUG TEMP
-        #params = np.array([115221.3827278451, 12990.4400058688])
+        params = np.array([115221.3827278451, 12990.4400058688])
+
+        matlab_xdata_h = np.array([
+            2.3e-06, 
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06,
+            2.3e-06])
+
+        matlab_xdata_g = np.array([
+                               0, 
+            9.76934166266218e-08,
+            1.94918504314477e-07,
+             2.9167862266858e-07,
+            3.87977099236641e-07,
+            5.31566436890896e-07,
+             6.7413548081478e-07,
+            8.62659123055163e-07,
+            1.04941342092914e-06,
+            1.23442316674451e-06,
+            1.41771269177127e-06,
+            1.59930587690884e-06,
+             1.7792261630585e-06,
+            1.95749656121045e-06,
+            2.13413966225468e-06,
+            2.30917764652431e-06,
+            2.48263229308005e-06,
+            2.65452498874381e-06,
+            2.82487673688929e-06,
+            2.99370816599732e-06,
+            3.16103953798312e-06,
+            3.32689075630252e-06,
+            3.49128137384412e-06,
+            3.65423060061377e-06,
+            3.89599303135888e-06,
+            4.13461704889658e-06,
+            4.37016337059329e-06,
+            4.67953964194373e-06,
+            4.98368554522401e-06,
+            5.43038397328882e-06,
+            5.86603462489695e-06,
+            6.43041362530414e-06,
+            6.97677573822825e-06,
+            7.63568075117371e-06,
+            8.26930161166539e-06,
+            9.11659192825112e-06,
+            1.02528818443804e-05,
+            1.13101529902643e-05,
+            1.22963709677419e-05,
+            1.36573896353167e-05,
+            1.63866943866944e-05,
+            2.18426858513189e-05,
+            3.00201342281879e-05,
+            4.09112104758863e-05,
+            5.17883817427386e-05,
+            6.26516746411483e-05,
+            7.89206500956023e-05,
+            0.000116760890302067,
+            0.000143686666666667,
+            0.000181239467849224,
+            0.000229277637397347,
+            0.000282334068010076,
+            0.000335057438794727,
+            0.000439517467248908,
+            0.000593786464771323,
+            0.000795083333333333,
+             0.00103989567047505])
 
         matlab_fit = np.array([
             0.260980004891973, 
@@ -828,6 +946,14 @@ class Fitter():
             0.114845312662395,
             0.111298681853711,
             0.108733344371026])
+
+        np.savetxt("fit.csv", self.fit.flatten(), delimiter=",")
+        np.savetxt("matlab_fit.csv", matlab_fit, delimiter=",")
+
+        np.savetxt("xdata_h.csv", self.xdata[0], delimiter=",")
+        np.savetxt("matlab_xdata_h.csv", matlab_xdata_h, delimiter=",")
+        np.savetxt("xdata_g.csv", self.xdata[1], delimiter=",")
+        np.savetxt("matlab_xdata_g.csv", matlab_xdata_g, delimiter=",")
         ##### TODO: END DEBUG TEMP
          
         ##### TODO: DEBUG TEMP!
@@ -868,9 +994,13 @@ class Fitter():
             
             ##### TODO: DEBUG! 
             if i == 0:
-                fit_shift = matlab_fit_shift_0
+                #fit_shift = matlab_fit_shift_0
+                np.savetxt("fit_shift_0.csv", fit_shift.flatten(), delimiter=",")
+                np.savetxt("matlab_fit_shift_0.csv", matlab_fit_shift_0, delimiter=",")
             elif i == 1:
-                fit_shift = matlab_fit_shift_1
+                #fit_shift = matlab_fit_shift_1
+                np.savetxt("fit_shift_1.csv", fit_shift.flatten(), delimiter=",")
+                np.savetxt("matlab_fit_shift_1.csv", matlab_fit_shift_1, delimiter=",")
             ##### TODO: END DEBUG! 
 
             logger.debug("Fitter.statistics: fit_shift")
@@ -882,9 +1012,9 @@ class Fitter():
 
             # Calculate partial differential
             # Flatten numerator into 1D array (TODO: is this correct?)
-            #num   = (fit_shift - self.fit).flatten()
+            num   = (fit_shift - self.fit).flatten()
             ##### TODO: DEBUG
-            num   = (fit_shift - matlab_fit).flatten()
+            #num   = (fit_shift - matlab_fit).flatten()
             ##### TODO: END DEBUG
             denom = pi_shift - pi
             diffs.append(np.divide(num, denom))
