@@ -22,7 +22,8 @@ class Function():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
                   detailed=False, 
-                  force_molefrac=False):
+                  force_molefrac=False,
+                  fit_coeffs=None):
         """
         Objective function:
         Performs least squares regression fitting via matrix division on provided
@@ -55,7 +56,11 @@ class Function():
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
-        coeffs, rssq, rank, s = np.linalg.lstsq(molefrac, ydata.T)
+
+        if fit_coeffs is not None:
+            coeffs = fit_coeffs
+        else:
+            coeffs, _, _, _ = np.linalg.lstsq(molefrac, ydata.T)
 
         # Calculate data from fitted parameters 
         # (will be normalised since input data was norm'd)
@@ -71,7 +76,7 @@ class Function():
 
         # Transpose any column-matrices to rows
         if scalar:
-            return rssq.sum()
+            return np.square(residuals).sum()
         elif detailed:
             return fit, residuals, coeffs, molefrac.T
         else:
