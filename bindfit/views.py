@@ -245,6 +245,14 @@ class FitRetrieveView(APIView):
         fit = models.Fit.objects.get(id=id)
         response = fit.to_dict()
         return Response(response)
+
+
+
+class FitSearchView(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request):
+        pass
  
 
 
