@@ -251,8 +251,27 @@ class FitRetrieveView(APIView):
 class FitSearchView(APIView):
     parser_classes = (JSONParser,)
 
-    def get(self, request):
-        pass
+    def post(self, request):
+        raw = request.data
+
+        # Parse request names -> DB field names
+        search = {}
+        for (key, value) in raw.items():
+            if value:
+                search["meta_"+str(key)] = value
+
+        # Get matching entries from DB
+        matches = models.Fit.objects.filter(**search)
+
+        if matches:
+            # Generate list of matching fit IDs
+            response = []
+            for fit in matches:
+                response.append(fit.id)
+            return Response(response)
+        else:
+            # TODO: Should this return an error code or just empty list?
+            return Response([])
  
 
 
