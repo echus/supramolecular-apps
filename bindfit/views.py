@@ -146,16 +146,17 @@ class FitSaveView(APIView):
         fit  = request.data
         meta = request.data["meta"]
 
-        meta_author    = meta.get("author", "")
-        meta_name      = meta.get("name", "")
-        meta_date      = meta.get("date", None)
-        meta_ref       = meta.get("ref", "")
-        meta_host      = meta.get("host", "")
-        meta_guest     = meta.get("guest", "")
-        meta_solvent   = meta.get("solvent", "")
-        meta_temp      = meta.get("temp", None)
+        meta_email     = meta.get("email",     "")
+        meta_author    = meta.get("author",    "")
+        meta_name      = meta.get("name",      "")
+        meta_date      = meta.get("date",      None)
+        meta_ref       = meta.get("ref",       "")
+        meta_host      = meta.get("host",      "")
+        meta_guest     = meta.get("guest",     "")
+        meta_solvent   = meta.get("solvent",   "")
+        meta_temp      = meta.get("temp",      None)
         meta_temp_unit = meta.get("temp_unit", None)
-        meta_notes     = meta.get("notes", "")
+        meta_notes     = meta.get("notes",     "")
 
         # Hack to deal with receiving "None" string
         if meta_temp == "None" or meta_temp == "":
@@ -169,8 +170,6 @@ class FitSaveView(APIView):
 
         data = models.Data.objects.get(id=options_data_id)
 
-        logger.debug("NO_FIT TEST: CURRENT FIT JSON")
-        logger.debug(fit)
         no_fit = fit["no_fit"]
 
         if not no_fit:
@@ -193,6 +192,7 @@ class FitSaveView(APIView):
             fit_residuals = fit["qof"]["residuals"]
 
             fit = models.Fit(no_fit=no_fit,
+                             meta_email=meta_email, 
                              meta_author=meta_author, 
                              meta_name=meta_name, 
                              meta_date=meta_date, 
@@ -218,6 +218,7 @@ class FitSaveView(APIView):
             fit.save()
         else:
             fit = models.Fit(no_fit=no_fit,
+                             meta_email=meta_email, 
                              meta_author=meta_author, 
                              meta_name=meta_name, 
                              meta_date=meta_date, 

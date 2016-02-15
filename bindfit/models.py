@@ -119,6 +119,7 @@ class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Metadata
+    meta_email     = models.CharField(max_length=200, blank=True)
     meta_author    = models.CharField(max_length=200, blank=True)
     meta_name      = models.CharField(max_length=200, blank=True)
     meta_date      = models.DateTimeField(blank=True, null=True)
