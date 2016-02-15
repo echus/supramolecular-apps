@@ -22,14 +22,14 @@ def fitter_list():
     """
 
     fitter_list = [
-            {"name": "NMR",            "key": "nmrdata", "group": "Save data only"},
-            {"name": "UV",             "key": "uvdata",  "group": "Save data only"},
             {"name": "NMR 1:1",        "key": "nmr1to1", "group": "NMR"},
             {"name": "NMR 1:2",        "key": "nmr1to2", "group": "NMR"},
             {"name": "NMR 2:1",        "key": "nmr2to1", "group": "NMR"},
             {"name": "UV 1:1",         "key": "uv1to1",  "group": "UV"},
             {"name": "UV 1:2",         "key": "uv1to2",  "group": "UV"},
             {"name": "UV 2:1",         "key": "uv2to1",  "group": "UV"},
+            {"name": "NMR",            "key": "nmrdata", "group": "Save data only"},
+            {"name": "UV",             "key": "uvdata",  "group": "Save data only"},
             ]
 
     return fitter_list
