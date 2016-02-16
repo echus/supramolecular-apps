@@ -266,7 +266,7 @@ class FitSearchEmailView(APIView):
 
             body = "\n".join(links)
 
-            send_mail("BindFit: Your fit URLs", 
+            send_mail("Your fit URLs", 
                       body, 
                       "BindFit <noreply@opendatafit.org>", 
                       [email], 
