@@ -248,6 +248,25 @@ class FitRetrieveView(APIView):
 
 
 
+class FitSearchEmailView(APIView):
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        view_url = request.data["view_url"] # Frontend view URL to use with fit IDs
+        email    = request.data["email"]    # Email to retrieve fits for
+
+        matches = models.Fit.objects.filter(meta_email=email)
+
+        if matches:
+            response = []
+            for fit in matches:
+                response.append(view_url+str(fit.id))
+            return Response(response)
+        else:
+            return Response([])
+
+
+
 class FitSearchView(APIView):
     parser_classes = (JSONParser,)
 
