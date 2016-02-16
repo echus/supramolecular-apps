@@ -139,7 +139,7 @@ LOGGING = {
     'formatters': {
         'verbose': {
             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -167,8 +167,6 @@ LOGGING = {
 }
 
 # Email settings
-EMAIL_USE_TLS       = True
-EMAIL_HOST          = 'smtp.gmail.com'
-EMAIL_PORT          = 587
-EMAIL_HOST_USER     = 'opendatafit@gmail.com'
-EMAIL_HOST_PASSWORD = 'supramolecular.org'
+# See Google Apps account for SMTP relay settings
+EMAIL_HOST          = 'smtp-relay.gmail.com'
+EMAIL_PORT          = 25

@@ -266,12 +266,18 @@ class FitSearchEmailView(APIView):
 
             body = "\n".join(links)
 
-            send_mail("BindFit: Your fit URLs", body, "opendatafit@gmail.com", [email], fail_silently=False)
+            send_mail("BindFit: Your fit URLs", 
+                      body, 
+                      "BindFit <noreply@opendatafit.org>", 
+                      [email], 
+                      fail_silently=False)
 
-            return Response({"detail": "Success! Check your email."}, status=status.HTTP_200_OK)
+            return Response({"detail": "Success! Check your email."}, 
+                             status=status.HTTP_200_OK)
         else:
             # TODO return status here?
-            return Response({"detail": "No matching fits found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "No matching fits found."}, 
+                             status=status.HTTP_404_NOT_FOUND)
 
 
 
