@@ -1,3 +1,5 @@
+from django.core.mail import send_mail
+
 from rest_framework.views import APIView
 
 from rest_framework.parsers import JSONParser, MultiPartParser 
@@ -258,12 +260,18 @@ class FitSearchEmailView(APIView):
         matches = models.Fit.objects.filter(meta_email=email)
 
         if matches:
-            response = []
+            links = []
             for fit in matches:
-                response.append(view_url+str(fit.id))
-            return Response(response)
+                links.append(view_url+str(fit.id))
+
+            body = "\n".join(links)
+
+            send_mail("BindFit: Your fit URLs", body, "opendatafit@gmail.com", [email], fail_silently=False)
+
+            return Response({"detail": "Success! Check your email."}, status=status.HTTP_200_OK)
         else:
-            return Response([])
+            # TODO return status here?
+            return Response({"detail": "No matching fits found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 
