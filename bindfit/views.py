@@ -1,3 +1,10 @@
+import os
+import string
+import random
+import datetime
+import pandas as pd
+import numpy  as np
+
 from django.core.mail import send_mail
 
 from rest_framework.views import APIView
@@ -7,16 +14,11 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 
+from haystack.query  import SearchQuerySet
+from haystack.inputs import AutoQuery 
+
 from django.contrib.sites.models import Site
-
 from django.conf import settings
-
-import os
-import string
-import random
-import datetime
-import pandas as pd
-import numpy  as np
 
 from . import models
 from . import formatter
@@ -277,7 +279,7 @@ class FitSearchEmailView(APIView):
         else:
             # TODO return status here?
             return Response({"detail": "No matching fits found."}, 
-                             status=status.HTTP_404_NOT_FOUND)
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -285,26 +287,52 @@ class FitSearchView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request):
-        raw = request.data
+        r = request.data
 
-        # Parse request names -> DB field names
-        search = {}
-        for (key, value) in raw.items():
-            if value:
-                search["meta_"+str(key)] = value
+        if type(r['query']) is str:
+            # Simple search - searches for matches in all indexed fields
+            query = r['query']
 
-        # Get matching entries from DB
-        matches = models.Fit.objects.filter(**search)
+            matches = SearchQuerySet().filter(content=AutoQuery(query))
 
-        if matches:
-            # Generate list of matching fit IDs
-            response = []
-            for fit in matches:
-                response.append(fit.id)
-            return Response(response)
+        elif type(r['query']) is dict:
+            # Advanced search (not implemented)
+            # TODO: port to haystack, expand
+            # Current code gets only exact matches directly from the database
+            query = r['query']
+
+            # Parse request names -> DB field names
+            search = {}
+            for (key, value) in query.items():
+                if value:
+                    search["meta_"+str(key)] = value
+
+            # Get matching entries from DB
+            matches = models.Fit.objects.filter(**search)
+
         else:
-            # TODO: Should this return an error code or just empty list?
-            return Response([])
+            # Bad query
+            return Response({"detail": "Query must be a string or object."}, 
+                             status=status.HTTP_400_BAD_REQUEST)
+
+        values = matches.all().values('id', 'meta_name', 'meta_author')
+        match_list_raw = list(values)
+        
+        # Strip unneeded DB prefixes from result before returning
+        # Currently strips "meta_" prefix on metadata DB fields, and
+        # "bindfit.fit." prefix added to ID by Haystack 
+        # (TODO: instead of stripping here, add a "metadata summary" method to
+        # the fit model that returns an appropriate dict summary for search
+        # to return for each match
+        match_list = []
+        for match in match_list_raw:
+            match_stripped = {}
+            for key, value in match.items():
+                match_stripped[key.replace("meta_", "")] = value.replace("bindfit.fit.", "") if type(value) is str else None
+            match_list.append(match_stripped)
+
+        response = {"matches": match_list}
+        return Response(response)
  
 
 

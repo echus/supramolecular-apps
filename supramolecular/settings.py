@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.postgres',
     'rest_framework',
     'corsheaders',
+    'haystack',
     'bindsim',
     'bindfit',
 )
@@ -170,3 +171,15 @@ LOGGING = {
 # See Google Apps account for SMTP relay settings
 EMAIL_HOST          = 'smtp-relay.gmail.com'
 EMAIL_PORT          = 25
+
+# Haystack Search settings
+import os
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
+}
+
+#HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

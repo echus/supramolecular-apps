@@ -1,0 +1,7 @@
+{{ object.meta_name }}
+{{ object.meta_author }}
+{{ object.meta_ref }}
+{{ object.meta_host }}
+{{ object.meta_guest }}
+{{ object.meta_solvent }}
+{{ object.meta_notes }}
