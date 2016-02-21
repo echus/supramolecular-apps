@@ -118,6 +118,20 @@ class Data(models.Model):
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    # Options and flags
+    # Fitter
+    fitter_name = models.CharField(max_length=20)
+    # Data store only flag (defined on fitter select)
+    no_fit = models.BooleanField(default=False)
+    # Dilution flag (defined on fit)
+    options_dilute = models.BooleanField(default=False) # Dilution factor flag
+    # Searchable flag (defined on fit save)
+    searchable = models.BooleanField(default=True) # Publish/make fit searchable
+
+    # Time to fit
+    time = models.FloatField(blank=True, null=True) # Time to fit
+
+
     # Metadata
     meta_email     = models.CharField(max_length=200, blank=True)
     meta_author    = models.CharField(max_length=200, blank=True)
@@ -134,12 +148,6 @@ class Fit(models.Model):
 
     # Link to raw data used for fit
     data = models.ForeignKey(Data)
-
-    # Fit options 
-    no_fit = models.BooleanField(default=False) # No fit (store data only) flag
-
-    fitter_name = models.CharField(max_length=20)
-    options_dilute = models.BooleanField(default=False) # Dilution factor flag
 
     # Fit results
     # 1D array of fitted parameters
@@ -165,7 +173,6 @@ class Fit(models.Model):
             ArrayField(models.FloatField()),
             blank=True, null=True)
 
-    time = models.FloatField(blank=True, null=True)
 
     def to_dict(self):
         if not self.no_fit:
