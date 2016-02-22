@@ -125,14 +125,13 @@ class Fit(models.Model):
     no_fit = models.BooleanField(default=False)
     # Dilution flag (defined on fit)
     options_dilute = models.BooleanField(default=False) # Dilution factor flag
-    # Searchable flag (defined on fit save)
-    searchable = models.BooleanField(default=True) # Publish/make fit searchable
 
     # Time to fit
     time = models.FloatField(blank=True, null=True) # Time to fit
 
+    # Metadata and save options
+    meta_options_searchable = models.BooleanField(default=True) # Publish/make fit searchable
 
-    # Metadata
     meta_email     = models.CharField(max_length=200, blank=True)
     meta_author    = models.CharField(max_length=200, blank=True)
     meta_name      = models.CharField(max_length=200, blank=True)
