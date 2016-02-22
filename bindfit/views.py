@@ -297,7 +297,13 @@ class FitSearchView(APIView):
             # Simple search - searches for matches in all indexed fields
             query = r['query']
 
-            matches = SearchQuerySet().filter(content=AutoQuery(query))
+            # TODO:
+            # Shouldn't have to filter for searchable=True here as they
+            # shouldn't be indexed in the first place, but for some reason 
+            # RealtimeSignalProcessor doesn't listen to the index_queryset
+            # filtering in search_indexes.py.
+            # Filtering added here as a temp fix.
+            matches = SearchQuerySet().filter(content=AutoQuery(query)).filter(searchable=True)
 
         elif type(r['query']) is dict:
             # Advanced search (not implemented)
