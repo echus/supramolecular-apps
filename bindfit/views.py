@@ -150,6 +150,8 @@ class FitSaveView(APIView):
         fit  = request.data
         meta = request.data["meta"]
 
+        meta_options_searchable = meta["options"]["searchable"]
+
         meta_email     = meta.get("email",     "")
         meta_author    = meta.get("author",    "")
         meta_name      = meta.get("name",      "")
@@ -196,6 +198,7 @@ class FitSaveView(APIView):
             fit_residuals = fit["qof"]["residuals"]
 
             fit = models.Fit(no_fit=no_fit,
+                             meta_options_searchable=meta_options_searchable, 
                              meta_email=meta_email, 
                              meta_author=meta_author, 
                              meta_name=meta_name, 
@@ -222,6 +225,7 @@ class FitSaveView(APIView):
             fit.save()
         else:
             fit = models.Fit(no_fit=no_fit,
+                             meta_options_searchable=meta_options_searchable, 
                              meta_email=meta_email, 
                              meta_author=meta_author, 
                              meta_name=meta_name, 

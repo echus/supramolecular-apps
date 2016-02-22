@@ -211,5 +211,6 @@ class Fit(models.Model):
                                           self.meta_solvent,
                                           self.meta_temp,
                                           self.meta_temp_unit,
-                                          self.meta_notes)
+                                          self.meta_notes,
+                                          self.meta_options_searchable)
         return response

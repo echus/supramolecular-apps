@@ -329,7 +329,8 @@ def meta(author,
          solvent, 
          temp, 
          temp_unit,
-         notes):
+         notes,
+         searchable):
     response = {
             "author"   : author,
             "name"     : name,
@@ -342,6 +343,9 @@ def meta(author,
             "temp"     : temp,
             "temp_unit": temp_unit,
             "notes"    : notes,
+            "options": {
+                "searchable": searchable,
+                }
             }
     return response
 
