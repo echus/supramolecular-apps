@@ -102,6 +102,7 @@ class FunctionInhibitorResponse(Function):
         logger.debug(ydata)
 
         yfit = self.f(params, xdata)
+        yfit = yfit[np.newaxis]
 
         # # Solve by matrix division - linear regression by least squares
         # # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -118,7 +119,7 @@ class FunctionInhibitorResponse(Function):
         # logger.debug(fit)
 
         # Calculate residuals (fitted data - input data)
-        residuals = yfit - ydata[0]
+        residuals = yfit - ydata
 
         logger.debug("FunctionInhibitorResponse.objective: yfit")
         logger.debug(yfit)

@@ -30,7 +30,7 @@ def fitter_list():
             {"name": "UV 2:1",         "key": "uv2to1",  "group": "UV"},
             {"name": "NMR",            "key": "nmrdata", "group": "Save data only"},
             {"name": "UV",             "key": "uvdata",  "group": "Save data only"},
-            {"name": "Inhibitor/Response", "key": "inhibitor", "group": "Test only"},
+            {"name": "IC50", "key": "inhibitor", "group": "Test only"},
             ]
 
     return fitter_list
@@ -216,7 +216,7 @@ def labels(fitter):
             "inhibitor": {
                 "data": {
                     "x": {
-                        "axis_label": "Inhibitor concentration (log)",
+                        "axis_label": "Concentration (log scale)",
                         "axis_units": "",
                         },
                     "y": {
@@ -338,11 +338,12 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "inhibitor",
                 "data_id": "",
                 "params": {
-                    "logic50":   20,
+                    "logic50":   -2.0,
                     "hillslope": -1.0,
                     },
                 "options": {
                     "dilute": False,
+                    "normalise": False,
                     },
                 },
             }
