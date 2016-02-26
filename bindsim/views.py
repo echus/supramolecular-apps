@@ -28,6 +28,21 @@ def nmr_2to1(request):
 def uv_2to1(request):
     return sim_2to1("uv_2to1", request)
 
+@api_view(['POST'])
+def dose_response(request):
+    # Convert any numerical values in query dict to python int/floats
+    data_parsed = { k:str_to_num(v) for k, v in request.data.items() }
+
+    # Run simulator
+    dose, response = simulators.dose_response(**data_parsed)
+
+    # Build response dict
+    response = {
+        "response" : [[x, y] for x, y in zip(dose, response)],
+        }
+
+    return Response(response)
+
 #
 # Generalised response builders
 #

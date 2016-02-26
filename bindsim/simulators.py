@@ -8,7 +8,7 @@ from math import sqrt
 # only dealing with differing molefrac/isotherm calculations
 
 # Constants
-N = 100 # Number of steps in simulation
+N = 1000 # Number of steps in simulation
 
 def nmr_1to1(k1=1000,
             h0_init=0.001,
@@ -472,3 +472,15 @@ def uv_2to1(k1=1000000,
         dd[i]     = dh*h0*mf_h[i] + dhg*h0*mf_hg[i] + dh2g*h0*mf_h2g[i]
 
     return g0h0, dd, mf_h, mf_hg, mf_h2g
+
+
+
+def dose_response(logic50=20,
+                  hillslope=-1,
+                  dose_init=0.001,
+                  dose_final=20,
+                  num=N):
+
+    dose = np.linspace(dose_init, dose_final, num)
+    response = 100/(1+10**((logic50 - dose)*hillslope))
+    return dose, response

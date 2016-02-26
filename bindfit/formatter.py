@@ -30,6 +30,7 @@ def fitter_list():
             {"name": "UV 2:1",         "key": "uv2to1",  "group": "UV"},
             {"name": "NMR",            "key": "nmrdata", "group": "Save data only"},
             {"name": "UV",             "key": "uvdata",  "group": "Save data only"},
+            {"name": "Inhibitor/Response", "key": "inhibitor", "group": "Test only"},
             ]
 
     return fitter_list
@@ -211,6 +212,33 @@ def labels(fitter):
                     "molefrac":    ["H", "HG", "H2G"],
                     },
                 },
+
+            "inhibitor": {
+                "data": {
+                    "x": {
+                        "axis_label": "Inhibitor concentration (log)",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "Response",
+                        "axis_units": "%",
+                        },
+                    },
+                "fit": {
+                    "params": {
+                        "logic50":   {"label": "LogIC50", "units": ""},
+                        "hillslope": {"label": "HillSlope", "units": ""},
+                        },
+                    "y": {
+                        "axis_label": "Response",
+                        "axis_units": "%",
+                        },
+                    "coeffs_calc": ["", "", ""],
+                    "molefrac":    ["", "", ""],
+                    },
+                },
+
+
             }
 
     return label_select[fitter]
@@ -303,6 +331,18 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute": True,
+                    },
+                },
+
+            "inhibitor": {
+                "fitter": "inhibitor",
+                "data_id": "",
+                "params": {
+                    "logic50":   20,
+                    "hillslope": -1.0,
+                    },
+                "options": {
+                    "dilute": False,
                     },
                 },
             }

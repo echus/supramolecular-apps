@@ -91,6 +91,65 @@ class Function():
             return ret
 
 
+#
+# log(inhibitor) vs. normalised response test def
+#
+class FunctionInhibitorResponse(Function):
+    def objective(self, params, xdata, ydata, scalar=False, detailed=False, *args, **kwargs): 
+        logger.debug("FunctionInhibitorResponse.objective: params, xdata, ydata")
+        logger.debug(params)
+        logger.debug(xdata)
+        logger.debug(ydata)
+
+        yfit = self.f(params, xdata)
+
+        # # Solve by matrix division - linear regression by least squares
+        # # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
+        # if fit_coeffs is not None:
+        #     coeffs = fit_coeffs
+        # else:
+        #     coeffs, _, _, _ = np.linalg.lstsq(molefrac, ydata.T)
+        # # Calculate data from fitted parameters 
+        # # (will be normalised since input data was norm'd)
+        # # Result is column matrix - transform this into same shape as input
+        # # data array
+        # fit = molefrac.dot(coeffs).T
+        # logger.debug("Function.objective: fit")
+        # logger.debug(fit)
+
+        # Calculate residuals (fitted data - input data)
+        residuals = yfit - ydata[0]
+
+        logger.debug("FunctionInhibitorResponse.objective: yfit")
+        logger.debug(yfit)
+
+        if scalar:
+            logger.debug("FIR.objective: returning residuals sum:")
+            logger.debug(np.square(residuals).sum())
+            return np.square(residuals).sum()
+        elif detailed:
+            logger.debug("FIR.objective: returning detailed fit:")
+            # Transpose any column-matrices to rows
+            return yfit, residuals, np.array([]), np.array([[]])
+
+def inhibitor_response(params, xdata, *args, **kwargs):
+    """
+    Calculates predicted [HG] given data object parameters as input.
+    """
+
+    # Params sorted in alphabetical order
+    hillslope = params[0]
+    logIC50   = params[1]
+
+    inhibitor = xdata[1] # xdata[0] is just 1s to fudge geq calc
+
+    response = 100/(1+10**((logIC50 - inhibitor)*hillslope))
+
+    return response
+#
+# End inhibitor vs. response test func
+#
+
 
 #
 # Function definitions
@@ -406,4 +465,5 @@ select = {
         "uv1to1" : Function(uv_1to1),
         "uv1to2" : Function(uv_1to2),
         "uv2to1" : Function(uv_2to1),
+        "inhibitor" : FunctionInhibitorResponse(inhibitor_response),
         }

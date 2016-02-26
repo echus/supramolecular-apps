@@ -13,6 +13,11 @@ import logging
 logger = logging.getLogger('supramolecular')
 
 def cov(data, residuals, total=False):
+    # TODO: TEMP
+    # Add axis to single y arrays for generalised calcs
+    if hasattr(residuals, "shape") and len(residuals.shape) == 1:
+        residuals = residuals[np.newaxis]
+
     data_norm = normalise(data)
 
     if total:
@@ -31,6 +36,11 @@ def rms(residuals, total=False):
     Returns:
         array  1D array of RMS values for each fitted y
     """
+
+    # TODO: TEMP
+    # Add axis to single y arrays for generalised calcs
+    if hasattr(residuals, "shape") and len(residuals.shape) == 1:
+        residuals = residuals[np.newaxis]
 
     logger.debug("helpers.rms: called")
 

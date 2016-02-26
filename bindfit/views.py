@@ -87,8 +87,12 @@ class FitView(APIView):
 
         params = { key: float(value) for key, value in request.data["params"].items() }
 
+        # "Normalise" y data, i.e. subtract initial values from y data 
+        # (silly name choice, sorry)
+        normalise = request.data["options"].get("normalise", True)
+
         # Create and run appropriate fitter
-        fitter = self.run_fitter(datax, datay, params)
+        fitter = self.run_fitter(datax, datay, params, normalise)
         
         # Build response dict
         response = self.build_response(fitter, data, dilute)
@@ -107,10 +111,10 @@ class FitView(APIView):
                                  dilute    =dilute)
         return response
 
-    def run_fitter(self, datax, datay, params):
+    def run_fitter(self, datax, datay, params, normalise):
         # Initialise Fitter with approriate objective function
         function = functions.select[self.fitter_name]
-        fitter = Fitter(datax, datay, function)
+        fitter = Fitter(datax, datay, function, normalise=normalise)
 
         # Run fitter
         fitter.run_scipy(params)
