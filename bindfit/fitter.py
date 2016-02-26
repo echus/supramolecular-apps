@@ -114,17 +114,12 @@ class Fitter():
         self.molefrac = np.vstack((molefrac_host, molefrac))
 
         # Calculate fit uncertainty statistics
-        if coeffs.size != 0:
-            ci = self.statistics()
+        ci = self.statistics()
 
-            # Save final optimised parameters and errors as dictionary
-            self.params = { name: {"value": param, "stderr": stderr, "init": params_init[name]} 
-                            for (name, param, stderr) 
-                            in zip(sorted(params_init), result.x, ci) }
-        else:
-            self.params = { name: {"value": param, "stderr": 0, "init": params_init[name]} 
-                            for (name, param) 
-                            in zip(sorted(params_init), result.x) }
+        # Save final optimised parameters and errors as dictionary
+        self.params = { name: {"value": param, "stderr": stderr, "init": params_init[name]} 
+                        for (name, param, stderr) 
+                        in zip(sorted(params_init), result.x, ci) }
 
         logger.debug("Fitter.run: PARAMS DICT")
         logger.debug(self.params)
