@@ -131,7 +131,7 @@ class FunctionInhibitorResponse(Function):
         elif detailed:
             logger.debug("FIR.objective: returning detailed fit:")
             # Transpose any column-matrices to rows
-            return yfit, residuals, np.array([]), np.array([[]])
+            return yfit, residuals, np.zeros(1, dtype="float64"), np.zeros((1,1), dtype="float64")
 
 def inhibitor_response(params, xdata, *args, **kwargs):
     """
