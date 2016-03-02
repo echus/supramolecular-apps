@@ -60,13 +60,13 @@ class Function():
         if fit_coeffs is not None:
             coeffs = fit_coeffs
         else:
-            coeffs, _, _, _ = np.linalg.lstsq(molefrac, ydata.T)
+            coeffs, _, _, _ = np.linalg.lstsq(molefrac.T, ydata.T)
 
         # Calculate data from fitted parameters 
         # (will be normalised since input data was norm'd)
         # Result is column matrix - transform this into same shape as input
         # data array
-        fit = molefrac.dot(coeffs).T
+        fit = molefrac.T.dot(coeffs).T
 
         logger.debug("Function.objective: fit")
         logger.debug(fit)
@@ -78,7 +78,7 @@ class Function():
         if scalar:
             return np.square(residuals).sum()
         elif detailed:
-            return fit, residuals, coeffs, molefrac.T
+            return fit, residuals, coeffs, molefrac
         else:
             # scipy.leastsq requires a list
             # (returning an ndarray works for 1:1 fitters but not 1:2 - go 
@@ -185,7 +185,8 @@ def nmr_1to1(params, xdata, *args, **kwargs):
     hg /= h0
 
     # Make column vector
-    hg = hg.reshape(len(hg), 1)
+    # hg = hg.reshape(len(hg), 1)
+    hg = hg[np.newaxis]
 
     return hg
 
@@ -219,7 +220,8 @@ def uv_1to1(params, xdata, molefrac=False):
         hg /= h0
 
     # Make column vector
-    hg = hg.reshape(len(hg), 1)
+    # hg = hg.reshape(len(hg), 1)
+    hg = hg[np.newaxis]
 
     return hg
 
@@ -282,7 +284,7 @@ def uv_1to2(params, xdata, molefrac=False):
     hg_mat = np.vstack((hg, hg2))
 
     # Transpose for matrix calculations
-    hg_mat = hg_mat.T
+    # hg_mat = hg_mat.T
 
     return hg_mat
 
@@ -342,7 +344,7 @@ def nmr_1to2(params, xdata, *args, **kwargs):
 
 
     # Transpose for matrix calculations
-    hg_mat = hg_mat.T
+    # hg_mat = hg_mat.T
 
     return hg_mat
 
@@ -393,7 +395,7 @@ def nmr_2to1(params, xdata, *args, **kwargs):
     hg_mat = np.vstack((hg, h2g))
 
     # Transpose for matrix calculations
-    hg_mat = hg_mat.T
+    # hg_mat = hg_mat.T
 
     return hg_mat
 
@@ -450,7 +452,7 @@ def uv_2to1(params, xdata, molefrac=False):
     hg_mat = np.vstack((hg, h2g))
 
     # Transpose for matrix calculations
-    hg_mat = hg_mat.T
+    # hg_mat = hg_mat.T
 
     return hg_mat
 
