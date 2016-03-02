@@ -503,3 +503,12 @@ def upload(data_id):
             "data_id": data_id
             }
     return response
+
+def fit_summary(id, name, author, timestamp):
+    response = {
+            "id":        id,
+            "name":      name,
+            "author":    author,
+            "timestamp": timestamp,
+        }
+    return response

@@ -329,23 +329,14 @@ class FitSearchView(APIView):
             return Response({"detail": "Query must be a string or object."}, 
                              status=status.HTTP_400_BAD_REQUEST)
 
-        values = matches.all().values('id', 'meta_name', 'meta_author')
-        match_list_raw = list(values)
-        
-        # Strip unneeded DB prefixes from result before returning
-        # Currently strips "meta_" prefix on metadata DB fields, and
-        # "bindfit.fit." prefix added to ID by Haystack 
-        # (TODO: instead of stripping here, add a "metadata summary" method to
-        # the fit model that returns an appropriate dict summary for search
-        # to return for each match
-        match_list = []
-        for match in match_list_raw:
-            match_stripped = {}
-            for key, value in match.items():
-                match_stripped[key.replace("meta_", "")] = value.replace("bindfit.fit.", "") if type(value) is str else None
-            match_list.append(match_stripped)
+        summary_list = []
 
-        response = {"matches": match_list}
+        for match in matches.all():
+            summary = match.object.summary()
+            summary_list.append(summary)
+
+        response = {"matches": summary_list}
+
         return Response(response)
  
 

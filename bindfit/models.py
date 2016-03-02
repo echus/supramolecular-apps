@@ -214,3 +214,11 @@ class Fit(models.Model):
                                           self.meta_notes,
                                           self.meta_options_searchable)
         return response
+
+    def summary(self):
+        # Return summary of fit (for search results and email retrieval)
+        response = formatter.fit_summary(self.id, 
+                                     self.meta_name, 
+                                     self.meta_author, 
+                                     self.meta_timestamp)
+        return response
