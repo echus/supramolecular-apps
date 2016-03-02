@@ -21,7 +21,6 @@ class Function():
 
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
-                  detailed=False, 
                   force_molefrac=False,
                   fit_coeffs=None):
         """
@@ -37,7 +36,6 @@ class Function():
             datax:    ndarray    x x m array of x independent variables, m obs
             datay:    ndarray    y x m array of y dependent variables, m obs
             scalar:   bool       
-            detailed: bool       
             molefrac: bool       Force molefraction calculation (for UV 
                                  objective functions)
 
@@ -77,25 +75,16 @@ class Function():
         # Transpose any column-matrices to rows
         if scalar:
             return np.square(residuals).sum()
-        elif detailed:
-            return fit, residuals, coeffs, molefrac
         else:
-            # scipy.leastsq requires a list
-            # (returning an ndarray works for 1:1 fitters but not 1:2 - go 
-            # figure)
-            rsum = residuals.sum(axis=0)
-            ret = [ float(r) for r in rsum ]
-            logger.debug("Function.objective: residuals sum")
-            logger.debug(ret)
-            logger.debug(len(ret))
-            return ret
+            return fit, residuals, coeffs, molefrac
+
 
 
 #
 # log(inhibitor) vs. normalised response test def
 #
 class FunctionInhibitorResponse(Function):
-    def objective(self, params, xdata, ydata, scalar=False, detailed=False, *args, **kwargs): 
+    def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs): 
         logger.debug("FunctionInhibitorResponse.objective: params, xdata, ydata")
         logger.debug(params)
         logger.debug(xdata)
@@ -128,7 +117,7 @@ class FunctionInhibitorResponse(Function):
             logger.debug("FIR.objective: returning residuals sum:")
             logger.debug(np.square(residuals).sum())
             return np.square(residuals).sum()
-        elif detailed:
+        else:
             logger.debug("FIR.objective: returning detailed fit:")
             # Transpose any column-matrices to rows
             return yfit, residuals, np.zeros(1, dtype="float64"), np.zeros((1,1), dtype="float64")

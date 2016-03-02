@@ -91,7 +91,6 @@ class Fitter():
                                                     result.x, 
                                                     x, 
                                                     y, 
-                                                    detailed=True,
                                                     force_molefrac=True)
 
         # Save time taken to fit
@@ -151,7 +150,6 @@ class Fitter():
             fit_shift_norm, _, _, _ = self.function.objective(params_shift, 
                                                         x, 
                                                         y, 
-                                                        detailed=True,
                                                         force_molefrac=True,
                                                         fit_coeffs=self.coeffs)
             fit_shift = self._postprocess(self.ydata, fit_shift_norm)
