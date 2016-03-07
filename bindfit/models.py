@@ -174,6 +174,22 @@ class Fit(models.Model):
 
 
     def to_dict(self):
+        meta_dict = {
+            "author":    self.meta_author,
+            "name":      self.meta_name,
+            "date":      self.meta_date,
+            "timestamp": self.meta_timestamp,
+            "ref":       self.meta_ref,
+            "host":      self.meta_host,
+            "guest":     self.meta_guest,
+            "solvent":   self.meta_solvent,
+            "temp":      self.meta_temp,
+            "temp_unit": self.meta_temp_unit,
+            "notes":     self.meta_notes,
+            "options_searchable": 
+               self.meta_options_searchable,
+            }
+
         if not self.no_fit:
             # Return full fit
 
@@ -184,7 +200,7 @@ class Fit(models.Model):
                               self.fit_params_init,
                               self.fit_params_value,
                               self.fit_params_stderr) }
-
+                       
             response = formatter.fit(self.fitter_name,
                                      self.data.to_dict(self.options_dilute),
                                      self.fit_y, 
@@ -194,25 +210,17 @@ class Fit(models.Model):
                                      self.fit_coeffs,
                                      self.time,
                                      self.options_dilute,
-                                     self.no_fit)
+                                     self.no_fit,
+                                     meta_dict=meta_dict,
+                                     )
         else:
             # No fit, return only saved input data
             response = formatter.fit(self.fitter_name,
                                      self.data.to_dict(self.options_dilute),
-                                     no_fit=self.no_fit)
+                                     no_fit=self.no_fit,
+                                     meta_dict=meta_dict,
+                                     )
 
-        response["meta"] = formatter.meta(self.meta_author,
-                                          self.meta_name,
-                                          self.meta_date,
-                                          self.meta_timestamp,
-                                          self.meta_ref,
-                                          self.meta_host,
-                                          self.meta_guest,
-                                          self.meta_solvent,
-                                          self.meta_temp,
-                                          self.meta_temp_unit,
-                                          self.meta_notes,
-                                          self.meta_options_searchable)
         return response
 
     def summary(self):

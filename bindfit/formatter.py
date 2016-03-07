@@ -391,7 +391,7 @@ def meta(author,
     return response
 
 def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None, 
-        coeffs=None, time=None, dilute=None, no_fit=False):
+        coeffs=None, time=None, dilute=None, no_fit=False, meta_dict=None):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -470,6 +470,21 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
     # Merge with data dictionary
     response = deepcopy(data)
     response.update(fit)
+
+    if meta_dict is not None:
+        # Merge with meta dictionary
+        response["meta"] = meta(meta_dict["author"],
+                                meta_dict["name"],
+                                meta_dict["date"],
+                                meta_dict["timestamp"],
+                                meta_dict["ref"],
+                                meta_dict["host"],
+                                meta_dict["guest"],
+                                meta_dict["solvent"],
+                                meta_dict["temp"],
+                                meta_dict["temp_unit"],
+                                meta_dict["notes"],
+                                meta_dict["options_searchable"])
 
     return response
 
