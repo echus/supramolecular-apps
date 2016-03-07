@@ -427,17 +427,14 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
             rms_total:
         time:
     """
-    # Get human readable fitter name
-    fitter_name = None
-    for f in fitter_list():
-        if f["key"] == fitter:
-            fitter_name = f["name"]
+
+    fn = fitter_name(fitter)
 
     if not no_fit:
         fit = {
                 "no_fit": no_fit,
                 "fitter": fitter,
-                "fitter_name": fitter_name,
+                "fitter_name": fn,
                 "fit": {
                     "y":           y,
                     "coeffs":      coeffs,
@@ -464,7 +461,7 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
         fit = {
                 "no_fit": no_fit,
                 "fitter": fitter,
-                "fitter_name": fitter,
+                "fitter_name": fn,
                 }   
 
     # Merge with data dictionary
@@ -527,17 +524,21 @@ def upload(data_id):
     return response
 
 def fit_summary(id, fitter, name, author, timestamp):
-    # Get human readable fitter name
-    fitter_name = None
-    for f in fitter_list():
-        if f["key"] == fitter:
-            fitter_name = f["name"]
+    fn = fitter_name(fitter)
 
     response = {
             "id":          id,
-            "fitter_name": fitter_name,
+            "fitter_name": fn,
             "name":        name,
             "author":      author,
             "timestamp":   timestamp,
         }
     return response
+
+def fitter_name(fitter):
+    # Get human readable fitter name
+    fitter_name = None
+    for f in fitter_list():
+        if f["key"] == fitter:
+            fitter_name = f["name"]
+    return fitter_name
