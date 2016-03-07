@@ -1,5 +1,4 @@
-{{ object.meta_name }}
-{{ object.meta_author }}
+{{ object.summary }}
 {{ object.meta_ref }}
 {{ object.meta_host }}
 {{ object.meta_guest }}

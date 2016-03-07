@@ -223,6 +223,7 @@ class Fit(models.Model):
 
         return response
 
+    @property
     def summary(self):
         # Return summary of fit (for search results and email retrieval)
         response = formatter.fit_summary(self.id, 

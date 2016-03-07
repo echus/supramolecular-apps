@@ -332,7 +332,7 @@ class FitSearchView(APIView):
         summary_list = []
 
         for match in matches.all():
-            summary = match.object.summary()
+            summary = match.object.summary
             summary_list.append(summary)
 
         response = {"matches": summary_list}
