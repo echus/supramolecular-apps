@@ -92,7 +92,7 @@ def denormalise(data, data_norm):
     data_denorm = data_norm + initialmat
     return data_denorm 
 
-def dilute(xdata, ydata):
+def dilute(h0, data):
     """
     Apply dilution factor to a dataset
 
@@ -105,9 +105,7 @@ def dilute(xdata, ydata):
         ndarray  y x m array of input data with dilution factor applied
     """
 
-    h0 = xdata[0]
-    # PLACEHOLDER this only calculates dilution for the first dataset
-    y = ydata
+    y = data
 
     dilfac = h0/h0[0]
     dilmat = ml.repmat(dilfac, y.shape[0], 1)

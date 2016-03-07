@@ -111,7 +111,7 @@ class Data(models.Model):
 
         # Apply dilution factor if dilute option is set 
         if dilute:
-            y = helpers.dilute(x, y)
+            y = helpers.dilute(x[0], y)
 
         return formatter.data(self.id, x, y, self.labels_x, self.labels_y)
 
@@ -218,7 +218,8 @@ class Fit(models.Model):
     def summary(self):
         # Return summary of fit (for search results and email retrieval)
         response = formatter.fit_summary(self.id, 
-                                     self.meta_name, 
-                                     self.meta_author, 
-                                     self.meta_timestamp)
+                                         self.fitter_name,
+                                         self.meta_name, 
+                                         self.meta_author, 
+                                         self.meta_timestamp)
         return response

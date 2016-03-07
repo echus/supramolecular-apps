@@ -511,17 +511,18 @@ def upload(data_id):
             }
     return response
 
-def fit_summary(id, name, author, timestamp):
+def fit_summary(id, fitter, name, author, timestamp):
     # Get human readable fitter name
-    # fitter_name = None
-    # for f in fitter_list:
-    #     if f["key"] == fitter:
-    #         fitter_name = f["name"]
+    fitter_name = None
+    for f in fitter_list():
+        if f["key"] == fitter:
+            fitter_name = f["name"]
 
     response = {
-            "id":        id,
-            "name":      name,
-            "author":    author,
-            "timestamp": timestamp,
+            "id":          id,
+            "fitter_name": fitter_name,
+            "name":        name,
+            "author":      author,
+            "timestamp":   timestamp,
         }
     return response
