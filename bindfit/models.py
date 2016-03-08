@@ -12,6 +12,7 @@ import uuid
 from xlrd import open_workbook
 
 from . import formatter 
+from . import functions 
 from . import helpers 
 
 import logging
@@ -105,16 +106,22 @@ class Data(models.Model):
 
         return cls(id=id, x=x, y=y, labels_x=x_labels, labels_y=y_labels)
 
-    def to_dict(self, dilute=False):
+    def to_dict(self, fitter=None, dilute=False):
         x = np.array(self.x)
         y = np.array(self.y)[0]
+
+        # Calculate x values for plotting
+        # if fitter is not None:
+        #     x_plot = functions.select[fitter].x_plot(x)
+        #     logger.debug("Data.to_dict: x_plot")
+        #     logger.debug(x_plot)
+        # else:
+        # TEMP FOR DEBUGGING
+        x_plot = x[1]/x[0]
 
         # Apply dilution factor if dilute option is set 
         if dilute:
             y = helpers.dilute(x[0], y)
-
-        # Calculate geq for plotting
-        x_plot = x[1]/x[0]
 
         return formatter.data(self.id, x, x_plot, y, self.labels_x, self.labels_y)
 

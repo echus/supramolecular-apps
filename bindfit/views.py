@@ -79,7 +79,9 @@ class FitView(APIView):
 
         # Get input data to fit from database
         dilute = request.data["options"]["dilute"] # Dilution factor flag
-        data = models.Data.objects.get(id=request.data["data_id"]).to_dict(dilute)
+        data = models.Data.objects.get(id=request.data["data_id"]).to_dict(
+                fitter=self.fitter_name,
+                dilute=dilute)
         logger.debug("views.FitView: data.to_dict() after retrieving")
         logger.debug(data)
         datax = data["data"]["x"]
@@ -500,7 +502,7 @@ class UploadDataView(APIView):
 
         d.save()
         
-        response = d.to_dict(dilute=False)
+        response = d.to_dict(fitter=None, dilute=False)
         return Response(response, status=200)
 
 

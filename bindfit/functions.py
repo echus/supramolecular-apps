@@ -15,9 +15,115 @@ from . import helpers
 import logging
 logger = logging.getLogger('supramolecular')
 
+
+
+### Base Function class template
+class BaseFunction(object):
+    # To use, choose an objective function and plotting mixin and create a class
+    # like this:
+    # class Function(PlotMixin, ObjectiveMixin, BaseFunction)
+    #
+    # Note the mixins are placed before BaseFunction! This is necessary
+    # for the mixin functions to override BaseFunction template functions.
+    # See here: https://www.ianlewis.org/en/mixins-and-python
+
+    def __init__(self, f):
+        self.f = f
+
+    def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs):
+        pass
+
+    def x_plot(self, xdata):
+        pass
+
+
+
+### Objective function mixins
+class MultiYObjectiveMixin():
+    def objective(self, params, xdata, ydata, 
+                  scalar=False, 
+                  force_molefrac=False,
+                  fit_coeffs=None):
+        """
+        Objective function:
+        Performs least squares regression fitting via matrix division on provided
+        NMR/UV dataset for a given binding constant K, and returns its sum of 
+        least squares for optimisation OR full parameters, residuals and fitted
+        results.
+
+        Arguments:
+            params: Parameter  lmfit Parameter object containing binding 
+                               constant guesses
+            datax:    ndarray    x x m array of x independent variables, m obs
+            datay:    ndarray    y x m array of y dependent variables, m obs
+            scalar:   bool       
+            molefrac: bool       Force molefraction calculation (for UV 
+                                 objective functions)
+
+        Returns:
+            float:  Sum of least squares
+        """
+
+        logger.debug("Function.objective: params, xdata, ydata")
+        logger.debug(params)
+        logger.debug(xdata)
+        logger.debug(ydata)
+
+        # Calculate predicted HG complex concentrations for this set of 
+        # parameters and concentrations
+        molefrac = self.f(params, xdata, force_molefrac)
+
+        # Solve by matrix division - linear regression by least squares
+        # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
+
+        if fit_coeffs is not None:
+            coeffs = fit_coeffs
+        else:
+            coeffs, _, _, _ = np.linalg.lstsq(molefrac.T, ydata.T)
+
+        # Calculate data from fitted parameters 
+        # (will be normalised since input data was norm'd)
+        # Result is column matrix - transform this into same shape as input
+        # data array
+        fit = molefrac.T.dot(coeffs).T
+
+        logger.debug("Function.objective: fit")
+        logger.debug(fit)
+
+        # Calculate residuals (fitted data - input data)
+        residuals = fit - ydata
+
+        # Transpose any column-matrices to rows
+        if scalar:
+            return np.square(residuals).sum()
+        else:
+            return fit, residuals, coeffs, molefrac
+
+
+
+### X data plotting transformation mixins
+class GEqPlotMixin():
+    def x_plot(self, xdata):
+        h0 = xdata[0]
+        g0 = xdata[1]
+        return g0/h0
+
+
+
+# Final class definitions
+# class Function(MultiYObjectiveMixin, GEqPlotMixin, BaseFunction):
+#     pass
+
+
+
 class Function():
     def __init__(self, f):
         self.f = f
+
+    def x_plot(self, xdata):
+        h0 = xdata[0]
+        g0 = xdata[1]
+        return g0/h0
 
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
