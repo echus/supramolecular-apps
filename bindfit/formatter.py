@@ -485,12 +485,13 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
 
     return response
 
-def data(data_id, x, y, labels_x, labels_y):
+def data(data_id, x, x_plot, y, labels_x, labels_y):
     response = {
             "data_id": data_id,
             "data": {
-                "x": x,
-                "y": y,
+                "x_plot": x_plot,
+                "x":      x,
+                "y":      y,
                 },
             "labels": {
                 "data": {

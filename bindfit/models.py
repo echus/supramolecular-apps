@@ -113,7 +113,10 @@ class Data(models.Model):
         if dilute:
             y = helpers.dilute(x[0], y)
 
-        return formatter.data(self.id, x, y, self.labels_x, self.labels_y)
+        # Calculate geq for plotting
+        x_plot = x[1]/x[0]
+
+        return formatter.data(self.id, x, x_plot, y, self.labels_x, self.labels_y)
 
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
