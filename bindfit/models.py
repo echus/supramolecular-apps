@@ -106,18 +106,12 @@ class Data(models.Model):
 
         return cls(id=id, x=x, y=y, labels_x=x_labels, labels_y=y_labels)
 
-    def to_dict(self, fitter=None, dilute=False):
+    def to_dict(self, fitter, dilute=False):
         x = np.array(self.x)
         y = np.array(self.y)[0]
 
         # Calculate x values for plotting
-        # if fitter is not None:
-        #     x_plot = functions.select[fitter].x_plot(x)
-        #     logger.debug("Data.to_dict: x_plot")
-        #     logger.debug(x_plot)
-        # else:
-        # TEMP FOR DEBUGGING
-        x_plot = x[1]/x[0]
+        x_plot = functions.select[fitter].x_plot(x)
 
         # Apply dilution factor if dilute option is set 
         if dilute:
@@ -212,7 +206,7 @@ class Fit(models.Model):
                               self.fit_params_stderr) }
                        
             response = formatter.fit(self.fitter_name,
-                                     self.data.to_dict(self.options_dilute),
+                                     self.data.to_dict(self.fitter_name, self.options_dilute),
                                      self.fit_y, 
                                      params, 
                                      self.qof_residuals,
@@ -226,7 +220,7 @@ class Fit(models.Model):
         else:
             # No fit, return only saved input data
             response = formatter.fit(self.fitter_name,
-                                     self.data.to_dict(self.options_dilute),
+                                     self.data.to_dict(self.fitter_name, self.options_dilute),
                                      no_fit=self.no_fit,
                                      meta_dict=meta_dict,
                                      )

@@ -487,6 +487,7 @@ class UploadDataView(APIView):
     parser_classes = (MultiPartParser, )
 
     def put(self, request):
+        # Read file
         f = request.FILES[self.REQUEST_KEY]
 
         # Get file extension
@@ -502,7 +503,11 @@ class UploadDataView(APIView):
 
         d.save()
         
-        response = d.to_dict(fitter=None, dilute=False)
+        # Get selected fitter key
+        fitter = request.data["fitter"]
+
+        # Return parsed data
+        response = d.to_dict(fitter=fitter, dilute=False)
         return Response(response, status=200)
 
 
