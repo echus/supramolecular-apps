@@ -506,6 +506,9 @@ class UploadDataView(APIView):
         # Get selected fitter key
         fitter = request.data["fitter"]
 
+        logger.debug("UploadDataView.put: received fitter key")
+        logger.debug(fitter)
+
         # Return parsed data
         response = d.to_dict(fitter=fitter, dilute=False)
         return Response(response, status=200)
