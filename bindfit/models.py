@@ -104,9 +104,6 @@ class Data(models.Model):
 
         # Number of columns of xdata to parse
         nx = fmt["x"]
-        logger.debug("Data.from_np: fmt, nx")
-        logger.debug(fmt)
-        logger.debug(nx)
 
         x_labels = list(header[0:nx])
         x_raw = array[:,0:nx]
