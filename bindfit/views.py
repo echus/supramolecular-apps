@@ -490,21 +490,18 @@ class UploadDataView(APIView):
         # Read file
         f = request.FILES[self.REQUEST_KEY]
 
-        # Get file extension
-        ext = os.path.splitext(str(f))[1][1:]
+        ext    = os.path.splitext(str(f))[1][1:] # file extension
+        fitter = request.data["fitter"]          # selected fitter key
 
         if ext == "csv":
-            d = models.Data.from_csv(f)
+            d = models.Data.from_csv(fitter, f)
         elif ext == "xls" or ext == "xlsx":
-            d = models.Data.from_xls(f)
+            d = models.Data.from_xls(fitter, f)
         else:
             # Try reading from csv as default if no extension provided
-            d = models.Data.from_csv(f)
+            d = models.Data.from_csv(fitter, f)
 
         d.save()
-        
-        # Get selected fitter key
-        fitter = request.data["fitter"]
 
         logger.debug("UploadDataView.put: received fitter key")
         logger.debug(fitter)

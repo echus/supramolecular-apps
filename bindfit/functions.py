@@ -39,7 +39,7 @@ class BaseFunction(object):
 
 
 ### Objective function mixins
-class MultiYObjectiveMixin():
+class BindingObjectiveMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
                   force_molefrac=False,
@@ -99,6 +99,55 @@ class MultiYObjectiveMixin():
         else:
             return fit, residuals, coeffs, molefrac
 
+class DimerObjectiveMixin():
+    def objective(self, params, xdata, ydata, 
+                  scalar=False, 
+                  fit_coeffs=None,
+                  *args, **kwargs):
+        """
+        """
+
+        logger.debug("Function.objective: params, xdata, ydata")
+        logger.debug(params)
+        logger.debug(xdata)
+        logger.debug(ydata)
+
+        # Calculate predicted complex concentrations for this set of 
+        # parameters and concentrations
+        molefrac = self.f(params, xdata)
+
+        # Solve by matrix division - linear regression by least squares
+        # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
+
+        if fit_coeffs is not None:
+            coeffs = fit_coeffs
+        else:
+            h  = molefrac[0]
+            hs = molefrac[1]
+            he = molefrac[2]
+            hmat = np.array([h + he/2, hs + he/2])
+
+            # TODO not sure if hmat needs to be transposed here .....
+            coeffs, _, _, _ = np.linalg.lstsq(hmat.T, ydata.T)
+
+        # Calculate data from fitted parameters 
+        # (will be normalised since input data was norm'd)
+        # Result is column matrix - transform this into same shape as input
+        # data array
+        fit = molefrac.T.dot(coeffs).T
+
+        logger.debug("Function.objective: fit")
+        logger.debug(fit)
+
+        # Calculate residuals (fitted data - input data)
+        residuals = fit - ydata
+
+        # Transpose any column-matrices to rows
+        if scalar:
+            return np.square(residuals).sum()
+        else:
+            return fit, residuals, coeffs, molefrac
+
 
 
 ### X data plotting transformation mixins
@@ -108,18 +157,25 @@ class GEqPlotMixin():
         g0 = xdata[1]
         return g0/h0
 
+class XPlotMixin():
+    def x_plot(self, xdata):
+        return xdata[0]
 
 
+
+#
 # Final class definitions
-class Function(MultiYObjectiveMixin, GEqPlotMixin, BaseFunction):
+#
+class FunctionBinding(BindingObjectiveMixin, GEqPlotMixin, BaseFunction):
     pass
 
-
+class FunctionDimer(DimerObjectiveMixin, XPlotMixin, BaseFunction):
+    pass
 
 #
 # log(inhibitor) vs. normalised response test def
 #
-class FunctionInhibitorResponse(Function):
+class FunctionInhibitorResponse(FunctionBinding):
     def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs): 
         logger.debug("FunctionInhibitorResponse.objective: params, xdata, ydata")
         logger.debug(params)
@@ -481,17 +537,43 @@ def uv_2to1(params, xdata, molefrac=False):
 
     return hg_mat
 
+def nmr_dimer(params, xdata, *args, **kwargs):
+    """
+    Calculates predicted [H] [Hs] and [He] given data object and binding constants
+    as input.
+    """
+    
+    ke = params[0]
+
+    h0 = xdata[0]
+
+    # Calculate free monomer concentration [H] or alfa: eq 143 from Thordarson book chapter
+    h = ((2*kE*h0+1) - \
+          np.lib.scimath.sqrt(((4*kE*h0+1)))\
+          )/(2*kE*kE*h0*h0)
+
+    # Calculate "in stack" concentration [Hs] or epislon: eq 149 (rho = 1, n.b. one "h" missing) from Thordarson book chapter
+    hs=(h*((h*kE*h0)**2))/((1-h*kE*h0)**2)
+
+    # Calculate "at end" concentration [He] or gamma: eq 150 (rho = 1) from Thordarson book chapter
+    he=(2*h*h*kE*h0)/(1-h*kE*h0)
+
+    hg_mat = np.vstack((h, hs, he))
+
+    return hg_mat
+
 
 
 # Initialise singletons for each function
 # Reference by dict key, ultimately exposed to use by formatter.fitter_list 
 # dictionary
 select = {
-        "nmr1to1": Function(nmr_1to1),
-        "nmr1to2": Function(nmr_1to2),
-        "nmr2to1": Function(nmr_2to1),
-        "uv1to1" : Function(uv_1to1),
-        "uv1to2" : Function(uv_1to2),
-        "uv2to1" : Function(uv_2to1),
-        "inhibitor" : FunctionInhibitorResponse(inhibitor_response),
+        "nmr1to1":    FunctionBinding(nmr_1to1),
+        "nmr1to2":    FunctionBinding(nmr_1to2),
+        "nmr2to1":    FunctionBinding(nmr_2to1),
+        "uv1to1" :    FunctionBinding(uv_1to1),
+        "uv1to2" :    FunctionBinding(uv_1to2),
+        "uv2to1" :    FunctionBinding(uv_2to1),
+        "nmrdimer":   FunctionDimer(nmr_dimer),
+        "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
         }

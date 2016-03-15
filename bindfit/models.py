@@ -40,7 +40,7 @@ class Data(models.Model):
     labels_y = ArrayField(models.CharField(max_length=100, blank=True))
 
     @classmethod
-    def from_csv(cls, f):
+    def from_csv(cls, fitter, f):
         # Read data into np array
         data = np.loadtxt(f, delimiter=",", skiprows=1)
 
@@ -50,10 +50,10 @@ class Data(models.Model):
         # having to convert struct array to ndarray, because laziness
         struct = np.genfromtxt(f, dtype=float, delimiter=',', names=True) 
         header = list(struct.dtype.names)
-        return cls.from_np(header, data)
+        return cls.from_np(header, data, fitter=fitter)
 
     @classmethod
-    def from_xls(cls, f):
+    def from_xls(cls, fitter, f):
         # Number of header rows to skip
         skiprows = 1
         dtype    = 'f8'
@@ -78,27 +78,44 @@ class Data(models.Model):
         # Parse header
         header_parsed = np.array(header)
         
-        return cls.from_np(header_parsed, data_parsed)
+        return cls.from_np(header_parsed, data_parsed, fitter=fitter)
 
     @classmethod
-    def from_np(cls, header, array, fmt=None):
+    def from_np(cls, header, array, fitter=None):
         # Use SHA1 hash of array as primary key to avoid duplication
         # TODO change this to hash both header and array??
         id = hashlib.sha1(np.ascontiguousarray(array.data)).hexdigest()
 
-        if fmt == "2d":
-            # Placeholder for handling decoding other array formats
-            pass
-        else:
-            # Default format, 2 x cols and 1 2D y input
-            x_labels = list(header[0:2])
-            x_raw = array[:,0:2]
-            x = [ list(x_raw[:,col]) for col in range(x_raw.shape[1]) ]
+        # Data format definitions - number of columns expected in x
+        # Defined as "many-to-one" dict with tuples and converted 
+        # for convenience
+        fmts_map = {
+            ("default", "nmr1to1", "uv1to1"): {"x": 2},
+            ("nmrdimer", "uvdimer"): {"x": 1},
+            }
+        fmts = {}
 
-            y_labels = list(header[2:])
-            y_raw = array[:,2:]
-            # Add 3rd dimension to y for consistency w/ true 3D y inputs
-            y = [[ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]]
+        for k, v in fmts_map.items():
+            for key in k:
+                fmts[key] = v
+
+        # Get appropriate data parsing format for this fitter
+        fmt = fmts.get(fitter, fmts["default"])
+
+        # Number of columns of xdata to parse
+        nx = fmt["x"]
+        logger.debug("Data.from_np: fmt, nx")
+        logger.debug(fmt)
+        logger.debug(nx)
+
+        x_labels = list(header[0:nx])
+        x_raw = array[:,0:nx]
+        x = [ list(x_raw[:,col]) for col in range(x_raw.shape[1]) ]
+
+        y_labels = list(header[nx:])
+        y_raw = array[:,nx:]
+        # Add 3rd dimension to y for consistency w/ true 3D y inputs
+        y = [[ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]]
 
         logger.debug("Data.from_np: x and y arrays")
         logger.debug(x)
