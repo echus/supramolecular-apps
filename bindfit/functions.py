@@ -115,6 +115,13 @@ class DimerObjectiveMixin():
         # Calculate predicted complex concentrations for this set of 
         # parameters and concentrations
         molefrac = self.f(params, xdata)
+        h  = molefrac[0]
+        hs = molefrac[1]
+        he = molefrac[2]
+        hmat = np.array([h + he/2, hs + he/2])
+
+        logger.debug("Function.objective: molefrac")
+        logger.debug(molefrac)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -122,19 +129,13 @@ class DimerObjectiveMixin():
         if fit_coeffs is not None:
             coeffs = fit_coeffs
         else:
-            h  = molefrac[0]
-            hs = molefrac[1]
-            he = molefrac[2]
-            hmat = np.array([h + he/2, hs + he/2])
-
-            # TODO not sure if hmat needs to be transposed here .....
             coeffs, _, _, _ = np.linalg.lstsq(hmat.T, ydata.T)
 
         # Calculate data from fitted parameters 
         # (will be normalised since input data was norm'd)
         # Result is column matrix - transform this into same shape as input
         # data array
-        fit = molefrac.T.dot(coeffs).T
+        fit = hmat.T.dot(coeffs).T
 
         logger.debug("Function.objective: fit")
         logger.debug(fit)
@@ -539,28 +540,32 @@ def uv_2to1(params, xdata, molefrac=False):
 
 def nmr_dimer(params, xdata, *args, **kwargs):
     """
-    Calculates predicted [H] [Hs] and [He] given data object and binding constants
-    as input.
+    Calculates predicted [H] [Hs] and [He] given data object and binding
+    constant as input.
     """
     
     ke = params[0]
 
     h0 = xdata[0]
 
-    # Calculate free monomer concentration [H] or alfa: eq 143 from Thordarson book chapter
-    h = ((2*kE*h0+1) - \
-          np.lib.scimath.sqrt(((4*kE*h0+1)))\
-          )/(2*kE*kE*h0*h0)
+    if ke == 0:
+        return np.array([h0*0, h0*0, h0*0])
 
-    # Calculate "in stack" concentration [Hs] or epislon: eq 149 (rho = 1, n.b. one "h" missing) from Thordarson book chapter
-    hs=(h*((h*kE*h0)**2))/((1-h*kE*h0)**2)
+    # Calculate free monomer concentration [H] or alpha: 
+    # eq 143 from Thordarson book chapter
+    h = ((2*ke*h0+1) - \
+          np.lib.scimath.sqrt(((4*ke*h0+1)))\
+          )/(2*ke*ke*h0*h0)
 
-    # Calculate "at end" concentration [He] or gamma: eq 150 (rho = 1) from Thordarson book chapter
-    he=(2*h*h*kE*h0)/(1-h*kE*h0)
+    # Calculate "in stack" concentration [Hs] or epislon: eq 149 
+    # (rho = 1, n.b. one "h" missing) from Thordarson book chapter
+    hs=(h*((h*ke*h0)**2))/((1-h*ke*h0)**2)
 
-    hg_mat = np.vstack((h, hs, he))
+    # Calculate "at end" concentration [He] or gamma: eq 150 (rho = 1) 
+    # from Thordarson book chapter
+    he=(2*h*h*ke*h0)/(1-h*ke*h0)
 
-    return hg_mat
+    return np.vstack((h, hs, he)) 
 
 
 
