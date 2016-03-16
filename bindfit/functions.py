@@ -249,10 +249,6 @@ def nmr_1to1(params, xdata, *args, **kwargs):
     """
 
     k = params[0]
-    # if isinstance(params, list):
-    #     k = params[0]
-    # else:
-    #     k = params["k"]
  
     h0 = xdata[0]
     g0 = xdata[1]
@@ -272,7 +268,6 @@ def nmr_1to1(params, xdata, *args, **kwargs):
     hg /= h0
 
     # Make column vector
-    # hg = hg.reshape(len(hg), 1)
     hg = hg[np.newaxis]
 
     return hg
@@ -283,10 +278,6 @@ def uv_1to1(params, xdata, molefrac=False):
     """
 
     k = params[0]
-    # if isinstance(params, list):
-    #     k = params[0]
-    # else:
-    #     k = params["k"]
  
     h0 = xdata[0]
     g0 = xdata[1]
@@ -320,19 +311,11 @@ def uv_1to2(params, xdata, molefrac=False):
 
     k11 = params[0]
     k12 = params[1]
-    # if isinstance(params, list):
-    #     k11 = params[0]
-    #     k12 = params[1]
-    # else:
-    #     k11 = params["k1"]
-    #     k12 = params["k2"]
  
     h0 = xdata[0]
     g0 = xdata[1]
 
-    #
     # Calculate free guest concentration [G]: solve cubic
-    #
     a = np.ones(h0.shape[0])*k11*k12
     b = 2*k11*k12*h0 + k11 - g0*k11*k12
     c = 1 + k11*h0 - k11*g0
@@ -357,9 +340,7 @@ def uv_1to2(params, xdata, molefrac=False):
         
         g[i] = soln
 
-    #
     # Calculate [HG] and [HG2] complex concentrations 
-    #
     hg = h0*((g*k11)/(1+(g*k11)+(g*g*k11*k12)))
     hg2 = h0*(((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12)))
 
@@ -369,9 +350,6 @@ def uv_1to2(params, xdata, molefrac=False):
         hg2 /= h0
 
     hg_mat = np.vstack((hg, hg2))
-
-    # Transpose for matrix calculations
-    # hg_mat = hg_mat.T
 
     return hg_mat
 
@@ -383,19 +361,11 @@ def nmr_1to2(params, xdata, *args, **kwargs):
 
     k11 = params[0]
     k12 = params[1]
-    # if isinstance(params, list):
-    #     k11 = params[0]
-    #     k12 = params[1]
-    # else:
-    #     k11 = params["k1"]
-    #     k12 = params["k2"]
 
     h0  = xdata[0]
     g0  = xdata[1]
 
-    #
     # Calculate free guest concentration [G]: solve cubic
-    #
     a = np.ones(h0.shape[0])*k11*k12
     b = 2*k11*k12*h0 + k11 - g0*k11*k12
     c = 1 + k11*h0 - k11*g0
@@ -421,17 +391,11 @@ def nmr_1to2(params, xdata, *args, **kwargs):
         g[i] = soln
 
 
-    #
     # Calculate [HG] and [HG2] complex concentrations 
-    #
     hg = (g*k11)/(1+(g*k11)+(g*g*k11*k12))
     hg2 = ((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12))
 
     hg_mat = np.vstack((hg, hg2))
-
-
-    # Transpose for matrix calculations
-    # hg_mat = hg_mat.T
 
     return hg_mat
 
@@ -446,9 +410,7 @@ def nmr_2to1(params, xdata, *args, **kwargs):
     h0  = xdata[0]
     g0  = xdata[1]
 
-    #
     # Calculate free host concentration [H]: solve cubic
-    #
     a = np.ones(h0.shape[0])*k11*k12
     b = 2*k11*k12*g0 + k11 - h0*k11*k12
     c = 1 + k11*g0 - k11*h0
@@ -473,16 +435,11 @@ def nmr_2to1(params, xdata, *args, **kwargs):
 
         h[i] = soln
 
-    #
     # Calculate [HG] and [H2G] complex concentrations 
-    #
     hg = (g0*h*k11)/(h0*(1+(h*k11)+(h*h*k11*k12)))
     h2g = (2*g0*h*h*k11*k12)/(h0*(1+(h*k11)+(h*h*k11*k12)))
 
     hg_mat = np.vstack((hg, h2g))
-
-    # Transpose for matrix calculations
-    # hg_mat = hg_mat.T
 
     return hg_mat
 
@@ -498,9 +455,7 @@ def uv_2to1(params, xdata, molefrac=False):
     h0  = xdata[0]
     g0  = xdata[1]
 
-    #
     # Calculate free host concentration [H]: solve cubic
-    #
     a = np.ones(h0.shape[0])*k11*k12
     b = 2*k11*k12*g0 + k11 - h0*k11*k12
     c = 1 + k11*g0 - k11*h0
@@ -525,9 +480,7 @@ def uv_2to1(params, xdata, molefrac=False):
 
         h[i] = soln
 
-    #
     # Calculate [HG] and [H2G] complex concentrations 
-    #
     hg = g0*((h*k11)/(1+(h*k11)+(h*h*k11*k12)))
     h2g = g0*((2*h*h*k11*k12)/(1+(h*k11)+(h*h*k11*k12)))
 
@@ -537,9 +490,6 @@ def uv_2to1(params, xdata, molefrac=False):
         h2g /= h0
 
     hg_mat = np.vstack((hg, h2g))
-
-    # Transpose for matrix calculations
-    # hg_mat = hg_mat.T
 
     return hg_mat
 
