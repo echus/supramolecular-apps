@@ -120,7 +120,7 @@ class BindingMixin():
         molefrac_host -= molefrac.sum(axis=0)
         return np.vstack((molefrac_host, molefrac))
 
-class DimerMixin():
+class AggMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
                   force_molefrac=False,
@@ -185,7 +185,7 @@ class DimerMixin():
 class FunctionBinding(BindingMixin, BaseFunction):
     pass
 
-class FunctionDimer(DimerMixin, BaseFunction):
+class FunctionAgg(AggMixin, BaseFunction):
     pass
 
 
@@ -558,17 +558,17 @@ def nmr_dimer(params, xdata, *args, **kwargs):
 
     # Calculate free monomer concentration [H] or alpha: 
     # eq 143 from Thordarson book chapter
-    h = ((2*ke*h0+1) - \
-          np.lib.scimath.sqrt(((4*ke*h0+1)))\
+    h = ((2*ke*h0 + 1) - \
+          np.lib.scimath.sqrt(((4*ke*h0 + 1)))\
           )/(2*ke*ke*h0*h0)
 
     # Calculate "in stack" concentration [Hs] or epislon: eq 149 
     # (rho = 1, n.b. one "h" missing) from Thordarson book chapter
-    hs=(h*((h*ke*h0)**2))/((1-h*ke*h0)**2)
+    hs = (h*((h*ke*h0)**2))/((1 - h*ke*h0)**2)
 
     # Calculate "at end" concentration [He] or gamma: eq 150 (rho = 1) 
     # from Thordarson book chapter
-    he=(2*h*h*ke*h0)/(1-h*ke*h0)
+    he = (2*h*h*ke*h0)/(1 - h*ke*h0)
 
     return np.vstack((h, hs, he)) 
 
@@ -587,17 +587,17 @@ def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
 
     # Calculate free monomer concentration [H] or alpha: 
     # eq 143 from Thordarson book chapter
-    h = ((2*ke*h0+1) - \
-          np.lib.scimath.sqrt(((4*ke*h0+1)))\
+    h = ((2*ke*h0 + 1) - \
+          np.lib.scimath.sqrt(((4*ke*h0 + 1)))\
           )/(2*ke*ke*h0*h0)
 
     # Calculate "in stack" concentration [Hs] or epislon: eq 149 
     # (rho = 1, n.b. one "h" missing) from Thordarson book chapter
-    hs=(h0*h*((h*ke*h0)**2))/((1-h*ke*h0)**2)
+    hs = (h0*h*((h*ke*h0)**2))/((1 - h*ke*h0)**2)
 
     # Calculate "at end" concentration [He] or gamma: eq 150 (rho = 1) 
     # from Thordarson book chapter
-    he=(h0*(2*h*h*ke*h0))/(1-h*ke*h0)
+    he = (h0*(2*h*h*ke*h0))/(1 - h*ke*h0)
 
     # Convert to free concentration
     hc = h0*h
@@ -610,6 +610,53 @@ def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
 
     return np.vstack((hc, hs, he)) 
 
+def nmr_coek(params, xdata, *args, **kwargs):
+    """
+    Calculates predicted [H] [Hs] and [He] given data object and binding constants
+    as input.
+    """
+
+    ke = params[0]
+    rho = params[1]
+
+    h0  = xdata[0]
+
+    # Calculate free monomer concentration [H] or alpha: 
+    # eq 146 from Thordarson book chapter
+
+    a = np.ones(h0.shape[0])*(((ke*h0)**2) - (rho*((ke*h0)**2)))
+    b = 2*rho*ke*h0 - 2*ke*h0 - ((ke*h0)**2)
+    c = 2*ke*h0 + 1
+    d = -1. * np.ones(h0.shape[0])
+
+    # Rows: data points, cols: poly coefficients
+    poly = np.column_stack((a, b, c, d))
+
+    # Solve cubic in [H] for each observation
+    h = np.zeros(h0.shape[0])
+    for i, p in enumerate(poly):
+        roots = np.roots(p)
+
+        # Smallest real +ve root is [H]
+        select = np.all([np.imag(roots) == 0, np.real(roots) >= 0], axis=0)
+        if select.any():
+            soln = roots[select].min()
+            soln = float(np.real(soln))
+        else:
+            # No positive real roots, set solution to 0
+            soln = 0.0
+        
+        h[i] = soln
+
+    # Calculate "in stack" concentration [Hs] or epislon: 
+    # eq 149 from Thordarson book chapter
+    hs = (rho*h*((h*ke*h0)**2))/((1-h*ke*h0)**2)
+
+    # Calculate "at end" concentration [He] or gamma: 
+    # eq 150 from Thordarson book chapter
+    he = (2*rho*h*h*ke*h0)/(1-h*ke*h0)
+
+    return np.vstack((h, hs, he))
 
 
 
@@ -623,7 +670,8 @@ select = {
         "uv1to1" :    FunctionBinding(uv_1to1),
         "uv1to2" :    FunctionBinding(uv_1to2),
         "uv2to1" :    FunctionBinding(uv_2to1),
-        "nmrdimer":   FunctionDimer(nmr_dimer),
-        "uvdimer":    FunctionDimer(uv_dimer),
+        "nmrdimer":   FunctionAgg(nmr_dimer),
+        "uvdimer":    FunctionAgg(uv_dimer),
+        "nmrcoek":    FunctionAgg(nmr_coek),
         "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
         }

@@ -91,7 +91,7 @@ class Data(models.Model):
         # for convenience
         fmts_map = {
             ("default", "nmr1to1", "uv1to1"): {"x": 2},
-            ("nmrdimer", "uvdimer"): {"x": 1},
+            ("nmrdimer", "uvdimer", "nmrcoek", "uvcoek"): {"x": 1},
             }
         fmts = {}
 

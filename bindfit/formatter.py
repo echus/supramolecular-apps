@@ -27,6 +27,8 @@ def fitter_list():
             {"name": "NMR 2:1",        "key": "nmr2to1",  "group": "NMR"},
             {"name": "NMR Dimer Aggregation",
                                        "key": "nmrdimer", "group": "NMR"},
+            {"name": "NMR CoEK Aggregation",
+                                       "key": "nmrcoek",  "group": "NMR"},
             {"name": "UV 1:1",         "key": "uv1to1",   "group": "UV"},
             {"name": "UV 1:2",         "key": "uv1to2",   "group": "UV"},
             {"name": "UV 2:1",         "key": "uv2to1",   "group": "UV"},
@@ -266,6 +268,31 @@ def labels(fitter):
                     },
                 },
 
+            "nmrcoek": {
+                "data": {
+                    "x": {
+                        "axis_label": "[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "???",
+                        "axis_units": "",
+                        },
+                    },
+                "fit": {
+                    "params": {
+                        "ke":  {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        "rho": {"label": "\u03C1", "units": ""},
+                        },
+                    "y": {
+                        "axis_label": "???",
+                        "axis_units": "",
+                        },
+                    "coeffs_calc": ["H", "Hs", "He"],
+                    "molefrac":    ["H", "Hs", "He"],
+                    },
+                },
+
             "inhibitor": {
                 "data": {
                     "x": {
@@ -406,6 +433,18 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute": True,
+                    },
+                },
+
+            "nmrcoek": {
+                "fitter": "nmrcoek",
+                "data_id": "",
+                "params": {
+                    "ke":  200,
+                    "rho": 0.3,
+                    },
+                "options": {
+                    "dilute": False,
                     },
                 },
 
