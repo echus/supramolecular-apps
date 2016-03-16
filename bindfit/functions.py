@@ -20,6 +20,7 @@ logger = logging.getLogger('supramolecular')
 #
 # Base Function class template
 #
+
 class BaseFunction(object):
     # To use, choose an objective function and plotting mixin and create a class
     # like this:
@@ -46,11 +47,13 @@ class BaseFunction(object):
 #
 # Objective function mixins
 #
+
 class BindingMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
                   force_molefrac=False,
-                  fit_coeffs=None):
+                  fit_coeffs=None,
+                  *args, **kwargs):
         """
         Objective function:
         Performs least squares regression fitting via matrix division on provided
@@ -120,6 +123,7 @@ class BindingMixin():
 class DimerMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
+                  force_molefrac=False,
                   fit_coeffs=None,
                   *args, **kwargs):
         """
@@ -132,7 +136,7 @@ class DimerMixin():
 
         # Calculate predicted complex concentrations for this set of 
         # parameters and concentrations
-        molefrac = self.f(params, xdata)
+        molefrac = self.f(params, xdata, force_molefrac)
         h  = molefrac[0]
         hs = molefrac[1]
         he = molefrac[2]
@@ -177,6 +181,7 @@ class DimerMixin():
 #
 # Final class definitions
 #
+
 class FunctionBinding(BindingMixin, BaseFunction):
     pass
 
@@ -188,6 +193,7 @@ class FunctionDimer(DimerMixin, BaseFunction):
 #
 # log(inhibitor) vs. normalised response test def
 #
+
 class FunctionInhibitorResponse(FunctionBinding):
     def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs): 
         logger.debug("FunctionInhibitorResponse.objective: params, xdata, ydata")
@@ -197,20 +203,6 @@ class FunctionInhibitorResponse(FunctionBinding):
 
         yfit = self.f(params, xdata)
         yfit = yfit[np.newaxis]
-
-        # # Solve by matrix division - linear regression by least squares
-        # # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
-        # if fit_coeffs is not None:
-        #     coeffs = fit_coeffs
-        # else:
-        #     coeffs, _, _, _ = np.linalg.lstsq(molefrac, ydata.T)
-        # # Calculate data from fitted parameters 
-        # # (will be normalised since input data was norm'd)
-        # # Result is column matrix - transform this into same shape as input
-        # # data array
-        # fit = molefrac.dot(coeffs).T
-        # logger.debug("Function.objective: fit")
-        # logger.debug(fit)
 
         # Calculate residuals (fitted data - input data)
         residuals = yfit - ydata
@@ -241,6 +233,7 @@ def inhibitor_response(params, xdata, *args, **kwargs):
     response = 100/(1+10**((logIC50 - inhibitor)*hillslope))
 
     return response
+
 #
 # End inhibitor vs. response test func
 #
@@ -555,12 +548,12 @@ def nmr_dimer(params, xdata, *args, **kwargs):
     Calculates predicted [H] [Hs] and [He] given data object and binding
     constant as input.
     """
-    
-    ke = params[0]
 
+    ke = params[0]
     h0 = xdata[0]
 
     if ke == 0:
+        # Avoid dividing by zero ...
         return np.array([h0*0, h0*0, h0*0])
 
     # Calculate free monomer concentration [H] or alpha: 
@@ -579,6 +572,45 @@ def nmr_dimer(params, xdata, *args, **kwargs):
 
     return np.vstack((h, hs, he)) 
 
+def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
+    """
+    Calculates predicted [H] [Hs] and [He] given data object and binding
+    constant as input.
+    """
+
+    ke = params[0]
+    h0 = xdata[0]
+
+    if ke == 0:
+        # Avoid dividing by zero ...
+        return np.array([h0*0, h0*0, h0*0])
+
+    # Calculate free monomer concentration [H] or alpha: 
+    # eq 143 from Thordarson book chapter
+    h = ((2*ke*h0+1) - \
+          np.lib.scimath.sqrt(((4*ke*h0+1)))\
+          )/(2*ke*ke*h0*h0)
+
+    # Calculate "in stack" concentration [Hs] or epislon: eq 149 
+    # (rho = 1, n.b. one "h" missing) from Thordarson book chapter
+    hs=(h0*h*((h*ke*h0)**2))/((1-h*ke*h0)**2)
+
+    # Calculate "at end" concentration [He] or gamma: eq 150 (rho = 1) 
+    # from Thordarson book chapter
+    he=(h0*(2*h*h*ke*h0))/(1-h*ke*h0)
+
+    # Convert to free concentration
+    hc = h0*h
+
+    if molefrac:
+        # Convert free concentrations to molefractions
+        hc   = h
+        hs  /= h0
+        he  /= h0
+
+    return np.vstack((hc, hs, he)) 
+
+
 
 
 # Initialise singletons for each function
@@ -592,5 +624,6 @@ select = {
         "uv1to2" :    FunctionBinding(uv_1to2),
         "uv2to1" :    FunctionBinding(uv_2to1),
         "nmrdimer":   FunctionDimer(nmr_dimer),
+        "uvdimer":    FunctionDimer(uv_dimer),
         "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
         }

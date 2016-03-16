@@ -87,6 +87,8 @@ class Fitter():
         logger.debug(result.x)
 
         # Calculate fitted data with optimised parameters
+        # Force molefraction (not free concentration) calculation for proper 
+        # fitting in UV models
         fit_norm, residuals, coeffs, molefrac = self.function.objective(
                                                     result.x, 
                                                     x, 

@@ -30,6 +30,8 @@ def fitter_list():
             {"name": "UV 1:1",         "key": "uv1to1",   "group": "UV"},
             {"name": "UV 1:2",         "key": "uv1to2",   "group": "UV"},
             {"name": "UV 2:1",         "key": "uv2to1",   "group": "UV"},
+            {"name": "UV Dimer Aggregation",
+                                       "key": "uvdimer",  "group": "UV"},
             {"name": "NMR",            "key": "nmrdata",  "group": "Save data only"},
             {"name": "UV",             "key": "uvdata",   "group": "Save data only"},
 
@@ -240,6 +242,30 @@ def labels(fitter):
                     },
                 },
 
+            "uvdimer": {
+                "data": {
+                    "x": {
+                        "axis_label": "[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "???",
+                        "axis_units": "",
+                        },
+                    },
+                "fit": {
+                    "params": {
+                        "ke": {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        },
+                    "y": {
+                        "axis_label": "???",
+                        "axis_units": "",
+                        },
+                    "coeffs_calc": ["H", "Hs", "He"],
+                    "molefrac":    ["H", "Hs", "He"],
+                    },
+                },
+
             "inhibitor": {
                 "data": {
                     "x": {
@@ -369,6 +395,17 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute": False,
+                    },
+                },
+
+            "uvdimer": {
+                "fitter": "uvdimer",
+                "data_id": "",
+                "params": {
+                    "ke": 100,
+                    },
+                "options": {
+                    "dilute": True,
                     },
                 },
 
