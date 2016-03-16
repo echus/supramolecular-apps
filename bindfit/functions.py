@@ -572,7 +572,7 @@ def nmr_dimer(params, xdata, *args, **kwargs):
 
     return np.vstack((h, hs, he)) 
 
-def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
+def uv_dimer(params, xdata, *args, **kwargs):
     """
     Calculates predicted [H] [Hs] and [He] given data object and binding
     constant as input.
@@ -601,12 +601,6 @@ def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
 
     # Convert to free concentration
     hc = h0*h
-
-    if molefrac:
-        # Convert free concentrations to molefractions
-        hc   = h
-        hs  /= h0
-        he  /= h0
 
     return np.vstack((hc, hs, he)) 
 
@@ -658,6 +652,57 @@ def nmr_coek(params, xdata, *args, **kwargs):
 
     return np.vstack((h, hs, he))
 
+def uv_coek(params, xdata, *args, **kwargs):
+    """
+    Calculates predicted [H] [Hs] and [He] given data object and binding constants
+    as input.
+    """
+
+    ke = params[0]
+    rho = params[1]
+
+    h0  = xdata[0]
+
+    # Calculate free monomer concentration [H] or alpha: 
+    # eq 146 from Thordarson book chapter
+
+    a = np.ones(h0.shape[0])*(((ke*h0)**2) - (rho*((ke*h0)**2)))
+    b = 2*rho*ke*h0 - 2*ke*h0 - ((ke*h0)**2)
+    c = 2*ke*h0 + 1
+    d = -1. * np.ones(h0.shape[0])
+
+    # Rows: data points, cols: poly coefficients
+    poly = np.column_stack((a, b, c, d))
+
+    # Solve cubic in [H] for each observation
+    h = np.zeros(h0.shape[0])
+    for i, p in enumerate(poly):
+        roots = np.roots(p)
+
+        # Smallest real +ve root is [H]
+        select = np.all([np.imag(roots) == 0, np.real(roots) >= 0], axis=0)
+        if select.any():
+            soln = roots[select].min()
+            soln = float(np.real(soln))
+        else:
+            # No positive real roots, set solution to 0
+            soln = 0.0
+        
+        h[i] = soln
+    
+    # n.b. these fractions are multiplied by h0 
+
+    # Calculate "in stack" concentration [Hs] or epislon: eq 149 from Thordarson book chapter
+    hs = (h0*rho*h*((h*ke*h0)**2))/((1 - h*ke*h0)**2)
+
+    # Calculate "at end" concentration [He] or gamma: eq 150 from Thordarson book chapter
+    he = (h0*(2*rho*h*h*ke*h0))/(1 - h*ke*h0)
+        
+    # Convert to free concentration
+    hc = h0*h
+
+    return np.vstack((hc, hs, he))
+
 
 
 # Initialise singletons for each function
@@ -673,5 +718,6 @@ select = {
         "nmrdimer":   FunctionAgg(nmr_dimer),
         "uvdimer":    FunctionAgg(uv_dimer),
         "nmrcoek":    FunctionAgg(nmr_coek),
+        "uvcoek":     FunctionAgg(uv_coek),
         "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
         }

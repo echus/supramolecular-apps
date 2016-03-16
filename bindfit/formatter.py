@@ -34,6 +34,8 @@ def fitter_list():
             {"name": "UV 2:1",         "key": "uv2to1",   "group": "UV"},
             {"name": "UV Dimer Aggregation",
                                        "key": "uvdimer",  "group": "UV"},
+            {"name": "UV CoEK Aggregation",
+                                       "key": "uvcoek",   "group": "UV"},
             {"name": "NMR",            "key": "nmrdata",  "group": "Save data only"},
             {"name": "UV",             "key": "uvdata",   "group": "Save data only"},
 
@@ -293,6 +295,31 @@ def labels(fitter):
                     },
                 },
 
+            "uvcoek": {
+                "data": {
+                    "x": {
+                        "axis_label": "[H]\u2080",
+                        "axis_units": "",
+                        },
+                    "y": {
+                        "axis_label": "???",
+                        "axis_units": "",
+                        },
+                    },
+                "fit": {
+                    "params": {
+                        "ke":  {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        "rho": {"label": "\u03C1", "units": ""},
+                        },
+                    "y": {
+                        "axis_label": "???",
+                        "axis_units": "",
+                        },
+                    "coeffs_calc": ["H", "Hs", "He"],
+                    "molefrac":    ["H", "Hs", "He"],
+                    },
+                },
+
             "inhibitor": {
                 "data": {
                     "x": {
@@ -445,6 +472,18 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute": False,
+                    },
+                },
+
+            "uvcoek": {
+                "fitter": "uvcoek",
+                "data_id": "",
+                "params": {
+                    "ke":  2700,
+                    "rho": 0.003,
+                    },
+                "options": {
+                    "dilute": True,
                     },
                 },
 
