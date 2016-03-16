@@ -17,7 +17,9 @@ logger = logging.getLogger('supramolecular')
 
 
 
-### Base Function class template
+#
+# Base Function class template
+#
 class BaseFunction(object):
     # To use, choose an objective function and plotting mixin and create a class
     # like this:
@@ -36,10 +38,15 @@ class BaseFunction(object):
     def x_plot(self, xdata):
         pass
 
+    def molefrac_plot(self, molefrac):
+        pass
 
 
-### Objective function mixins
-class BindingObjectiveMixin():
+
+#
+# Objective function mixins
+#
+class BindingMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
                   force_molefrac=False,
@@ -99,7 +106,18 @@ class BindingObjectiveMixin():
         else:
             return fit, residuals, coeffs, molefrac
 
-class DimerObjectiveMixin():
+    def x_plot(self, xdata):
+        h0 = xdata[0]
+        g0 = xdata[1]
+        return g0/h0
+
+    def molefrac_plot(self, molefrac):
+        # Calculate host molefraction from complexes and add as first row
+        molefrac_host = np.ones(molefrac.shape[1])
+        molefrac_host -= molefrac.sum(axis=0)
+        return np.vstack((molefrac_host, molefrac))
+
+class DimerMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
                   fit_coeffs=None,
@@ -149,29 +167,23 @@ class DimerObjectiveMixin():
         else:
             return fit, residuals, coeffs, molefrac
 
-
-
-### X data plotting transformation mixins
-class GEqPlotMixin():
-    def x_plot(self, xdata):
-        h0 = xdata[0]
-        g0 = xdata[1]
-        return g0/h0
-
-class XPlotMixin():
     def x_plot(self, xdata):
         return xdata[0]
 
+    def molefrac_plot(self, molefrac):
+        return molefrac
 
 
 #
 # Final class definitions
 #
-class FunctionBinding(BindingObjectiveMixin, GEqPlotMixin, BaseFunction):
+class FunctionBinding(BindingMixin, BaseFunction):
     pass
 
-class FunctionDimer(DimerObjectiveMixin, XPlotMixin, BaseFunction):
+class FunctionDimer(DimerMixin, BaseFunction):
     pass
+
+
 
 #
 # log(inhibitor) vs. normalised response test def

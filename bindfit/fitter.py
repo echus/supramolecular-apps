@@ -107,10 +107,8 @@ class Fitter():
 
         self.coeffs = coeffs
 
-        # Calculate host molefraction from complexes and add as first row
-        molefrac_host = np.ones(molefrac.shape[1])
-        molefrac_host -= molefrac.sum(axis=0)
-        self.molefrac = np.vstack((molefrac_host, molefrac))
+        # Calculate final molefrac (including host, function-specific)
+        self.molefrac = self.function.molefrac_plot(molefrac)
 
         # Calculate fit uncertainty statistics
         ci = self.statistics()
