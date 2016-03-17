@@ -229,8 +229,8 @@ def labels(fitter):
                         "axis_units": "",
                         },
                     "y": {
-                        "axis_label": "???",
-                        "axis_units": "",
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
                         },
                     },
                 "fit": {
@@ -238,8 +238,8 @@ def labels(fitter):
                         "ke": {"label": "K\u2091", "units": "M\u207B\u00B9"},
                         },
                     "y": {
-                        "axis_label": "???",
-                        "axis_units": "",
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
                         },
                     "coeffs_calc": ["H", "Hs", "He"],
                     "molefrac":    ["H", "Hs", "He"],
@@ -253,7 +253,7 @@ def labels(fitter):
                         "axis_units": "",
                         },
                     "y": {
-                        "axis_label": "???",
+                        "axis_label": "Absorbance",
                         "axis_units": "",
                         },
                     },
@@ -262,7 +262,7 @@ def labels(fitter):
                         "ke": {"label": "K\u2091", "units": "M\u207B\u00B9"},
                         },
                     "y": {
-                        "axis_label": "???",
+                        "axis_label": "Absorbance",
                         "axis_units": "",
                         },
                     "coeffs_calc": ["H", "Hs", "He"],
@@ -277,8 +277,8 @@ def labels(fitter):
                         "axis_units": "",
                         },
                     "y": {
-                        "axis_label": "???",
-                        "axis_units": "",
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
                         },
                     },
                 "fit": {
@@ -287,8 +287,8 @@ def labels(fitter):
                         "rho": {"label": "\u03C1", "units": ""},
                         },
                     "y": {
-                        "axis_label": "???",
-                        "axis_units": "",
+                        "axis_label": "\u03B4",
+                        "axis_units": "ppm",
                         },
                     "coeffs_calc": ["H", "Hs", "He"],
                     "molefrac":    ["H", "Hs", "He"],
@@ -302,7 +302,7 @@ def labels(fitter):
                         "axis_units": "",
                         },
                     "y": {
-                        "axis_label": "???",
+                        "axis_label": "Absorbance",
                         "axis_units": "",
                         },
                     },
@@ -312,7 +312,7 @@ def labels(fitter):
                         "rho": {"label": "\u03C1", "units": ""},
                         },
                     "y": {
-                        "axis_label": "???",
+                        "axis_label": "Absorbance",
                         "axis_units": "",
                         },
                     "coeffs_calc": ["H", "Hs", "He"],
