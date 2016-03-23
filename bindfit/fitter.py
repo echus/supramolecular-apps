@@ -20,21 +20,24 @@ import logging
 logger = logging.getLogger('supramolecular')
 
 class Fitter():
-    def __init__(self, xdata, ydata, function, normalise=True):
+    def __init__(self, xdata, ydata, function, normalise=True, params=None):
         self.xdata = xdata # Original input data, no processing applied
         self.ydata = ydata # Original input data, no processing applied
         self.function = function
 
         # Fitter options
-        self.normalise = normalise
+        self.normalise   = normalise
 
         # Populated on Fitter.run
-        self.params = None
-        self.time = None
-        self.fit = None
-        self.residuals = None
-        self.coeffs = None
-        self.molefrac = None
+        self._params_raw = None
+        self.params      = params # Initialise with optimised param results
+                                  # from previous run
+                                  # Used with post-fit Monte Carlo calculation
+        self.time        = None
+        self.fit         = None
+        self.residuals   = None
+        self.coeffs      = None
+        self.molefrac    = None
 
     def _preprocess(self, ydata):
         # Preprocess data based on Fitter options
@@ -128,7 +131,9 @@ class Fitter():
         ci = self.statistics(result.x, fit, coeffs, residuals)
 
         # Save final optimised parameters and errors as dictionary
-        results["params"] = { name: {"value": param, "stderr": stderr, "init": params_init[name]} 
+        results["params"] = { name: {"value": param, 
+                                     "stderr": stderr, 
+                                     "init": params_init[name]} 
                               for (name, param, stderr) 
                               in zip(sorted(params_init), result.x, ci) }
 
@@ -137,10 +142,10 @@ class Fitter():
             for key, value in results.items():
                 setattr(self, key, value)
 
-            logger.debug("Fitter.run: CALCULATING MONTE CARLO (TEST)")
-            self.calc_monte_carlo(5, [0.02, 0.01], 0.005)
+            #logger.debug("Fitter.run: CALCULATING MONTE CARLO (TEST)")
+            #self.calc_monte_carlo(5, [0.02, 0.01], 0.005)
         else:
-            # Return restuls dict without saving
+            # Return results dict without saving
             return results
 
     def statistics(self, params, fit, coeffs, residuals):

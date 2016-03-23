@@ -75,34 +75,38 @@ class FitView(APIView):
         logger.debug("FitterView.post: called")
 
         # Parse request options
-        self.fitter_name = request.data["fitter"]
+        fitter_name = request.data["fitter"]
 
         # Get input data to fit from database
         dilute = request.data["options"]["dilute"] # Dilution factor flag
         data = models.Data.objects.get(id=request.data["data_id"]).to_dict(
-                fitter=self.fitter_name,
+                fitter=fitter_name,
                 dilute=dilute)
         logger.debug("views.FitView: data.to_dict() after retrieving")
         logger.debug(data)
         datax = data["data"]["x"]
         datay = data["data"]["y"]
 
-        params = { key: float(value) for key, value in request.data["params"].items() }
+        params_init = { key: float(value) 
+                        for key, value 
+                        in request.data["params"].items() }
 
         # "Normalise" y data, i.e. subtract initial values from y data 
         # (silly name choice, sorry)
         normalise = request.data["options"].get("normalise", True)
 
         # Create and run appropriate fitter
-        fitter = self.run_fitter(datax, datay, params, normalise)
+        fitter = self.create_fitter(fitter_name, datax, datay, normalise)
+        fitter.run_scipy(params_init)
         
         # Build response dict
-        response = self.build_response(fitter, data, dilute)
+        response = self.build_response(fitter_name, fitter, data, dilute)
         return Response(response)
 
-    def build_response(self, fitter, data, dilute):
+    @staticmethod
+    def build_response(fitter_name, fitter, data, dilute):
         # Combined fitter and data dictionaries
-        response = formatter.fit(fitter    =self.fitter_name,
+        response = formatter.fit(fitter    =fitter_name,
                                  data      =data,
                                  y         =fitter.fit,
                                  params    =fitter.params,
@@ -113,15 +117,51 @@ class FitView(APIView):
                                  dilute    =dilute)
         return response
 
-    def run_fitter(self, datax, datay, params, normalise):
+    @staticmethod
+    def create_fitter(fitter_name, datax, datay, normalise, params=None):
         # Initialise Fitter with approriate objective function
-        function = functions.select[self.fitter_name]
-        fitter = Fitter(datax, datay, function, normalise=normalise)
+        function = functions.select[fitter_name]
+        fitter = Fitter(datax, datay, function, 
+                        normalise=normalise, 
+                        params=params)
+        return fitter
 
-        # Run fitter
-        fitter.run_scipy(params)
 
-        return fitter 
+
+class FitMonteCarloView(APIView):
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        """
+        Calculate Monte Carlo error on fit. Accepts standard fit_result json
+        as input, returns updated params object.
+        """
+
+        fit  = request.data
+
+        fitter_name       = fit["fitter"]
+        data_id           = fit["data_id"]
+        options_dilute    = fit["options"]["dilute"]
+        options_normalise = fit["options"].get("normalise", True)
+        fit_params        = fit["fit"]["params"]
+
+        # Get data for fitting
+        data = models.Data.objects.get(id=data_id).to_dict(
+                fitter=fitter_name,
+                dilute=options_dilute)
+        datax = data["data"]["x"]
+        datay = data["data"]["y"]
+
+        # Create fitter w/ pre-set optimised parameter values
+        fitter = FitView.create_fitter(fitter_name, datax, datay, 
+                                       options_normalise, fit_params)
+
+        # Calculate Monte Carlo
+        params_updated = fitter.calc_monte_carlo(5, [0.02, 0.01], 0.005)
+
+        # Build response dict
+        response = params_updated
+        return Response(response)
 
 
 
