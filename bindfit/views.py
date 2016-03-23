@@ -137,7 +137,10 @@ class FitMonteCarloView(APIView):
         as input, returns updated params object.
         """
 
-        fit  = request.data
+        fit            = request.data["fit"]
+        mc_n_iter      = request.data["options"]["n_iter"]
+        mc_xdata_error = request.data["options"]["xdata_error"]
+        mc_ydata_error = request.data["options"]["ydata_error"]
 
         fitter_name       = fit["fitter"]
         data_id           = fit["data_id"]
@@ -157,7 +160,13 @@ class FitMonteCarloView(APIView):
                                        options_normalise, fit_params)
 
         # Calculate Monte Carlo
-        params_updated = fitter.calc_monte_carlo(5, [0.02, 0.01], 0.005)
+        logger.debug("Calculating Monte Carlo error with n_iter, xdata, ydata:")
+        logger.debug(mc_n_iter)
+        logger.debug(mc_xdata_error)
+        logger.debug(mc_ydata_error)
+        params_updated = fitter.calc_monte_carlo(mc_n_iter, 
+                                                 mc_xdata_error, 
+                                                 mc_ydata_error)
 
         # Build response dict
         response = params_updated
