@@ -459,7 +459,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "ke": 100,
                     },
                 "options": {
-                    "dilute": False,
+                    "dilute":    False,
+                    "normalise": False,
                     },
                 },
 
@@ -483,7 +484,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "rho": 0.003,
                     },
                 "options": {
-                    "dilute": False,
+                    "dilute":    False,
+                    "normalise": False,
                     },
                 },
 
