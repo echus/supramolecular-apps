@@ -125,7 +125,7 @@ class Fitter():
         results["coeffs"] = coeffs
 
         # Calculate final molefrac (including host, function-specific)
-        results["molefrac"] = self.function.molefrac_plot(molefrac)
+        results["molefrac"] = self.function.format_molefrac(molefrac)
 
         # Calculate fit uncertainty statistics
         err = self.statistics(result.x, fit, coeffs, residuals)

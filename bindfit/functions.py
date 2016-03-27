@@ -36,10 +36,10 @@ class BaseFunction(object):
     def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs):
         pass
 
-    def x_plot(self, xdata):
+    def format_x(self, xdata):
         pass
 
-    def molefrac_plot(self, molefrac):
+    def format_molefrac(self, molefrac):
         pass
 
     def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
@@ -114,12 +114,12 @@ class BindingMixin():
         else:
             return fit, residuals, coeffs, molefrac
 
-    def x_plot(self, xdata):
+    def format_x(self, xdata):
         h0 = xdata[0]
         g0 = xdata[1]
         return g0/h0
 
-    def molefrac_plot(self, molefrac):
+    def format_molefrac(self, molefrac):
         # Calculate host molefraction from complexes and add as first row
         molefrac_host = np.ones(molefrac.shape[1])
         molefrac_host -= molefrac.sum(axis=0)
@@ -218,10 +218,10 @@ class AggMixin():
         else:
             return fit, residuals, coeffs, molefrac
 
-    def x_plot(self, xdata):
+    def format_x(self, xdata):
         return xdata[0]
 
-    def molefrac_plot(self, molefrac):
+    def format_molefrac(self, molefrac):
         return molefrac
 
     def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
