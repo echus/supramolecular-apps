@@ -42,6 +42,8 @@ class BaseFunction(object):
     def molefrac_plot(self, molefrac):
         pass
 
+    def format_params(self, params_raw):
+        pass
 
 
 #
@@ -120,6 +122,14 @@ class BindingMixin():
         molefrac_host -= molefrac.sum(axis=0)
         return np.vstack((molefrac_host, molefrac))
 
+    def format_params(self, params_init, params_raw, err):
+        params = { name: {"value": param, 
+                          "stderr": stderr, 
+                          "init": params_init[name]} 
+                   for (name, param, stderr) 
+                   in zip(sorted(params_init), params_raw, err) }
+        return params
+
 class AggMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
@@ -176,6 +186,19 @@ class AggMixin():
 
     def molefrac_plot(self, molefrac):
         return molefrac
+
+    def format_params(self, params_init, params_raw, err):
+        params = { name: {"value": [param, param/2],    # Calculate Kd if Ke
+                          "stderr": [stderr, stderr/2], # parameter given
+                          "init": params_init[name]}
+                          if name == "ke" else
+                          {"value": param,              # Otherwise single
+                          "stderr": stderr,             # parameter value
+                          "init": params_init[name]}
+                   for (name, param, stderr) 
+                   in zip(sorted(params_init), params_raw, err) }
+        return params
+
 
 
 #

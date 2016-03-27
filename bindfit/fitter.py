@@ -128,14 +128,12 @@ class Fitter():
         results["molefrac"] = self.function.molefrac_plot(molefrac)
 
         # Calculate fit uncertainty statistics
-        ci = self.statistics(result.x, fit, coeffs, residuals)
+        err = self.statistics(result.x, fit, coeffs, residuals)
 
         # Save final optimised parameters and errors as dictionary
-        results["params"] = { name: {"value": param, 
-                                     "stderr": stderr, 
-                                     "init": params_init[name]} 
-                              for (name, param, stderr) 
-                              in zip(sorted(params_init), result.x, ci) }
+        results["params"] = self.function.format_params(params_init, 
+                                                        result.x, 
+                                                        err)
 
         if save:
             # Save fit results dict to object instance

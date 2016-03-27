@@ -235,7 +235,7 @@ def labels(fitter):
                     },
                 "fit": {
                     "params": {
-                        "ke": {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        "ke": {"label": ["K\u2091", "Kd"], "units": "M\u207B\u00B9"},
                         },
                     "y": {
                         "axis_label": "\u03B4",
@@ -259,7 +259,7 @@ def labels(fitter):
                     },
                 "fit": {
                     "params": {
-                        "ke": {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        "ke": {"label": ["K\u2091", "Kd"], "units": "M\u207B\u00B9"},
                         },
                     "y": {
                         "axis_label": "Absorbance",
@@ -283,7 +283,7 @@ def labels(fitter):
                     },
                 "fit": {
                     "params": {
-                        "ke":  {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        "ke": {"label": ["K\u2091", "Kd"], "units": "M\u207B\u00B9"},
                         "rho": {"label": "\u03C1", "units": ""},
                         },
                     "y": {
@@ -308,7 +308,7 @@ def labels(fitter):
                     },
                 "fit": {
                     "params": {
-                        "ke":  {"label": "K\u2091", "units": "M\u207B\u00B9"},
+                        "ke": {"label": ["K\u2091", "Kd"], "units": "M\u207B\u00B9"},
                         "rho": {"label": "\u03C1", "units": ""},
                         },
                     "y": {
