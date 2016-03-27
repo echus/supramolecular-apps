@@ -42,7 +42,10 @@ class BaseFunction(object):
     def molefrac_plot(self, molefrac):
         pass
 
-    def format_params(self, params_raw):
+    def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
+        pass
+
+    def format_params(self, params_init, params_raw, err):
         pass
 
 
@@ -122,6 +125,40 @@ class BindingMixin():
         molefrac_host -= molefrac.sum(axis=0)
         return np.vstack((molefrac_host, molefrac))
 
+    def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
+        """
+        Calculate "real" coefficients from their raw values and an input dataset
+
+        Arguments:
+            ydata_init: ndarray  1 x m array of non-normalised initial observations 
+                                 of dependent variables
+            coeffs:     ndarray  
+            h0_init:    float    Optional initial h0 value, if provided ydata_init 
+                                 is divided by this value before the calculation
+        """
+
+        # H coefficients
+        h = np.copy(ydata_init)
+
+        # Divide initial ydata values and coeffs by h0 in UV fitters
+        if "uv" in fitter and h0_init is not None:
+            h /= h0_init
+            coeffs = np.copy(coeffs)/h0_init
+
+        coeffs = np.array(coeffs)
+        rows = coeffs.shape[0]
+        if rows == 1:
+            # 1:1 system
+            hg = h + coeffs[0]
+            return np.vstack((h, hg))
+        elif rows == 2:
+            # 1:2 or 2:1 system
+            hg  = h - coeffs[0]
+            hg2 = h - coeffs[1]
+            return np.vstack((h, hg, hg2))
+        else:
+            pass # Throw error here
+
     def format_params(self, params_init, params_raw, err):
         params = { name: {"value": param, 
                           "stderr": stderr, 
@@ -186,6 +223,40 @@ class AggMixin():
 
     def molefrac_plot(self, molefrac):
         return molefrac
+
+    def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
+        """
+        Calculate "real" coefficients from their raw values and an input dataset
+
+        Arguments:
+            ydata_init: ndarray  1 x m array of non-normalised initial observations 
+                                 of dependent variables
+            coeffs:     ndarray  
+            h0_init:    float    Optional initial h0 value, if provided ydata_init 
+                                 is divided by this value before the calculation
+        """
+
+        # H coefficients
+        h = np.copy(ydata_init)
+
+        # Divide initial ydata values and coeffs by h0 in UV fitters
+        if "uv" in fitter and h0_init is not None:
+            h /= h0_init
+            coeffs = np.copy(coeffs)/h0_init
+
+        coeffs = np.array(coeffs)
+        rows = coeffs.shape[0]
+        if rows == 1:
+            # 1:1 system
+            hg = h + coeffs[0]
+            return np.vstack((h, hg))
+        elif rows == 2:
+            # 1:2 or 2:1 system
+            hg  = h - coeffs[0]
+            hg2 = h - coeffs[1]
+            return np.vstack((h, hg, hg2))
+        else:
+            pass # Throw error here
 
     def format_params(self, params_init, params_raw, err):
         params = { name: {"value": [param, param/2],    # Calculate Kd if Ke

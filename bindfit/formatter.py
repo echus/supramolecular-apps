@@ -12,6 +12,7 @@ import numpy as np
 from copy import deepcopy
 
 from . import helpers
+from . import functions # For Function-specific formatting 
 
 import logging
 logger = logging.getLogger('supramolecular')
@@ -584,6 +585,7 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
     """
 
     fn = fitter_name(fitter)
+    function = functions.select[fitter]
 
     if not no_fit:
         fit = {
@@ -593,10 +595,10 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
                 "fit": {
                     "y":           y,
                     "coeffs":      coeffs,
-                    "coeffs_calc": helpers.calculate_coeffs(fitter,
-                                                            coeffs,
-                                                            data["data"]["y"][:,0],
-                                                            data["data"]["x"][0][0]),
+                    "coeffs_calc": function.format_coeffs(fitter,
+                                                          coeffs,
+                                                          data["data"]["y"][:,0],
+                                                          data["data"]["x"][0][0]),
                     "molefrac":    molefrac,
                     "params":      params,
                     },
