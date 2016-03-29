@@ -58,6 +58,7 @@ class BindingMixin():
                   scalar=False, 
                   force_molefrac=False,
                   fit_coeffs=None,
+                  flavour="",
                   *args, **kwargs):
         """
         Objective function:
@@ -86,7 +87,7 @@ class BindingMixin():
 
         # Calculate predicted HG complex concentrations for this set of 
         # parameters and concentrations
-        molefrac = self.f(params, xdata, force_molefrac)
+        molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=flavour)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -183,7 +184,7 @@ class AggMixin():
 
         # Calculate predicted complex concentrations for this set of 
         # parameters and concentrations
-        molefrac = self.f(params, xdata, force_molefrac)
+        molefrac = self.f(params, xdata, molefrac=force_molefrac)
         h  = molefrac[0]
         hs = molefrac[1]
         he = molefrac[2]
@@ -397,14 +398,17 @@ def uv_1to1(params, xdata, molefrac=False):
 
     return hg
 
-def uv_1to2(params, xdata, molefrac=False):
+def uv_1to2(params, xdata, molefrac=False, flavour=""):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
     """
 
     k11 = params[0]
-    k12 = params[1]
+    if flavour == "noncoop" or flavour == "stat":
+        k12 = k11/4
+    else:
+        k12 = params[1]
  
     h0 = xdata[0]
     g0 = xdata[1]
@@ -443,18 +447,24 @@ def uv_1to2(params, xdata, molefrac=False):
         hg  /= h0
         hg2 /= h0
 
-    hg_mat = np.vstack((hg, hg2))
+    if flavour == "add" or flavour == "stat":
+        hg_mat = hg + 2*hg2
+    else:
+        hg_mat = np.vstack((hg, hg2))
 
     return hg_mat
 
-def nmr_1to2(params, xdata, *args, **kwargs):
+def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
     """
 
     k11 = params[0]
-    k12 = params[1]
+    if flavour == "noncoop" or flavour == "stat":
+        k12 = k11/4
+    else:
+        k12 = params[1]
 
     h0  = xdata[0]
     g0  = xdata[1]
@@ -489,7 +499,10 @@ def nmr_1to2(params, xdata, *args, **kwargs):
     hg = (g*k11)/(1+(g*k11)+(g*g*k11*k12))
     hg2 = ((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12))
 
-    hg_mat = np.vstack((hg, hg2))
+    if flavour == "add" or flavour == "stat":
+        hg_mat = hg + 2*hg2
+    else:
+        hg_mat = np.vstack((hg, hg2))
 
     return hg_mat
 
@@ -501,6 +514,7 @@ def nmr_2to1(params, xdata, *args, **kwargs):
 
     k11 = params[0]
     k12 = params[1]
+
     h0  = xdata[0]
     g0  = xdata[1]
 
@@ -537,7 +551,7 @@ def nmr_2to1(params, xdata, *args, **kwargs):
 
     return hg_mat
 
-def uv_2to1(params, xdata, molefrac=False):
+def uv_2to1(params, xdata, molefrac=False, flavour=""):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
@@ -546,6 +560,7 @@ def uv_2to1(params, xdata, molefrac=False):
     # Convenience
     k11 = params[0]
     k12 = params[1]
+
     h0  = xdata[0]
     g0  = xdata[1]
 
