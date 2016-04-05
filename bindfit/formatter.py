@@ -399,8 +399,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "nmr1to2",
                 "data_id": "",
                 "params": {
-                    "k1": 10000,
-                    "k2": 1000,
+                    "k1": {
+                        "init": 10000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "k2": {
+                        "init": 1000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  False,
@@ -422,8 +434,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "nmr2to1",
                 "data_id": "",
                 "params": {
-                    "k1": 10000,
-                    "k2": 1000,
+                    "k1": {
+                        "init": 10000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "k2": {
+                        "init": 1000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  False,
@@ -436,7 +460,13 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "uv1to1",
                 "data_id": "",
                 "params": {
-                    "k": 1000,
+                    "k": {
+                        "init": 1000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  True,
@@ -449,8 +479,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "uv1to2",
                 "data_id": "",
                 "params": {
-                    "k1": 10000,
-                    "k2": 1000,
+                    "k1": {
+                        "init": 10000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "k2": {
+                        "init": 1000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  True,
@@ -472,8 +514,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "uv2to1",
                 "data_id": "",
                 "params": {
-                    "k1": 10000,
-                    "k2": 1000,
+                    "k1": {
+                        "init": 10000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "k2": {
+                        "init": 1000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  True,
@@ -505,7 +559,13 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "uvdimer",
                 "data_id": "",
                 "params": {
-                    "ke": 100,
+                    "ke": {
+                        "init": 100, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":    False,
@@ -518,8 +578,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "nmrcoek",
                 "data_id": "",
                 "params": {
-                    "ke":  200,
-                    "rho": 0.3,
+                    "ke": {
+                        "init": 200, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "rho": {
+                        "init": 0.3, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  False,
@@ -532,8 +604,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "uvcoek",
                 "data_id": "",
                 "params": {
-                    "ke":  2700,
-                    "rho": 0.003,
+                    "ke": {
+                        "init": 2700, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "rho": {
+                        "init": 0.003, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":    False,
@@ -546,8 +630,20 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "inhibitor",
                 "data_id": "",
                 "params": {
-                    "logic50":   -2.0,
-                    "hillslope": -1.0,
+                    "logic50": {
+                        "init": -2.0, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
+                    "hillslope": {
+                        "init": -1.0, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":    False,
