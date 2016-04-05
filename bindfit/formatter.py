@@ -378,7 +378,13 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "nmr1to1",
                 "data_id": "",
                 "params": {
-                    "k": 1000,
+                    "k": {
+                        "init": 1000, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  False,
@@ -472,7 +478,13 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "fitter": "nmrdimer",
                 "data_id": "",
                 "params": {
-                    "ke": 100,
+                    "ke": {
+                        "init": 100, 
+                        "bounds": {
+                            "min": None, 
+                            "max": None,
+                            },
+                        },
                     },
                 "options": {
                     "dilute":  False,
@@ -616,7 +628,7 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
     """
 
     fn = fitter_name(fitter)
-    function = functions.select[fitter]
+    function = functions.select(fitter)
 
     if not no_fit:
         fit = {

@@ -30,8 +30,9 @@ class BaseFunction(object):
     # for the mixin functions to override BaseFunction template functions.
     # See here: https://www.ianlewis.org/en/mixins-and-python
 
-    def __init__(self, f):
-        self.f = f
+    def __init__(self, f, flavour=""):
+        self.f       = f
+        self.flavour = flavour
 
     def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs):
         pass
@@ -58,7 +59,6 @@ class BindingMixin():
                   scalar=False, 
                   force_molefrac=False,
                   fit_coeffs=None,
-                  flavour="",
                   *args, **kwargs):
         """
         Objective function:
@@ -80,14 +80,16 @@ class BindingMixin():
             float:  Sum of least squares
         """
 
-        logger.debug("Function.objective: params, xdata, ydata")
+        logger.debug("Function.objective: params, xdata shape, ydata shape")
         logger.debug(params)
-        logger.debug(xdata)
-        logger.debug(ydata)
+        logger.debug(xdata.shape)
+        logger.debug(ydata.shape)
 
         # Calculate predicted HG complex concentrations for this set of 
         # parameters and concentrations
-        molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=flavour)
+        logger.debug("FLAVOUR RECEIVED BINDINGMIXIN:")
+        logger.debug(self.flavour)
+        molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=self.flavour)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -103,8 +105,8 @@ class BindingMixin():
         # data array
         fit = molefrac.T.dot(coeffs).T
 
-        logger.debug("Function.objective: fit")
-        logger.debug(fit)
+        logger.debug("Function.objective: fit shape")
+        logger.debug(fit.shape)
 
         # Calculate residuals (fitted data - input data)
         residuals = fit - ydata
@@ -154,18 +156,23 @@ class BindingMixin():
             return np.vstack((h, hg))
         elif rows == 2:
             # 1:2 or 2:1 system
-            hg  = h - coeffs[0]
-            hg2 = h - coeffs[1]
+            hg  = h + coeffs[0]
+            hg2 = h + coeffs[1]
             return np.vstack((h, hg, hg2))
         else:
             pass # Throw error here
 
-    def format_params(self, params_init, params_raw, err):
-        params = { name: {"value": param, 
-                          "stderr": stderr, 
-                          "init": params_init[name]} 
-                   for (name, param, stderr) 
-                   in zip(sorted(params_init), params_raw, err) }
+    def format_params(self, params_init, params_result, err):
+        params = params_init
+
+        for (name, param, stderr) in zip(sorted(params_init), 
+                                         params_result, 
+                                         err):
+            params[name].update({
+                "value":  param,
+                "stderr": stderr,
+                })
+
         return params
 
 class AggMixin():
@@ -177,21 +184,21 @@ class AggMixin():
         """
         """
 
-        logger.debug("Function.objective: params, xdata, ydata")
+        logger.debug("Function.objective: params, xdata shape, ydata shape")
         logger.debug(params)
-        logger.debug(xdata)
-        logger.debug(ydata)
+        logger.debug(xdata.shape)
+        logger.debug(ydata.shape)
 
         # Calculate predicted complex concentrations for this set of 
         # parameters and concentrations
-        molefrac = self.f(params, xdata, molefrac=force_molefrac)
+        molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=self.flavour)
         h  = molefrac[0]
         hs = molefrac[1]
         he = molefrac[2]
         hmat = np.array([h + he/2, hs + he/2])
 
-        logger.debug("Function.objective: molefrac")
-        logger.debug(molefrac)
+        logger.debug("Function.objective: molefrac shape")
+        logger.debug(molefrac.shape)
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -259,16 +266,23 @@ class AggMixin():
         else:
             pass # Throw error here
 
-    def format_params(self, params_init, params_raw, err):
-        params = { name: {"value": [param, param/2],    # Calculate Kd if Ke
-                          "stderr": [stderr, stderr/2], # parameter given
-                          "init": params_init[name]}
-                          if name == "ke" else
-                          {"value": param,              # Otherwise single
-                          "stderr": stderr,             # parameter value
-                          "init": params_init[name]}
-                   for (name, param, stderr) 
-                   in zip(sorted(params_init), params_raw, err) }
+    def format_params(self, params_init, params_result, err):
+        params = params_init
+
+        for (name, param, stderr) in zip(sorted(params_init), 
+                                         params_result, 
+                                         err):
+            if name == "ke":
+                params[name].update({
+                    "value": [param, param/2],    # Calculate Kd if Ke
+                    "stderr": [stderr, stderr/2], # parameter given
+                    })
+            else:
+                params[name].update({
+                    "value": param,   # Otherwise single param value
+                    "stderr": stderr,
+                    })
+
         return params
 
 
@@ -460,11 +474,22 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
     as input.
     """
 
+    logger.debug("FLAVOUR RECEIVED NMR1TO2:")
+    logger.debug(flavour)
+
     k11 = params[0]
     if flavour == "noncoop" or flavour == "stat":
         k12 = k11/4
+        logger.debug("FLAVOUR: noncoop or stat")
+        logger.debug("k11, k12")
+        logger.debug(k11)
+        logger.debug(k12)
     else:
         k12 = params[1]
+        logger.debug("FLAVOUR: none or add")
+        logger.debug("k11, k12")
+        logger.debug(k11)
+        logger.debug(k12)
 
     h0  = xdata[0]
     g0  = xdata[1]
@@ -500,8 +525,10 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
     hg2 = ((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12))
 
     if flavour == "add" or flavour == "stat":
+        logger.debug("FLAVOUR: add or stat")
         hg_mat = hg + 2*hg2
     else:
+        logger.debug("FLAVOUR: none or noncoop")
         hg_mat = np.vstack((hg, hg2))
 
     return hg_mat
@@ -764,19 +791,22 @@ def uv_coek(params, xdata, *args, **kwargs):
 
 
 
-# Initialise singletons for each function
-# Reference by dict key, ultimately exposed to use by formatter.fitter_list 
-# dictionary
-select = {
-        "nmr1to1":    FunctionBinding(nmr_1to1),
-        "nmr1to2":    FunctionBinding(nmr_1to2),
-        "nmr2to1":    FunctionBinding(nmr_2to1),
-        "uv1to1" :    FunctionBinding(uv_1to1),
-        "uv1to2" :    FunctionBinding(uv_1to2),
-        "uv2to1" :    FunctionBinding(uv_2to1),
-        "nmrdimer":   FunctionAgg(nmr_dimer),
-        "uvdimer":    FunctionAgg(uv_dimer),
-        "nmrcoek":    FunctionAgg(nmr_coek),
-        "uvcoek":     FunctionAgg(uv_coek),
-        "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
-        }
+def select(key, flavour=""):
+    # Returns requested function object
+    # TODO: use attr instead of initialising singletons in dict
+    # Reference by dict key, ultimately exposed to use by formatter.fitter_list 
+    # dictionary
+    selector = {
+            "nmr1to1":    FunctionBinding(nmr_1to1,  flavour),
+            "nmr1to2":    FunctionBinding(nmr_1to2,  flavour),
+            "nmr2to1":    FunctionBinding(nmr_2to1,  flavour),
+            "uv1to1" :    FunctionBinding(uv_1to1,   flavour),
+            "uv1to2" :    FunctionBinding(uv_1to2,   flavour),
+            "uv2to1" :    FunctionBinding(uv_2to1,   flavour),
+            "nmrdimer":   FunctionAgg    (nmr_dimer, flavour),
+            "uvdimer":    FunctionAgg    (uv_dimer,  flavour),
+            "nmrcoek":    FunctionAgg    (nmr_coek,  flavour),
+            "uvcoek":     FunctionAgg    (uv_coek,   flavour),
+            "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
+            }
+    return selector[key]

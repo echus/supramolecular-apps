@@ -37,9 +37,12 @@ class FitView(APIView):
             data_id: string  Reference to input data to use
 
             params: {
-                    k1: float   User guess of first parameter
-                    k2: float   User guess of second parameter
-                    ..: ...     ...
+                    k1: {
+                        init:   float User guess of first parameter
+                        bounds: array Bounds on parameter fit
+                        }
+                    k2: { ... }
+                    ...
                     }
 
         Response:
@@ -72,32 +75,55 @@ class FitView(APIView):
                 dilute:
         """
 
-        logger.debug("FitterView.post: called")
+        logger.debug("FitView.post: called")
 
         # Parse request options
         fitter_name = request.data["fitter"]
 
         # Get input data to fit from database
         dilute = request.data["options"]["dilute"] # Dilution factor flag
+                                                   # used for data retrieval
         data = models.Data.objects.get(id=request.data["data_id"]).to_dict(
                 fitter=fitter_name,
                 dilute=dilute)
+
         logger.debug("views.FitView: data.to_dict() after retrieving")
         logger.debug(data)
+
         datax = data["data"]["x"]
         datay = data["data"]["y"]
 
-        params_init = { key: float(value) 
-                        for key, value 
-                        in request.data["params"].items() }
+        # Parse params to appropriate types
+        params = request.data["params"]
+        for key in params:
+            parsed = {
+                    "init": float(params[key]["init"]),
+                    "bounds": {
+                        "min": float(params[key]["bounds"]["min"]) 
+                               if params[key]["bounds"]["min"] is not None 
+                               and params[key]["bounds"]["min"] != ""
+                               else None,
+                        "max": float(params[key]["bounds"]["max"])
+                               if params[key]["bounds"]["max"] is not None 
+                               and params[key]["bounds"]["max"] != ""
+                               else None,
+                        }
+                    }
 
-        # "Normalise" y data, i.e. subtract initial values from y data 
+            params[key].update(parsed)
+            
+        logger.debug("views.FitView: params parsed:")
+        logger.debug(params)
+
+        # "Normalise" y data flag, i.e. subtract initial values from y data 
         # (silly name choice, sorry)
         normalise = request.data["options"].get("normalise", True)
+        # Chosen fitter "flavour" option if given
+        flavour   = request.data["options"].get("flavour",   "")
 
         # Create and run appropriate fitter
-        fitter = self.create_fitter(fitter_name, datax, datay, normalise)
-        fitter.run_scipy(params_init)
+        fitter = self.create_fitter(fitter_name, datax, datay, normalise, flavour)
+        fitter.run_scipy(params)
         
         # Build response dict
         response = self.build_response(fitter_name, fitter, data, dilute)
@@ -118,9 +144,9 @@ class FitView(APIView):
         return response
 
     @staticmethod
-    def create_fitter(fitter_name, datax, datay, normalise, params=None):
+    def create_fitter(fitter_name, datax, datay, normalise, flavour="", params=None):
         # Initialise Fitter with approriate objective function
-        function = functions.select[fitter_name]
+        function = functions.select(fitter_name, flavour)
         fitter = Fitter(datax, datay, function, 
                         normalise=normalise, 
                         params=params)

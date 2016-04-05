@@ -114,9 +114,9 @@ class Data(models.Model):
         # Add 3rd dimension to y for consistency w/ true 3D y inputs
         y = [[ list(y_raw[:,col]) for col in range(y_raw.shape[1]) ]]
 
-        logger.debug("Data.from_np: x and y arrays")
-        logger.debug(x)
-        logger.debug(y)
+        logger.debug("Data.from_np: x and y array shapes")
+        logger.debug(np.array(x).shape)
+        logger.debug(np.array(y).shape)
 
         return cls(id=id, x=x, y=y, labels_x=x_labels, labels_y=y_labels)
 
@@ -125,7 +125,7 @@ class Data(models.Model):
         y = np.array(self.y)[0]
 
         # Calculate x values for plotting
-        x_plot = functions.select[fitter].format_x(x)
+        x_plot = functions.select(fitter).format_x(x)
 
         # Apply dilution factor if dilute option is set 
         if dilute:

@@ -58,7 +58,7 @@ class Fitter():
 
         return f 
 
-    def run_scipy(self, params_init, save=True, xdata=None, ydata=None):
+    def run_scipy(self, params_init, save=True, xdata=None, ydata=None, method='Nelder-Mead'):
         """
         Arguments:
             params_init: dict  Initial parameter guesses for fitter    
@@ -76,17 +76,26 @@ class Fitter():
         x = self.xdata if xdata is None else xdata
         y = self._preprocess(self.ydata if ydata is None else ydata)
         
-        # Sort parameter dict into ordered array
+        # Sort parameter dict into ordered array of parameters and bounds
         p = []
+        b = []
         for key, value in sorted(params_init.items()):
-            p.append(value)
+            p.append(value["init"])
+            b.append([value["bounds"]["min"],
+                      value["bounds"]["max"]])
+
+        logger.debug("Fitter.fit: params and bounds read:")
+        logger.debug(p)
+        logger.debug(b)
 
         # Run optimizer 
         tic = time.clock()
         result = scipy.optimize.minimize(self.function.objective,
                                          p,
+                                         bounds=b,
                                          args=(x, y, True),
-                                         method='Nelder-Mead',
+                                         method=method,
+                                         #method='L-BFGS-B',
                                          tol=1e-18,
                                         )
         toc = time.clock()
@@ -100,6 +109,7 @@ class Fitter():
         # Calculate fitted data with optimised parameters
         # Force molefraction (not free concentration) calculation for proper 
         # fitting in UV models
+        logger.debug("Fitter.run: Calculating optimised fit")
         fit_norm, residuals, coeffs, molefrac = self.function.objective(
                                                     result.x, 
                                                     x, 
@@ -128,9 +138,11 @@ class Fitter():
         results["molefrac"] = self.function.format_molefrac(molefrac)
 
         # Calculate fit uncertainty statistics
+        logger.debug("Fitter.run: Calculating uncertainty statistics")
         err = self.statistics(result.x, fit, coeffs, residuals)
+        logger.debug("Fitter.run: Done calculating uncertainty statistics")
 
-        # Save final optimised parameters and errors as dictionary
+        # Parse final optimised parameters and errors into parameters dict
         results["params"] = self.function.format_params(params_init, 
                                                         result.x, 
                                                         err)
@@ -233,9 +245,16 @@ class Fitter():
         # Convert params results to params_init array to use as input
         # to run_scipy
         # TODO: make params_init same format as params result
+        # params_init = {}
+        # for key, param in self.params.items():
+        #     params_init[key] = param["value"]
+
+        # Copy parameter results array and set inital values to optimised
+        # parameter results to use as input to run_scipy
         params_init = {}
         for key, param in self.params.items():
-            params_init[key] = param["value"]
+            params_init = param
+            params_init["init"] = param["value"]
 
         params_arr = np.zeros((n_iter, len(params_init)))
 
