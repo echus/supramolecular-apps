@@ -360,6 +360,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "params": {},
                 "options": {
                     "dilute": False,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -370,6 +371,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "params": {},
                 "options": {
                     "dilute": False,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -388,6 +390,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  False,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -401,6 +404,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  False,
+                    "normalise": True,
                     "flavour": [{"name":           "None",
                                  "key":            ""},
                                 {"name":           "Non-cooperative", 
@@ -423,6 +427,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  False,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -435,6 +440,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  True,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -448,6 +454,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  True,
+                    "normalise": True,
                     "flavour": [{"name":           "None",
                                  "key":            ""},
                                 {"name":           "Non-cooperative", 
@@ -470,6 +477,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  True,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -488,6 +496,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  False,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
@@ -514,6 +523,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     },
                 "options": {
                     "dilute":  False,
+                    "normalise": True,
                     "flavour": [],
                     },
                 },
