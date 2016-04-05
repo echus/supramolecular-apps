@@ -391,6 +391,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [],
                     },
                 },
@@ -417,6 +419,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [{"name":           "None",
                                  "key":            ""},
                                 {"name":           "Non-cooperative", 
@@ -452,6 +456,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [],
                     },
                 },
@@ -471,6 +477,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  True,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [],
                     },
                 },
@@ -497,6 +505,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  True,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [{"name":           "None",
                                  "key":            ""},
                                 {"name":           "Non-cooperative", 
@@ -532,6 +542,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  True,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [],
                     },
                 },
@@ -551,6 +563,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [],
                     },
                 },
@@ -570,6 +584,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":    False,
                     "normalise": False,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour":   [],
                     },
                 },
@@ -596,6 +612,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour": [],
                     },
                 },
@@ -622,6 +640,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":    False,
                     "normalise": False,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour":   [],
                     },
                 },
@@ -648,6 +668,8 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":    False,
                     "normalise": False,
+                    "method": [{"name": "Nelder-Mead"},
+                               {"name": "L-BFGS-B"}],
                     "flavour":   [],
                     },
                 },

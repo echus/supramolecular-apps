@@ -120,10 +120,12 @@ class FitView(APIView):
         normalise = request.data["options"].get("normalise", True)
         # Chosen fitter "flavour" option if given
         flavour   = request.data["options"].get("flavour",   "")
+        # Chosen fitter method if given
+        method    = request.data["options"].get("method",    "Nelder-Mead")
 
         # Create and run appropriate fitter
         fitter = self.create_fitter(fitter_name, datax, datay, normalise, flavour)
-        fitter.run_scipy(params)
+        fitter.run_scipy(params, method=method)
         
         # Build response dict
         response = self.build_response(fitter_name, fitter, data, dilute)
