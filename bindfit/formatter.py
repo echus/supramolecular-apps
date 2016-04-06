@@ -717,8 +717,11 @@ def meta(author,
             }
     return response
 
-def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None, 
-        coeffs=None, time=None, dilute=None, no_fit=False, meta_dict=None):
+def fit(fitter, data, 
+        y=None, params=None, residuals=None, molefrac=None, coeffs=None, 
+        time=None, 
+        dilute=None, normalise=None, method=None, flavour=None,
+        no_fit=False, meta_dict=None):
     """
     Return dictionary containing fit result information 
     (defines format used as JSON response in views)
@@ -742,8 +745,8 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
             molefrac:
             params: 
                 {
-                    k1: float   Optimised first parameter value
-                    k2: float   Optimised second parameter value
+                    k1: object  Optimised first parameter value
+                    k2: object  Optimised second parameter value
                     ..: ...     ...
                 }
         qof:
@@ -782,7 +785,10 @@ def fit(fitter, data, y=None, params=None, residuals=None, molefrac=None,
                     },
                 "time": time,
                 "options": {
-                    "dilute": dilute,
+                    "dilute":    dilute,
+                    "normalise": normalise,
+                    "method":    method,
+                    "flavour":   flavour,
                     },
                 }
     else:

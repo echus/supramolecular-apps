@@ -224,7 +224,7 @@ class Fitter():
 
         return ci_percent
 
-    def calc_monte_carlo(self, n_iter, xdata_error, ydata_error):
+    def calc_monte_carlo(self, n_iter, xdata_error, ydata_error, method=None):
         """
         Calculate error on fit using a Monte Carlo method
 
@@ -277,7 +277,8 @@ class Fitter():
             results = self.run_scipy(params_init=params_init,
                                      save       =False, 
                                      xdata      =xdata_shift, 
-                                     ydata      =ydata_shift)
+                                     ydata      =ydata_shift,
+                                     method     =method)
 
             logger.debug("Fitter.monte_carlo: results")
             logger.debug(results)
