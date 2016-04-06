@@ -165,6 +165,8 @@ class FitMonteCarloView(APIView):
         as input, returns updated params object.
         """
 
+        logger.debug("FitMonteCarloView.post: called")
+
         fit            = request.data["fit"]
         mc_n_iter      = request.data["options"]["n_iter"]
         mc_xdata_error = request.data["options"]["xdata_error"]
@@ -174,7 +176,11 @@ class FitMonteCarloView(APIView):
         data_id           = fit["data_id"]
         options_dilute    = fit["options"]["dilute"]
         options_normalise = fit["options"].get("normalise", True)
+        options_flavour   = fit["options"].get("flavour",   "")
         fit_params        = fit["fit"]["params"]
+
+        logger.debug("FitMonteCarloView.post: received fit json params")
+        logger.debug(fit_params)
 
         # Get data for fitting
         data = models.Data.objects.get(id=data_id).to_dict(
@@ -185,10 +191,15 @@ class FitMonteCarloView(APIView):
 
         # Create fitter w/ pre-set optimised parameter values
         fitter = FitView.create_fitter(fitter_name, datax, datay, 
-                                       options_normalise, fit_params)
+                                       normalise=options_normalise, 
+                                       flavour=options_flavour,
+                                       params=fit_params)
+
+        logger.debug("FitMonteCarloView.post: fitter created, params")
+        logger.debug(fitter.params)
 
         # Calculate Monte Carlo
-        logger.debug("Calculating Monte Carlo error with n_iter, xdata, ydata:")
+        logger.debug("FitMonteCarloView.post: calculating Monte Carlo error with n_iter, xdata, ydata:")
         logger.debug(mc_n_iter)
         logger.debug(mc_xdata_error)
         logger.debug(mc_ydata_error)

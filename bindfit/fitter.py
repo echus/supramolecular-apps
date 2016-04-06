@@ -253,8 +253,8 @@ class Fitter():
         # parameter results to use as input to run_scipy
         params_init = {}
         for key, param in self.params.items():
-            params_init = param
-            params_init["init"] = param["value"]
+            params_init[key] = param
+            params_init[key]["init"] = param["value"]
 
         params_arr = np.zeros((n_iter, len(params_init)))
 
