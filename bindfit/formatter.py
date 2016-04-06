@@ -383,7 +383,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "k": {
                         "init": 1000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -404,14 +404,14 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "k1": {
                         "init": 10000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
                     "k2": {
                         "init": 1000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -441,14 +441,14 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "k1": {
                         "init": 10000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
                     "k2": {
                         "init": 1000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -469,7 +469,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "k": {
                         "init": 1000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -490,14 +490,14 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "k1": {
                         "init": 10000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
                     "k2": {
                         "init": 1000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -527,14 +527,14 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "k1": {
                         "init": 10000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
                     "k2": {
                         "init": 1000, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -555,7 +555,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "ke": {
                         "init": 100, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -576,7 +576,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "ke": {
                         "init": 100, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -597,14 +597,14 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "ke": {
                         "init": 200, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
                     "rho": {
                         "init": 0.3, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
@@ -625,14 +625,14 @@ def options(fitter, data_id=None, params=None, dilute=False):
                     "ke": {
                         "init": 2700, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },
                     "rho": {
                         "init": 0.003, 
                         "bounds": {
-                            "min": None, 
+                            "min": 0, 
                             "max": None,
                             },
                         },

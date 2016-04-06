@@ -94,7 +94,7 @@ class Fitter():
                                          p,
                                          bounds=b,
                                          args=(x, y, True),
-                                         method=method,
+                                         method=method if method else "Nelder-Mead",
                                          #method='L-BFGS-B',
                                          tol=1e-18,
                                         )
