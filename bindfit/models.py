@@ -141,8 +141,15 @@ class Fit(models.Model):
     fitter_name = models.CharField(max_length=20)
     # Data store only flag (defined on fitter select)
     no_fit = models.BooleanField(default=False)
-    # Dilution flag (defined on fit)
-    options_dilute = models.BooleanField(default=False) # Dilution factor flag
+    # Options strings and flags (defined on fit)
+    options_dilute    = models.BooleanField(default=False) # Dilution factor flag
+    options_normalise = models.BooleanField(default=True)  # Normalisation (initial value subtraction) flag
+    options_method    = models.CharField(default="",
+                                         max_length=50, 
+                                         blank=True) # Fit method
+    options_flavour   = models.CharField(default="",
+                                         max_length=50,
+                                         blank=True) # Fit flavour 
 
     # Time to fit
     time = models.FloatField(blank=True, null=True) # Time to fit
@@ -170,6 +177,9 @@ class Fit(models.Model):
     # 1D array of fitted parameters
     fit_params_keys   = ArrayField(models.CharField(max_length=20), blank=True, null=True)
     fit_params_init   = ArrayField(models.FloatField(), blank=True, null=True)
+    fit_params_bounds = ArrayField(
+            ArrayField(models.FloatField()), 
+            blank=True, null=True)
     fit_params_value  = ArrayField(models.FloatField(), blank=True, null=True)
     fit_params_stderr = ArrayField(models.FloatField(), blank=True, null=True)
 
@@ -212,23 +222,42 @@ class Fit(models.Model):
             # Return full fit
 
             # Convert parameter arrays to appropriate nested dict input to formatter
-            params = { key: {"init": init, "value": value, "stderr": stderr}
-                       for (key, init, value, stderr)
-                       in zip(self.fit_params_keys,
-                              self.fit_params_init,
-                              self.fit_params_value,
-                              self.fit_params_stderr) }
+            # Backwards compatibility check for saved fits without bounds
+            if self.fit_params_bounds:
+                params = { key: {"init": init, 
+                                 "value": value, 
+                                 "stderr": stderr,
+                                 "bounds": {"min": bounds[0], "max": bounds[1]}}
+                           for (key, init, value, stderr, bounds)
+                           in zip(self.fit_params_keys,
+                                  self.fit_params_init,
+                                  self.fit_params_value,
+                                  self.fit_params_stderr,
+                                  self.fit_params_bounds) }
+            else:
+                params = { key: {"init": init, 
+                                 "value": value, 
+                                 "stderr": stderr,
+                                 "bounds": {"min": None, "max": None}}
+                           for (key, init, value, stderr)
+                           in zip(self.fit_params_keys,
+                                  self.fit_params_init,
+                                  self.fit_params_value,
+                                  self.fit_params_stderr) }
                        
-            response = formatter.fit(self.fitter_name,
-                                     self.data.to_dict(self.fitter_name, self.options_dilute),
-                                     self.fit_y, 
-                                     params, 
-                                     self.qof_residuals,
-                                     self.fit_molefrac,
-                                     self.fit_coeffs,
-                                     self.time,
-                                     self.options_dilute,
-                                     self.no_fit,
+            response = formatter.fit(fitter   =self.fitter_name,
+                                     data     =self.data.to_dict(self.fitter_name, self.options_dilute),
+                                     y        =self.fit_y, 
+                                     params   =params, 
+                                     residuals=self.qof_residuals,
+                                     molefrac =self.fit_molefrac,
+                                     coeffs   =self.fit_coeffs,
+                                     time     =self.time,
+                                     dilute   =self.options_dilute,
+                                     normalise=self.options_normalise,
+                                     method   =self.options_method,
+                                     flavour  =self.options_flavour,
+                                     no_fit   =self.no_fit,
                                      meta_dict=meta_dict,
                                      )
         else:

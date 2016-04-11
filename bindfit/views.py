@@ -280,7 +280,10 @@ class FitSaveView(APIView):
         no_fit = fit["no_fit"]
 
         if not no_fit:
-            options_dilute  = fit["options"]["dilute"]
+            options_dilute    = fit["options"]["dilute"]
+            options_normalise = fit["options"]["normalise"]
+            options_method    = fit["options"]["method"]
+            options_flavour   = fit["options"]["flavour"]
 
             fit_params        = fit["fit"]["params"]
             fit_params_keys   = [ key for key in sorted(fit_params) ]
@@ -289,6 +292,9 @@ class FitSaveView(APIView):
             fit_params_value  = [ fit_params[key]["value"] 
                                   for key in sorted(fit_params) ]
             fit_params_stderr = [ fit_params[key]["stderr"]
+                                  for key in sorted(fit_params) ]
+            fit_params_bounds = [ [fit_params[key]["bounds"]["min"],
+                                   fit_params[key]["bounds"]["max"]]
                                   for key in sorted(fit_params) ]
 
             fit_y      = fit["fit"]["y"]
@@ -313,10 +319,14 @@ class FitSaveView(APIView):
                              data=data,
                              fitter_name=options_fitter,
                              options_dilute=options_dilute,
+                             options_normalise=options_normalise,
+                             options_method=options_method,
+                             options_flavour=options_flavour,
                              fit_params_keys=fit_params_keys,
                              fit_params_init=fit_params_init,
                              fit_params_value=fit_params_value,
                              fit_params_stderr=fit_params_stderr,
+                             fit_params_bounds=fit_params_bounds,
                              fit_y=fit_y,
                              fit_molefrac=fit_molefrac,
                              fit_coeffs=fit_coeffs,
