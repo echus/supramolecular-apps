@@ -792,23 +792,36 @@ def uv_coek(params, xdata, *args, **kwargs):
 
 
 def select(key, flavour=""):
-    # Returns requested function object
-    # TODO: use attr instead of initialising singletons in dict
-    # Reference by dict key, ultimately exposed to use by formatter.fitter_list 
-    # dictionary
-    selector = {
-            "nmrdata":    FunctionBinding(),
-            "nmr1to1":    FunctionBinding(nmr_1to1,  flavour),
-            "nmr1to2":    FunctionBinding(nmr_1to2,  flavour),
-            "nmr2to1":    FunctionBinding(nmr_2to1,  flavour),
-            "uvdata":     FunctionBinding(),
-            "uv1to1" :    FunctionBinding(uv_1to1,   flavour),
-            "uv1to2" :    FunctionBinding(uv_1to2,   flavour),
-            "uv2to1" :    FunctionBinding(uv_2to1,   flavour),
-            "nmrdimer":   FunctionAgg    (nmr_dimer, flavour),
-            "uvdimer":    FunctionAgg    (uv_dimer,  flavour),
-            "nmrcoek":    FunctionAgg    (nmr_coek,  flavour),
-            "uvcoek":     FunctionAgg    (uv_coek,   flavour),
-            "inhibitor":  FunctionInhibitorResponse(inhibitor_response),
+    """
+    Constructs and returns requested function object.
+
+    Arguments:
+        key:     string  Unique fitter function reference string, exposed by 
+                         formatter.fitter_list
+        flavour: string  Fitter flavour option, if selected
+    """
+
+    args_select = {
+            "nmrdata":    ["FunctionBinding", ()],
+            "nmr1to1":    ["FunctionBinding", (nmr_1to1,  flavour)],
+            "nmr1to2":    ["FunctionBinding", (nmr_1to2,  flavour)],
+            "nmr2to1":    ["FunctionBinding", (nmr_2to1,  flavour)],
+            "uvdata":     ["FunctionBinding", ()],
+            "uv1to1" :    ["FunctionBinding", (uv_1to1,   flavour)],
+            "uv1to2" :    ["FunctionBinding", (uv_1to2,   flavour)],
+            "uv2to1" :    ["FunctionBinding", (uv_2to1,   flavour)],
+            "nmrdimer":   ["FunctionAgg",     (nmr_dimer, flavour)],
+            "uvdimer":    ["FunctionAgg",     (uv_dimer,  flavour)],
+            "nmrcoek":    ["FunctionAgg",     (nmr_coek,  flavour)],
+            "uvcoek":     ["FunctionAgg",     (uv_coek,   flavour)],
+            "inhibitor":  ["FunctionInhibitorResponse", (inhibitor_response)],
             }
-    return selector[key]
+
+    # Get appropriate class from global scope
+    cls = globals()[args_select[key][0]]
+
+    # Instantiation arguments
+    args = args_select[key][1]
+
+    # Construct and return
+    return cls(*args)
