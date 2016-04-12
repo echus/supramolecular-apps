@@ -30,7 +30,7 @@ class BaseFunction(object):
     # for the mixin functions to override BaseFunction template functions.
     # See here: https://www.ianlewis.org/en/mixins-and-python
 
-    def __init__(self, f, flavour=""):
+    def __init__(self, f=None, flavour=""):
         self.f       = f
         self.flavour = flavour
 
@@ -797,9 +797,11 @@ def select(key, flavour=""):
     # Reference by dict key, ultimately exposed to use by formatter.fitter_list 
     # dictionary
     selector = {
+            "nmrdata":    FunctionBinding(),
             "nmr1to1":    FunctionBinding(nmr_1to1,  flavour),
             "nmr1to2":    FunctionBinding(nmr_1to2,  flavour),
             "nmr2to1":    FunctionBinding(nmr_2to1,  flavour),
+            "uvdata":     FunctionBinding(),
             "uv1to1" :    FunctionBinding(uv_1to1,   flavour),
             "uv1to2" :    FunctionBinding(uv_1to2,   flavour),
             "uv2to1" :    FunctionBinding(uv_2to1,   flavour),
