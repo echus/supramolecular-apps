@@ -175,13 +175,23 @@ class Fit(models.Model):
 
     # Fit results
     # 1D array of fitted parameters
-    fit_params_keys   = ArrayField(models.CharField(max_length=20), blank=True, null=True)
-    fit_params_init   = ArrayField(models.FloatField(), blank=True, null=True)
+    fit_params_keys   = ArrayField(models.CharField(max_length=20), 
+                                   blank=True, null=True)
+    fit_params_init   = ArrayField(models.FloatField(), 
+                                   blank=True, null=True)
     fit_params_bounds = ArrayField(
             ArrayField(models.FloatField()), 
             blank=True, null=True)
-    fit_params_value  = ArrayField(models.FloatField(), blank=True, null=True)
-    fit_params_stderr = ArrayField(models.FloatField(), blank=True, null=True)
+    # Array of parameter and sub-parameter result values
+    # Returned as float if singular, array if multiple
+    fit_params_value  = ArrayField(
+            ArrayField(models.FloatField()), 
+            blank=True, null=True) 
+    # Array of parameter and sub-parameter result error values
+    # Returned as float if singular, array if multiple
+    fit_params_stderr = ArrayField(
+            ArrayField(models.FloatField()), 
+            blank=True, null=True)
 
     # 2D matrix of (calculated) fitted input y data
     fit_y = ArrayField(
@@ -199,6 +209,7 @@ class Fit(models.Model):
     qof_residuals = ArrayField(
             ArrayField(models.FloatField()),
             blank=True, null=True)
+
 
 
     def to_dict(self):
@@ -225,8 +236,15 @@ class Fit(models.Model):
             # Backwards compatibility check for saved fits without bounds
             if self.fit_params_bounds:
                 params = { key: {"init": init, 
-                                 "value": value, 
-                                 "stderr": stderr,
+                                 # Backwards compatibility for previously saved fits
+                                 # Check for bare floats, null errors
+                                 # If singular item in array, strip array before return
+                                 "value":  value  if (not isinstance(value, list))  
+                                                      or (len(value)  > 1) 
+                                                  else value[0], 
+                                 "stderr": stderr if (not isinstance(stderr, list)) 
+                                                      or (len(stderr) > 1) 
+                                                  else stderr[0],
                                  "bounds": {"min": bounds[0], "max": bounds[1]}}
                            for (key, init, value, stderr, bounds)
                            in zip(self.fit_params_keys,
@@ -236,8 +254,15 @@ class Fit(models.Model):
                                   self.fit_params_bounds) }
             else:
                 params = { key: {"init": init, 
-                                 "value": value, 
-                                 "stderr": stderr,
+                                 # Backwards compatibility for previously saved fits
+                                 # Check for bare floats, null errors
+                                 # If singular item in array, strip array before return
+                                 "value":  value  if (not isinstance(value, list))  
+                                                      or (len(value)  > 1) 
+                                                  else value[0], 
+                                 "stderr": stderr if (not isinstance(stderr, list)) 
+                                                      or (len(stderr) > 1) 
+                                                  else stderr[0],
                                  "bounds": {"min": None, "max": None}}
                            for (key, init, value, stderr)
                            in zip(self.fit_params_keys,

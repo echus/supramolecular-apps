@@ -289,9 +289,15 @@ class FitSaveView(APIView):
             fit_params_keys   = [ key for key in sorted(fit_params) ]
             fit_params_init   = [ fit_params[key]["init"]  
                                   for key in sorted(fit_params) ]
-            fit_params_value  = [ fit_params[key]["value"] 
+            # Convert bare float values to arrays here for DB storage
+            fit_params_value  = [ fit_params[key]["value"]
+                                  if isinstance(fit_params[key]["value"], list) 
+                                  else [fit_params[key]["value"]]
                                   for key in sorted(fit_params) ]
+            # Convert bare float values to arrays here for DB storage
             fit_params_stderr = [ fit_params[key]["stderr"]
+                                  if isinstance(fit_params[key]["stderr"], list) 
+                                  else [fit_params[key]["stderr"]]
                                   for key in sorted(fit_params) ]
             fit_params_bounds = [ [fit_params[key]["bounds"]["min"],
                                    fit_params[key]["bounds"]["max"]]
