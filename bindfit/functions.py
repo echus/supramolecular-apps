@@ -125,6 +125,7 @@ class BindingMixin():
     def format_molefrac(self, molefrac):
         # Calculate host molefraction from complexes and add as first row
         molefrac_host = np.ones(molefrac.shape[1])
+        # TODO: temp delete for testing of initial value non-subtraction
         molefrac_host -= molefrac.sum(axis=0)
         return np.vstack((molefrac_host, molefrac))
 
@@ -379,6 +380,8 @@ def nmr_1to1(params, xdata, *args, **kwargs):
     # Make column vector
     hg = hg[np.newaxis]
 
+    #hg = np.vstack((h0, hg))
+
     return hg
 
 def uv_1to1(params, xdata, molefrac=False):
@@ -463,6 +466,7 @@ def uv_1to2(params, xdata, molefrac=False, flavour=""):
 
     if flavour == "add" or flavour == "stat":
         hg_mat = hg + 2*hg2
+        hg_mat = hg_mat[np.newaxis]
     else:
         hg_mat = np.vstack((hg, hg2))
 
@@ -527,6 +531,7 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
     if flavour == "add" or flavour == "stat":
         logger.debug("FLAVOUR: add or stat")
         hg_mat = hg + 2*hg2
+        hg_mat = hg_mat[np.newaxis]
     else:
         logger.debug("FLAVOUR: none or noncoop")
         hg_mat = np.vstack((hg, hg2))
