@@ -95,7 +95,6 @@ class Fitter():
                                          bounds=b,
                                          args=(x, y, True),
                                          method=method if method else "Nelder-Mead",
-                                         #method='L-BFGS-B',
                                          tol=1e-18,
                                         )
         toc = time.clock()

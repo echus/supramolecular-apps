@@ -30,9 +30,10 @@ class BaseFunction(object):
     # for the mixin functions to override BaseFunction template functions.
     # See here: https://www.ianlewis.org/en/mixins-and-python
 
-    def __init__(self, f=None, flavour=""):
-        self.f       = f
-        self.flavour = flavour
+    def __init__(self, f=None, normalise=True, flavour=""):
+        self.f         = f
+        self.normalise = normalise 
+        self.flavour   = flavour
 
     def objective(self, params, xdata, ydata, scalar=False, *args, **kwargs):
         pass
@@ -90,6 +91,10 @@ class BindingMixin():
         logger.debug("FLAVOUR RECEIVED BINDINGMIXIN:")
         logger.debug(self.flavour)
         molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=self.flavour)
+
+        if self.normalise:
+            # Don't solve first column (H)
+            molefrac = molefrac[1:]
 
         # Solve by matrix division - linear regression by least squares
         # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
@@ -369,6 +374,7 @@ def nmr_1to1(params, xdata, *args, **kwargs):
              (g0 + h0 + (1/k)) - \
              np.lib.scimath.sqrt(((g0+h0+(1/k))**2)-(4*((g0*h0))))\
              )
+    h  = h0 - hg
 
     # Replace any non-real solutions with sqrt(h0*g0) 
     inds = np.imag(hg) > 0
@@ -376,15 +382,15 @@ def nmr_1to1(params, xdata, *args, **kwargs):
 
     # Convert [HG] concentration to molefraction for NMR
     hg /= h0
+    h  /= h0
 
     # Make column vector
-    hg = hg[np.newaxis]
+    #hg_mat = hg[np.newaxis]
+    hg_mat = np.vstack((h, hg))
 
-    #hg = np.vstack((h0, hg))
+    return hg_mat
 
-    return hg
-
-def uv_1to1(params, xdata, molefrac=False):
+def uv_1to1(params, xdata, molefrac=False, *args, **kwargs):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
@@ -400,6 +406,7 @@ def uv_1to1(params, xdata, molefrac=False):
              (g0 + h0 + (1/k)) - \
              np.lib.scimath.sqrt(((g0+h0+(1/k))**2)-(4*((g0*h0))))\
              )
+    h  = h0 - hg
 
     # Replace any non-real solutions with sqrt(h0*g0) 
     inds = np.imag(hg) > 0
@@ -408,12 +415,13 @@ def uv_1to1(params, xdata, molefrac=False):
     if molefrac:
         # Convert [HG] concentration to molefraction 
         hg /= h0
+        h  /= h0
 
     # Make column vector
-    # hg = hg.reshape(len(hg), 1)
-    hg = hg[np.newaxis]
+    # hg_mat = hg[np.newaxis]
+    hg_mat = np.vstack((h, hg))
 
-    return hg
+    return hg_mat
 
 def uv_1to2(params, xdata, molefrac=False, flavour=""):
     """
@@ -456,19 +464,21 @@ def uv_1to2(params, xdata, molefrac=False, flavour=""):
         g[i] = soln
 
     # Calculate [HG] and [HG2] complex concentrations 
-    hg = h0*((g*k11)/(1+(g*k11)+(g*g*k11*k12)))
+    hg  = h0*((g*k11)/(1+(g*k11)+(g*g*k11*k12)))
     hg2 = h0*(((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12)))
+    h   = h0 - hg - hg2
 
     if molefrac:
         # Convert free concentrations to molefractions
         hg  /= h0
         hg2 /= h0
+        h   /= h0
 
     if flavour == "add" or flavour == "stat":
         hg_mat = hg + 2*hg2
         hg_mat = hg_mat[np.newaxis]
     else:
-        hg_mat = np.vstack((hg, hg2))
+        hg_mat = np.vstack((h, hg, hg2))
 
     return hg_mat
 
@@ -525,8 +535,9 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
 
 
     # Calculate [HG] and [HG2] complex concentrations 
-    hg = (g*k11)/(1+(g*k11)+(g*g*k11*k12))
+    hg  = (g*k11)/(1+(g*k11)+(g*g*k11*k12))
     hg2 = ((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12))
+    h   = h0 - hg - hg2
 
     if flavour == "add" or flavour == "stat":
         logger.debug("FLAVOUR: add or stat")
@@ -534,7 +545,7 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
         hg_mat = hg_mat[np.newaxis]
     else:
         logger.debug("FLAVOUR: none or noncoop")
-        hg_mat = np.vstack((hg, hg2))
+        hg_mat = np.vstack((h, hg, hg2))
 
     return hg_mat
 
@@ -576,10 +587,11 @@ def nmr_2to1(params, xdata, *args, **kwargs):
         h[i] = soln
 
     # Calculate [HG] and [H2G] complex concentrations 
-    hg = (g0*h*k11)/(h0*(1+(h*k11)+(h*h*k11*k12)))
+    hg  = (g0*h*k11)/(h0*(1+(h*k11)+(h*h*k11*k12)))
     h2g = (2*g0*h*h*k11*k12)/(h0*(1+(h*k11)+(h*h*k11*k12)))
+    h   = h0 - hg - h2g
 
-    hg_mat = np.vstack((hg, h2g))
+    hg_mat = np.vstack((h, hg, h2g))
 
     return hg_mat
 
@@ -622,15 +634,17 @@ def uv_2to1(params, xdata, molefrac=False, flavour=""):
         h[i] = soln
 
     # Calculate [HG] and [H2G] complex concentrations 
-    hg = g0*((h*k11)/(1+(h*k11)+(h*h*k11*k12)))
+    hg  = g0*((h*k11)/(1+(h*k11)+(h*h*k11*k12)))
     h2g = g0*((2*h*h*k11*k12)/(1+(h*k11)+(h*h*k11*k12)))
+    h   = h0 - hg - h2g
 
     if molefrac:
         # Convert free concentrations to molefractions
         hg  /= h0
         h2g /= h0
+        h   /= h0
 
-    hg_mat = np.vstack((hg, h2g))
+    hg_mat = np.vstack((h, hg, h2g))
 
     return hg_mat
 
@@ -796,7 +810,7 @@ def uv_coek(params, xdata, *args, **kwargs):
 
 
 
-def select(key, flavour=""):
+def select(key, normalise=True, flavour=""):
     """
     Constructs and returns requested function object.
 
@@ -808,17 +822,17 @@ def select(key, flavour=""):
 
     args_select = {
             "nmrdata":    ["FunctionBinding", ()],
-            "nmr1to1":    ["FunctionBinding", (nmr_1to1,  flavour)],
-            "nmr1to2":    ["FunctionBinding", (nmr_1to2,  flavour)],
-            "nmr2to1":    ["FunctionBinding", (nmr_2to1,  flavour)],
+            "nmr1to1":    ["FunctionBinding", (nmr_1to1,  normalise, flavour)],
+            "nmr1to2":    ["FunctionBinding", (nmr_1to2,  normalise, flavour)],
+            "nmr2to1":    ["FunctionBinding", (nmr_2to1,  normalise, flavour)],
             "uvdata":     ["FunctionBinding", ()],
-            "uv1to1" :    ["FunctionBinding", (uv_1to1,   flavour)],
-            "uv1to2" :    ["FunctionBinding", (uv_1to2,   flavour)],
-            "uv2to1" :    ["FunctionBinding", (uv_2to1,   flavour)],
-            "nmrdimer":   ["FunctionAgg",     (nmr_dimer, flavour)],
-            "uvdimer":    ["FunctionAgg",     (uv_dimer,  flavour)],
-            "nmrcoek":    ["FunctionAgg",     (nmr_coek,  flavour)],
-            "uvcoek":     ["FunctionAgg",     (uv_coek,   flavour)],
+            "uv1to1" :    ["FunctionBinding", (uv_1to1,   normalise, flavour)],
+            "uv1to2" :    ["FunctionBinding", (uv_1to2,   normalise, flavour)],
+            "uv2to1" :    ["FunctionBinding", (uv_2to1,   normalise, flavour)],
+            "nmrdimer":   ["FunctionAgg",     (nmr_dimer, normalise, flavour)],
+            "uvdimer":    ["FunctionAgg",     (uv_dimer,  normalise, flavour)],
+            "nmrcoek":    ["FunctionAgg",     (nmr_coek,  normalise, flavour)],
+            "uvcoek":     ["FunctionAgg",     (uv_coek,   normalise, flavour)],
             "inhibitor":  ["FunctionInhibitorResponse", (inhibitor_response)],
             }
 
