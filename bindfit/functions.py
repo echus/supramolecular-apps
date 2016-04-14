@@ -128,11 +128,7 @@ class BindingMixin():
         return g0/h0
 
     def format_molefrac(self, molefrac):
-        # Calculate host molefraction from complexes and add as first row
-        molefrac_host = np.ones(molefrac.shape[1])
-        # TODO: temp delete for testing of initial value non-subtraction
-        molefrac_host -= molefrac.sum(axis=0)
-        return np.vstack((molefrac_host, molefrac))
+        return molefrac
 
     def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
         """
@@ -154,19 +150,23 @@ class BindingMixin():
             h /= h0_init
             coeffs = np.copy(coeffs)/h0_init
 
-        coeffs = np.array(coeffs)
-        rows = coeffs.shape[0]
-        if rows == 1:
-            # 1:1 system
-            hg = h + coeffs[0]
-            return np.vstack((h, hg))
-        elif rows == 2:
-            # 1:2 or 2:1 system
-            hg  = h + coeffs[0]
-            hg2 = h + coeffs[1]
-            return np.vstack((h, hg, hg2))
+        if self.normalise:
+            # Calc and add first row of coeffs
+            coeffs = np.array(coeffs)
+            rows = coeffs.shape[0]
+            if rows == 1:
+                # 1:1 system
+                hg = h + coeffs[0]
+                return np.vstack((h, hg))
+            elif rows == 2:
+                # 1:2 or 2:1 system
+                hg  = h + coeffs[0]
+                hg2 = h + coeffs[1]
+                return np.vstack((h, hg, hg2))
+            else:
+                pass # Throw error here
         else:
-            pass # Throw error here
+            return coeffs
 
     def format_params(self, params_init, params_result, err):
         params = params_init
