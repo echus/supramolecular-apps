@@ -104,8 +104,12 @@ class BindingMixin():
         else:
             coeffs, _, _, _ = np.linalg.lstsq(molefrac.T, ydata.T)
 
+        logger.debug("Function.objective: molefrac fitted, calc'd coeffs")
+        logger.debug(molefrac)
+        logger.debug(coeffs)
+
         # Calculate data from fitted parameters 
-        # (will be normalised since input data was norm'd)
+        # (will be normalised if input data was norm'd)
         # Result is column matrix - transform this into same shape as input
         # data array
         fit = molefrac.T.dot(coeffs).T
@@ -537,7 +541,7 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
     # Calculate [HG] and [HG2] complex concentrations 
     hg  = (g*k11)/(1+(g*k11)+(g*g*k11*k12))
     hg2 = ((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12))
-    h   = h0 - hg - hg2
+    h   = 1 - hg - hg2
 
     if flavour == "add" or flavour == "stat":
         logger.debug("FLAVOUR: add or stat")
@@ -549,14 +553,25 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
 
     return hg_mat
 
-def nmr_2to1(params, xdata, *args, **kwargs):
+def nmr_2to1(params, xdata, flavour="", *args, **kwargs):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
     """
 
     k11 = params[0]
-    k12 = params[1]
+    if flavour == "noncoop" or flavour == "stat":
+        k12 = k11/4
+        logger.debug("FLAVOUR: noncoop or stat")
+        logger.debug("k11, k12")
+        logger.debug(k11)
+        logger.debug(k12)
+    else:
+        k12 = params[1]
+        logger.debug("FLAVOUR: none or add")
+        logger.debug("k11, k12")
+        logger.debug(k11)
+        logger.debug(k12)
 
     h0  = xdata[0]
     g0  = xdata[1]
@@ -589,9 +604,15 @@ def nmr_2to1(params, xdata, *args, **kwargs):
     # Calculate [HG] and [H2G] complex concentrations 
     hg  = (g0*h*k11)/(h0*(1+(h*k11)+(h*h*k11*k12)))
     h2g = (2*g0*h*h*k11*k12)/(h0*(1+(h*k11)+(h*h*k11*k12)))
-    h   = h0 - hg - h2g
+    h   = 1 - hg - h2g
 
-    hg_mat = np.vstack((h, hg, h2g))
+    if flavour == "add" or flavour == "stat":
+        logger.debug("FLAVOUR: add or stat")
+        hg_mat = hg + 2*h2g
+        hg_mat = hg_mat[np.newaxis]
+    else:
+        logger.debug("FLAVOUR: none or noncoop")
+        hg_mat = np.vstack((h, hg, h2g))
 
     return hg_mat
 
@@ -603,7 +624,10 @@ def uv_2to1(params, xdata, molefrac=False, flavour=""):
 
     # Convenience
     k11 = params[0]
-    k12 = params[1]
+    if flavour == "noncoop" or flavour == "stat":
+        k12 = k11/4
+    else:
+        k12 = params[1]
 
     h0  = xdata[0]
     g0  = xdata[1]
@@ -644,7 +668,11 @@ def uv_2to1(params, xdata, molefrac=False, flavour=""):
         h2g /= h0
         h   /= h0
 
-    hg_mat = np.vstack((h, hg, h2g))
+    if flavour == "add" or flavour == "stat":
+        hg_mat = hg + 2*h2g
+        hg_mat = hg_mat[np.newaxis]
+    else:
+        hg_mat = np.vstack((h, hg, h2g))
 
     return hg_mat
 
