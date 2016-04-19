@@ -88,20 +88,19 @@ class BindingMixin():
 
         # Calculate predicted HG complex concentrations for this set of 
         # parameters and concentrations
-        logger.debug("FLAVOUR RECEIVED BINDINGMIXIN:")
-        logger.debug(self.flavour)
         molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=self.flavour)
 
         if self.normalise:
-            # Don't solve first column (H)
-            molefrac = molefrac[1:]
-
-        # Solve by matrix division - linear regression by least squares
-        # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
+            if self.flavour != "add" and self.flavour != "stat":
+                # Don't solve first column (H) 
+                # (N/A to add/stat flavours as they return only a single sum)
+                molefrac = molefrac[1:]
 
         if fit_coeffs is not None:
             coeffs = fit_coeffs
         else:
+            # Solve by matrix division - linear regression by least squares
+            # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
             coeffs, _, _, _ = np.linalg.lstsq(molefrac.T, ydata.T)
 
         logger.debug("Function.objective: molefrac fitted, calc'd coeffs")
