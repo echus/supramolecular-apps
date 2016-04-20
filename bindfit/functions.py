@@ -91,10 +91,8 @@ class BindingMixin():
         molefrac = self.f(params, xdata, molefrac=force_molefrac, flavour=self.flavour)
 
         if self.normalise:
-            if self.flavour != "add" and self.flavour != "stat":
-                # Don't solve first column (H) 
-                # (N/A to add/stat flavours as they return only a single sum)
-                molefrac = molefrac[1:]
+            # Don't fit first H column if initial values subtracted
+            molefrac = molefrac[1:]
 
         if fit_coeffs is not None:
             coeffs = fit_coeffs
@@ -147,15 +145,24 @@ class BindingMixin():
 
         # H coefficients
         h = np.copy(ydata_init)
+        coeffs = np.array(coeffs)
 
         # Divide initial ydata values and coeffs by h0 in UV fitters
         if "uv" in fitter and h0_init is not None:
             h /= h0_init
             coeffs = np.copy(coeffs)/h0_init
 
+        if self.flavour == "add" or self.flavour == "stat":
+            # Preprocess coeffs for additive flavours
+            # Calculate HG2/H2G coeffs and add to returned HG coeffs array
+            if self.normalise:
+                coeffs = np.array([coeffs[0], coeffs[0]*2])
+            else:
+                # Account for first row of H
+                coeffs = np.array([coeffs[0], coeffs[1], coeffs[1]*2])
+
         if self.normalise:
-            # Calc and add first row of coeffs
-            coeffs = np.array(coeffs)
+            # Calc and add first row of coeffs using excluded initial values
             rows = coeffs.shape[0]
             if rows == 1:
                 # 1:1 system
@@ -478,8 +485,8 @@ def uv_1to2(params, xdata, molefrac=False, flavour=""):
         h   /= h0
 
     if flavour == "add" or flavour == "stat":
-        hg_mat = hg + 2*hg2
-        hg_mat = hg_mat[np.newaxis]
+        hg_add = hg + 2*hg2
+        hg_mat = np.vstack((h, hg_add))
     else:
         hg_mat = np.vstack((h, hg, hg2))
 
@@ -544,8 +551,8 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
 
     if flavour == "add" or flavour == "stat":
         logger.debug("FLAVOUR: add or stat")
-        hg_mat = hg + 2*hg2
-        hg_mat = hg_mat[np.newaxis]
+        hg_add = hg + 2*hg2
+        hg_mat = np.vstack((h, hg_add))
     else:
         logger.debug("FLAVOUR: none or noncoop")
         hg_mat = np.vstack((h, hg, hg2))
@@ -607,8 +614,8 @@ def nmr_2to1(params, xdata, flavour="", *args, **kwargs):
 
     if flavour == "add" or flavour == "stat":
         logger.debug("FLAVOUR: add or stat")
-        hg_mat = hg + 2*h2g
-        hg_mat = hg_mat[np.newaxis]
+        hg_add = hg + 2*h2g
+        hg_mat = np.vstack((h, hg_add))
     else:
         logger.debug("FLAVOUR: none or noncoop")
         hg_mat = np.vstack((h, hg, h2g))
@@ -668,8 +675,8 @@ def uv_2to1(params, xdata, molefrac=False, flavour=""):
         h   /= h0
 
     if flavour == "add" or flavour == "stat":
-        hg_mat = hg + 2*h2g
-        hg_mat = hg_mat[np.newaxis]
+        hg_add = hg + 2*h2g
+        hg_mat = np.vstack((h, hg_add))
     else:
         hg_mat = np.vstack((h, hg, h2g))
 
