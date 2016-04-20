@@ -837,7 +837,7 @@ def uv_coek(params, xdata, *args, **kwargs):
 
 
 
-def select(key, normalise=True, flavour=""):
+def construct(key, normalise=True, flavour=""):
     """
     Constructs and returns requested function object.
 

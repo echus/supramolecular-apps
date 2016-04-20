@@ -153,7 +153,7 @@ class FitView(APIView):
     @staticmethod
     def create_fitter(fitter_name, datax, datay, normalise, flavour="", params=None):
         # Initialise Fitter with approriate objective function
-        function = functions.select(fitter_name, normalise=normalise, flavour=flavour)
+        function = functions.construct(fitter_name, normalise=normalise, flavour=flavour)
         fitter = Fitter(datax, datay, function, 
                         normalise=normalise, 
                         params=params)

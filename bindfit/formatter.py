@@ -777,7 +777,7 @@ def fit(fitter, data,
     """
 
     fn = fitter_name(fitter)
-    function = functions.select(fitter, normalise=normalise, flavour=flavour)
+    function = functions.construct(fitter, normalise=normalise, flavour=flavour)
 
     if not no_fit:
         fit = {

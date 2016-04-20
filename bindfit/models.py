@@ -125,7 +125,7 @@ class Data(models.Model):
         y = np.array(self.y)[0]
 
         # Calculate x values for plotting
-        x_plot = functions.select(fitter).format_x(x)
+        x_plot = functions.construct(fitter).format_x(x)
 
         # Apply dilution factor if dilute option is set 
         if dilute:
