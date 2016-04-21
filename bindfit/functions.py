@@ -150,9 +150,9 @@ class BindingMixin():
         coeffs = np.array(coeffs)
 
         # Divide initial ydata values and coeffs by h0 in UV fitters
-        #if "uv" in fitter and h0_init is not None:
-        #    h /= h0_init
-        #    coeffs = np.copy(coeffs)/h0_init
+        if "uv" in self.fitter and h0_init is not None:
+            h /= h0_init
+            coeffs = np.copy(coeffs)/h0_init
 
         if self.flavour == "add" or self.flavour == "stat":
             # Preprocess coeffs for additive flavours
@@ -266,9 +266,9 @@ class AggMixin():
         h = np.copy(ydata_init)
 
         # Divide initial ydata values and coeffs by h0 in UV fitters
-        #if "uv" in fitter and h0_init is not None:
-        #    h /= h0_init
-        #    coeffs = np.copy(coeffs)/h0_init
+        if "uv" in self.fitter and h0_init is not None:
+            h /= h0_init
+            coeffs = np.copy(coeffs)/h0_init
 
         coeffs = np.array(coeffs)
         rows = coeffs.shape[0]
