@@ -136,18 +136,20 @@ class FitView(APIView):
     def build_response(fitter_name, fitter, data, 
                        dilute, normalise, method, flavour):
         # Combined fitter and data dictionaries
-        response = formatter.fit(fitter    =fitter_name,
-                                 data      =data,
-                                 y         =fitter.fit,
-                                 params    =fitter.params,
-                                 residuals =fitter.residuals,
-                                 coeffs    =fitter.coeffs,
-                                 molefrac  =fitter.molefrac,
-                                 time      =fitter.time,
-                                 dilute    =dilute,
-                                 normalise =normalise,
-                                 method    =method,
-                                 flavour   =flavour)
+        response = formatter.fit(fitter      =fitter_name,
+                                 data        =data,
+                                 y           =fitter.fit,
+                                 params      =fitter.params,
+                                 residuals   =fitter.residuals,
+                                 coeffs_raw  =fitter.coeffs_raw,
+                                 molefrac_raw=fitter.molefrac_raw,
+                                 coeffs      =fitter.coeffs,
+                                 molefrac    =fitter.molefrac,
+                                 time        =fitter.time,
+                                 dilute      =dilute,
+                                 normalise   =normalise,
+                                 method      =method,
+                                 flavour     =flavour)
         return response
 
     @staticmethod

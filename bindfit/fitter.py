@@ -109,7 +109,7 @@ class Fitter():
         # Force molefraction (not free concentration) calculation for proper 
         # fitting in UV models
         logger.debug("Fitter.run: Calculating optimised fit")
-        fit_norm, residuals, coeffs, molefrac = self.function.objective(
+        fit_norm, residuals, coeffs_raw, molefrac_raw, coeffs, molefrac = self.function.objective(
                                                     result.x, 
                                                     x, 
                                                     y, 
@@ -132,13 +132,15 @@ class Fitter():
         results["residuals"] = residuals
 
         results["coeffs"] = coeffs
+        results["coeffs_raw"] = coeffs_raw
 
         # Calculate final molefrac (including host, function-specific)
-        results["molefrac"] = self.function.format_molefrac(molefrac)
+        results["molefrac"] = molefrac
+        results["molefrac_raw"] = molefrac_raw
 
         # Calculate fit uncertainty statistics
         logger.debug("Fitter.run: Calculating uncertainty statistics")
-        err = self.statistics(result.x, fit, coeffs, residuals)
+        err = self.statistics(result.x, fit, coeffs_raw, residuals)
         logger.debug("Fitter.run: Done calculating uncertainty statistics")
 
         # Parse final optimised parameters and errors into parameters dict
@@ -180,11 +182,12 @@ class Fitter():
             # Calculate fit with modified parameter set
             x   = self.xdata
             y   = self._preprocess(self.ydata)
-            fit_shift_norm, _, _, _ = self.function.objective(params_shift, 
-                                                        x, 
-                                                        y, 
-                                                        force_molefrac=True,
-                                                        fit_coeffs=coeffs)
+            fit_shift_norm, _, _, _, _, _ = self.function.objective(
+                    params_shift, 
+                    x, 
+                    y, 
+                    force_molefrac=True,
+                    fit_coeffs=coeffs)
             fit_shift = self._postprocess(self.ydata, fit_shift_norm)
             
             # Calculate partial differential

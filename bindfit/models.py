@@ -206,6 +206,14 @@ class Fit(models.Model):
             ArrayField(models.FloatField()),
             blank=True, null=True)
 
+    fit_molefrac_raw = ArrayField(
+            ArrayField(models.FloatField()),
+            blank=True, null=True)
+
+    fit_coeffs_raw   = ArrayField(
+            ArrayField(models.FloatField()),
+            blank=True, null=True)
+
     qof_residuals = ArrayField(
             ArrayField(models.FloatField()),
             blank=True, null=True)
