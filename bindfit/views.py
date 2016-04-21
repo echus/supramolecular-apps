@@ -492,25 +492,25 @@ class FitExportView(APIView):
 
         # Fit results 
         # PLACEHOLDER deal with multi-D y inputs here later
-        fit_y         = np.array(fit["fit"]["y"],      dtype=dt).T
-        fit_params    = np.array(
+        fit_y          = np.array(fit["fit"]["y"],          dtype=dt).T
+        fit_params     = np.array(
                 [ fit["fit"]["params"][key]["value"] 
                   for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
-        fit_molefrac  = np.array(fit["fit"]["molefrac"],  dtype=dt).T
-        fit_coeffs    = np.array(fit["fit"]["coeffs"],    dtype=dt).T
-        fit_coeffs_calc = np.array(fit["fit"]["coeffs_calc"],    dtype=dt).T
-        # PLACEHOLDER deal with multi-D y inputs here later
-        fit_residuals = np.array(fit["qof"]["residuals"], dtype=dt).T
-        fit_rms       = np.array(fit["qof"]["rms"], dtype=dt).T
-        fit_cov       = np.array(fit["qof"]["cov"], dtype=dt).T
-        fit_rms_total = fit["qof"]["rms_total"]
-        fit_cov_total = fit["qof"]["cov_total"]
+        fit_molefrac   = np.array(fit["fit"]["molefrac"],   dtype=dt).T
+        fit_coeffs_raw = np.array(fit["fit"]["coeffs_raw"], dtype=dt).T
+        fit_coeffs     = np.array(fit["fit"]["coeffs"],     dtype=dt).T
+        # PLACEHOLDER  deal with multi-D y inputs here later
+        fit_residuals  = np.array(fit["qof"]["residuals"],  dtype=dt).T
+        fit_rms        = np.array(fit["qof"]["rms"],        dtype=dt).T
+        fit_cov        = np.array(fit["qof"]["cov"],        dtype=dt).T
+        fit_rms_total  = fit["qof"]["rms_total"]
+        fit_cov_total  = fit["qof"]["cov_total"]
 
         # Labels
         params_labels_dict = labels["fit"]["params"]
         params_labels      = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
-        coeffs_calc_labels = labels["fit"]["coeffs_calc"]
+        coeffs_labels      = labels["fit"]["coeffs"]
         molefrac_labels    = labels["fit"]["molefrac"]
 
         # Create output arrays
@@ -522,8 +522,8 @@ class FitExportView(APIView):
 
         params_array_1 = fit_params[np.newaxis] # To force horizontal array in
                                                 # DataFrame
-        params_array_2 = fit_coeffs_calc
-        params_array_3 = fit_coeffs
+        params_array_2 = fit_coeffs
+        params_array_3 = fit_coeffs_raw
 
         # Generate appropriate column titles
         data_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
@@ -549,8 +549,8 @@ class FitExportView(APIView):
         qof_names_2.append("Covariance: Total")
 
         params_names_1 = [ p["label"] for p in params_labels ]
-        params_names_2 = [ str(l)+" coeffs" for l in coeffs_calc_labels ]
-        params_names_3 = [ "Raw coeffs"+str(i+1) for i in range(fit_coeffs.shape[1]) ]
+        params_names_2 = [ str(l)+" coeffs" for l in coeffs_labels ]
+        params_names_3 = [ "Raw coeffs"+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
 
         # Create data frames for export
         data_output     = pd.DataFrame(data_array,     columns=data_names)
