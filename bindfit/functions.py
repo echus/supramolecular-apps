@@ -30,8 +30,9 @@ class BaseFunction(object):
     # for the mixin functions to override BaseFunction template functions.
     # See here: https://www.ianlewis.org/en/mixins-and-python
 
-    def __init__(self, f=None, normalise=True, flavour=""):
+    def __init__(self, fitter, f=None, normalise=True, flavour=""):
         self.f         = f
+        self.fitter    = fitter
         self.normalise = normalise 
         self.flavour   = flavour
 
@@ -41,7 +42,7 @@ class BaseFunction(object):
     def format_x(self, xdata):
         pass
 
-    def format_coeffs(self, fitter, coeffs, ydata_init, h0_init=None):
+    def format_coeffs(self, coeffs, ydata_init, h0_init=None):
         pass
 
     def format_params(self, params_init, params_raw, err):
@@ -871,19 +872,19 @@ def construct(key, normalise=True, flavour=""):
     """
 
     args_select = {
-            "nmrdata":    ["FunctionBinding", ()],
-            "nmr1to1":    ["FunctionBinding", (nmr_1to1,  normalise, flavour)],
-            "nmr1to2":    ["FunctionBinding", (nmr_1to2,  normalise, flavour)],
-            "nmr2to1":    ["FunctionBinding", (nmr_2to1,  normalise, flavour)],
-            "uvdata":     ["FunctionBinding", ()],
-            "uv1to1" :    ["FunctionBinding", (uv_1to1,   normalise, flavour)],
-            "uv1to2" :    ["FunctionBinding", (uv_1to2,   normalise, flavour)],
-            "uv2to1" :    ["FunctionBinding", (uv_2to1,   normalise, flavour)],
-            "nmrdimer":   ["FunctionAgg",     (nmr_dimer, normalise, flavour)],
-            "uvdimer":    ["FunctionAgg",     (uv_dimer,  normalise, flavour)],
-            "nmrcoek":    ["FunctionAgg",     (nmr_coek,  normalise, flavour)],
-            "uvcoek":     ["FunctionAgg",     (uv_coek,   normalise, flavour)],
-            "inhibitor":  ["FunctionInhibitorResponse", (inhibitor_response)],
+            "nmrdata":    ["FunctionBinding", (key)],
+            "nmr1to1":    ["FunctionBinding", (key, nmr_1to1,  normalise, flavour)],
+            "nmr1to2":    ["FunctionBinding", (key, nmr_1to2,  normalise, flavour)],
+            "nmr2to1":    ["FunctionBinding", (key, nmr_2to1,  normalise, flavour)],
+            "uvdata":     ["FunctionBinding", (key)],
+            "uv1to1" :    ["FunctionBinding", (key, uv_1to1,   normalise, flavour)],
+            "uv1to2" :    ["FunctionBinding", (key, uv_1to2,   normalise, flavour)],
+            "uv2to1" :    ["FunctionBinding", (key, uv_2to1,   normalise, flavour)],
+            "nmrdimer":   ["FunctionAgg",     (key, nmr_dimer, normalise, flavour)],
+            "uvdimer":    ["FunctionAgg",     (key, uv_dimer,  normalise, flavour)],
+            "nmrcoek":    ["FunctionAgg",     (key, nmr_coek,  normalise, flavour)],
+            "uvcoek":     ["FunctionAgg",     (key, uv_coek,   normalise, flavour)],
+            "inhibitor":  ["FunctionInhibitorResponse", (key, inhibitor_response)],
             }
 
     # Get appropriate class from global scope
