@@ -472,29 +472,39 @@ class FitExportView(APIView):
         labels = formatter.labels(fit["fitter"])
         user_labels = fit["labels"]
 
-        # Munge some data
-        # Transpose 1D arrays -> 2D column arrays for hstack later
-        # Input data
-        data_x_labels = user_labels["data"]["x"]["row_labels"]
-        data_y_labels = user_labels["data"]["y"]["row_labels"]
-        data_h0  = np.array(fit["data"]["x"][0],  dtype=dt)[np.newaxis].T
-        data_g0  = np.array(fit["data"]["x"][1],  dtype=dt)[np.newaxis].T
-        data_geq = data_g0/data_h0
-        # PLACEHOLDER deal with multi-D y inputs here later
-        data_y   = np.array(fit["data"]["y"],  dtype=dt).T
-
         # Input options
         options_fitter = fit["fitter"]
         options_params = np.array(
                 [ fit["fit"]["params"][key]["init"] 
                   for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
+        options_dilute    = fit["options"]["dilute"]
+        options_normalise = fit["options"]["normalise"]
+        options_method    = fit["options"]["method"]
+        options_flavour   = fit["options"]["flavour"]
+
+        # Construct fitter function for calculating formatted x
+        function = functions.construct(options_fitter, 
+                                       normalise=options_normalise,
+                                       flavour=options_flavour)
+
+        # Munge some data
+        # Transpose 1D arrays -> 2D column arrays for hstack later
+        # Input data
+        data_x_labels = user_labels["data"]["x"]["row_labels"]
+        data_y_labels = user_labels["data"]["y"]["row_labels"]
+        data_x        = np.array(fit["data"]["x"],  dtype=dt).T
+        data_x_calc   = function.format_x(np.array(fit["data"]["x"], 
+                                                   dtype=dt))[np.newaxis].T
+        data_y        = np.array(fit["data"]["y"],  dtype=dt).T
+
 
         # Fit results 
-        # PLACEHOLDER deal with multi-D y inputs here later
         fit_y          = np.array(fit["fit"]["y"],          dtype=dt).T
         fit_params     = np.array(
-                [ fit["fit"]["params"][key]["value"] 
+                [ fit["fit"]["params"][key]["value"][0] 
+                    if isinstance(fit["fit"]["params"][key]["value"], list) 
+                    else fit["fit"]["params"][key]["value"]
                   for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
         fit_molefrac   = np.array(fit["fit"]["molefrac"],   dtype=dt).T
@@ -514,14 +524,21 @@ class FitExportView(APIView):
         molefrac_labels    = labels["fit"]["molefrac"]
 
         # Create output arrays
-        data_array     = np.hstack((data_h0, data_g0, data_geq, data_y))
+        data_array     = np.hstack((data_x, data_x_calc, data_y))
         options_array  = np.concatenate(([options_fitter], options_params))
-        fit_array      = np.hstack((data_h0, data_g0, data_geq, fit_y, fit_residuals, fit_molefrac))
+        fit_array      = np.hstack((data_x, data_x_calc, fit_y, fit_residuals, fit_molefrac))
         qof_array_1    = np.append(fit_rms, fit_rms_total)
         qof_array_2    = np.append(fit_cov, fit_cov_total)
 
-        params_array_1 = fit_params[np.newaxis] # To force horizontal array in
-                                                # DataFrame
+        if len(fit_params.shape) < 2:
+            # No sub-params
+            params_array_1 = fit_params[np.newaxis] # To force horizontal array
+                                                    # in DataFrame
+        else:
+            # Deal with sub-params (for now just take initial subparam from 
+            # each group)
+            params_array_1 = np.array([ p[0] for p in fit_params ])[np.newaxis]
+
         params_array_2 = fit_coeffs
         params_array_3 = fit_coeffs_raw
 
@@ -533,7 +550,12 @@ class FitExportView(APIView):
         logger.debug(data_names)
 
         options_names      = ["Fitter"]
-        options_names.extend([ p["label"] for p in params_labels ])
+        options_names.extend([ p["label"][0]
+                                   if isinstance(p["label"], list)
+                                   else p["label"]
+                               for p in params_labels ])
+        if len(options_names) > len(options_array):
+            options_names = options_names[:len(options_array)]
 
         fit_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
         fit_names.extend(["x3: G/H equivalent total"])
@@ -548,7 +570,12 @@ class FitExportView(APIView):
         qof_names_2 = [ "Covariance: "+l for l in data_y_labels ]
         qof_names_2.append("Covariance: Total")
 
-        params_names_1 = [ p["label"] for p in params_labels ]
+        params_names_1 = [ p["label"][0]
+                               if isinstance(p["label"], list) 
+                               else p["label"] 
+                           for p in params_labels ]
+        if len(params_names_1) > len(params_array_1[0]):
+            params_names_1 = params_names_1[:len(params_array_1)]
         params_names_2 = [ str(l)+" coeffs" for l in coeffs_labels ]
         params_names_3 = [ "Raw coeffs"+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
 
