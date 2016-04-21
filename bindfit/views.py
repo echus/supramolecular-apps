@@ -307,10 +307,12 @@ class FitSaveView(APIView):
 
             fit_y      = fit["fit"]["y"]
 
-            fit_molefrac  = fit["fit"]["molefrac"]
-            fit_coeffs    = fit["fit"]["coeffs"]
-            fit_time      = fit["time"]
-            fit_residuals = fit["qof"]["residuals"]
+            fit_molefrac     = fit["fit"]["molefrac"]
+            fit_coeffs       = fit["fit"]["coeffs"]
+            fit_molefrac_raw = fit["fit"]["molefrac_raw"]
+            fit_coeffs_raw   = fit["fit"]["coeffs_raw"]
+            fit_time         = fit["time"]
+            fit_residuals    = fit["qof"]["residuals"]
 
             fit = models.Fit(no_fit=no_fit,
                              meta_options_searchable=meta_options_searchable, 
@@ -338,6 +340,8 @@ class FitSaveView(APIView):
                              fit_y=fit_y,
                              fit_molefrac=fit_molefrac,
                              fit_coeffs=fit_coeffs,
+                             fit_molefrac_raw=fit_molefrac_raw,
+                             fit_coeffs_raw=fit_coeffs_raw,
                              qof_residuals=fit_residuals,
                              time=fit_time,
                              )
