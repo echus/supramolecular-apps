@@ -517,6 +517,10 @@ class FitExportView(APIView):
         fit_rms_total  = fit["qof"]["rms_total"]
         fit_cov_total  = fit["qof"]["cov_total"]
 
+        # Backwards compatibility for fits pre-coeffs_raw calculation
+        if fit_coeffs_raw is not None:
+            fit_coeffs_raw = fit_coeffs
+
         # Labels
         params_labels_dict = labels["fit"]["params"]
         params_labels      = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
@@ -546,8 +550,6 @@ class FitExportView(APIView):
         data_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
         data_names.extend(["x3: G/H equivalent total"])
         data_names.extend([ "y"+str(i+1)+": "+l for i, l in enumerate(data_y_labels) ])
-        logger.debug("DATA_NAMES")
-        logger.debug(data_names)
 
         options_names      = ["Fitter"]
         options_names.extend([ p["label"][0]
@@ -562,8 +564,6 @@ class FitExportView(APIView):
         fit_names.extend([ "y"+str(i+1)+": "+l for i, l in enumerate(data_y_labels) ])
         fit_names.extend([ "y"+str(i+1)+": Residuals" for i in range(fit_residuals.shape[1]) ])
         fit_names.extend([ "y"+str(i+1)+": Molefractions" for i in range(fit_molefrac.shape[1]) ])
-        logger.debug("FIT_NAMES")
-        logger.debug(fit_names)
 
         qof_names_1 = [ "RMS: "+l for l in data_y_labels ]
         qof_names_1.append("RMS: Total")
