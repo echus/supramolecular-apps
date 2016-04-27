@@ -56,7 +56,6 @@ class BaseFunction(object):
 class BindingMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=True, 
-                  force_molefrac=False,
                   ydata_init=None,
                   fit_coeffs=None,
                   *args, **kwargs):
@@ -73,8 +72,6 @@ class BindingMixin():
                                      m obs
             datay:          ndarray  y x m array of y dependent variables, m obs
             scalar:         bool     Calc and return only ssr 
-            force_molefrac: bool     Force molefraction calculation (for UV 
-                                     objective functions)
             ydata_init:     ndarray  Array of initial y data values, length y,
                                      required if scalar=False
             fit_coeffs:     ndarray  Use pre-calculated coefficient values, 
@@ -93,7 +90,6 @@ class BindingMixin():
         # parameters and concentrations
         molefrac_raw, molefrac = self.f(params, 
                                         xdata, 
-                                        molefrac=force_molefrac, 
                                         flavour=self.flavour)
 
         if self.normalise:
@@ -154,14 +150,6 @@ class BindingMixin():
         h = np.copy(ydata_init)
         coeffs = np.array(coeffs)
 
-        logger.debug("YDATA_INIT")
-        logger.debug(h)
-
-        # Divide initial ydata values and coeffs by h0 in UV fitters
-        if "uv" in self.fitter and h0_init is not None:
-            h /= h0_init
-            coeffs = np.copy(coeffs)/h0_init
-
         if self.flavour == "add" or self.flavour == "stat":
             # Preprocess coeffs for additive flavours
             # Calculate HG2/H2G coeffs and add to returned HG coeffs array
@@ -172,6 +160,12 @@ class BindingMixin():
                 coeffs = np.array([coeffs[0], coeffs[1], coeffs[1]*2])
 
         if self.normalise:
+            # Divide initial ydata values and coeffs by h0 in UV fitters
+            # in prep for addition
+            if "uv" in self.fitter and h0_init is not None:
+                h /= h0_init
+                coeffs = np.copy(coeffs)/h0_init
+
             # Calc and add first row of coeffs using excluded initial values
             rows = coeffs.shape[0]
             if rows == 1:
@@ -204,7 +198,7 @@ class BindingMixin():
 class AggMixin():
     def objective(self, params, xdata, ydata, 
                   scalar=False, 
-                  force_molefrac=False,
+                  ydata_init=None,
                   fit_coeffs=None,
                   *args, **kwargs):
         """
@@ -219,11 +213,10 @@ class AggMixin():
         # parameters and concentrations
         molefrac_raw, molefrac = self.f(params,
                                         xdata, 
-                                        molefrac=force_molefrac, 
                                         flavour=self.flavour)
-        h  = molefrac[0]
-        hs = molefrac[1]
-        he = molefrac[2]
+        h  = molefrac_raw[0]
+        hs = molefrac_raw[1]
+        he = molefrac_raw[2]
         hmat = np.array([h + he/2, hs + he/2])
 
         # Solve by matrix division - linear regression by least squares
@@ -251,7 +244,7 @@ class AggMixin():
         else:
             # Return full fit with formatted molefrac and coeffs
             coeffs = self.format_coeffs(coeffs_raw, 
-                                        ydata_init=ydata[:,0], 
+                                        ydata_init=ydata_init, 
                                         h0_init=xdata[0][0])
             return fit, residuals, coeffs_raw, hmat, coeffs, molefrac
 
@@ -269,28 +262,32 @@ class AggMixin():
             h0_init:    float    Optional initial h0 value, if provided ydata_init 
                                  is divided by this value before the calculation
         """
-
         # H coefficients
         h = np.copy(ydata_init)
-
-        # Divide initial ydata values and coeffs by h0 in UV fitters
-        if "uv" in self.fitter and h0_init is not None:
-            h /= h0_init
-            coeffs = np.copy(coeffs)/h0_init
-
         coeffs = np.array(coeffs)
-        rows = coeffs.shape[0]
-        if rows == 1:
-            # 1:1 system
-            hg = h + coeffs[0]
-            return np.vstack((h, hg))
-        elif rows == 2:
-            # 1:2 or 2:1 system
-            hg  = h - coeffs[0]
-            hg2 = h - coeffs[1]
-            return np.vstack((h, hg, hg2))
+
+        if self.normalise:
+            # Divide initial ydata values and coeffs by h0 in UV fitters
+            # in prep for addition
+            if "uv" in self.fitter and h0_init is not None:
+                h /= h0_init
+                coeffs = np.copy(coeffs)/h0_init
+
+            # Calc and add first row of coeffs using excluded initial values
+            rows = coeffs.shape[0]
+            if rows == 1:
+                # 1:1 system
+                hg = h + coeffs[0]
+                return np.vstack((h, hg))
+            elif rows == 2:
+                # 1:2 or 2:1 system
+                hg  = h + coeffs[0]
+                hg2 = h + coeffs[1]
+                return np.vstack((h, hg, hg2))
+            else:
+                pass # Throw error here
         else:
-            pass # Throw error here
+            return coeffs
 
     def format_params(self, params_init, params_result, err):
         params = params_init
@@ -411,7 +408,7 @@ def nmr_1to1(params, xdata, *args, **kwargs):
 
     return hg_mat_fit, hg_mat
 
-def uv_1to1(params, xdata, molefrac=False, *args, **kwargs):
+def uv_1to1(params, xdata, *args, **kwargs):
     """
     Calculates predicted [HG] given data object parameters as input.
     """
@@ -433,18 +430,13 @@ def uv_1to1(params, xdata, molefrac=False, *args, **kwargs):
     inds = np.imag(hg) > 0
     hg[inds] = np.sqrt(h0[inds] * g0[inds])
 
-    if molefrac:
-        # Convert [HG] concentration to molefraction 
-        hg /= h0
-        h  /= h0
-
     # Make column vector
-    hg_mat_fit = np.vstack((h, hg))
-    hg_mat     = np.vstack((h, hg))
+    hg_mat_fit = np.vstack((h,    hg))    # Free concentration for correct fitting
+    hg_mat     = np.vstack((h/h0, hg/h0)) # Molefrac for display
 
     return hg_mat_fit, hg_mat
 
-def uv_1to2(params, xdata, molefrac=False, flavour=""):
+def uv_1to2(params, xdata, flavour="", *args, **kwargs):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
@@ -489,19 +481,13 @@ def uv_1to2(params, xdata, molefrac=False, flavour=""):
     hg2 = h0*(((g*g*k11*k12))/(1+(g*k11)+(g*g*k11*k12)))
     h   = h0 - hg - hg2
 
-    if molefrac:
-        # Convert free concentrations to molefractions
-        hg  /= h0
-        hg2 /= h0
-        h   /= h0
-
     if flavour == "add" or flavour == "stat":
         hg_add = hg + 2*hg2
         hg_mat_fit = np.vstack((h, hg_add))
     else:
         hg_mat_fit = np.vstack((h, hg, hg2))
         
-    hg_mat = np.vstack((h, hg, hg2))
+    hg_mat = np.vstack((h/h0, hg/h0, hg2/h0)) # Display-only molefracs
     return hg_mat_fit, hg_mat
 
 def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
@@ -636,7 +622,7 @@ def nmr_2to1(params, xdata, flavour="", *args, **kwargs):
     hg_mat = np.vstack((h, hg, h2g))
     return hg_mat_fit, hg_mat
 
-def uv_2to1(params, xdata, molefrac=False, flavour=""):
+def uv_2to1(params, xdata, flavour=""):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
@@ -682,19 +668,13 @@ def uv_2to1(params, xdata, molefrac=False, flavour=""):
     h2g = g0*((2*h*h*k11*k12)/(1+(h*k11)+(h*h*k11*k12)))
     h   = h0 - hg - h2g
 
-    if molefrac:
-        # Convert free concentrations to molefractions
-        hg  /= h0
-        h2g /= h0
-        h   /= h0
-
     if flavour == "add" or flavour == "stat":
         hg_add = hg + 2*h2g
         hg_mat_fit = np.vstack((h, hg_add))
     else:
         hg_mat_fit = np.vstack((h, hg, h2g))
 
-    hg_mat = np.vstack((h, hg, h2g))
+    hg_mat = np.vstack((h/h0, hg/h0, h2g/h0)) # Molefrac for display
     return hg_mat_fit, hg_mat
 
 def nmr_dimer(params, xdata, *args, **kwargs):
@@ -729,7 +709,7 @@ def nmr_dimer(params, xdata, *args, **kwargs):
     mf     = np.vstack((h, hs, he))
     return mf_fit, mf
 
-def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
+def uv_dimer(params, xdata, *args, **kwargs):
     """
     Calculates predicted [H] [Hs] and [He] given data object and binding
     constant as input.
@@ -760,14 +740,8 @@ def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
     # Convert to free concentration
     hc = h0*h
 
-    if molefrac:
-        # Convert to molefractions
-        hc /= h0
-        hs /= h0
-        he /= h0
-
-    mf_fit = np.vstack((hc, hs, he))
-    mf     = np.vstack((hc, hs, he))
+    mf_fit = np.vstack((hc,    hs,    he))    # Free concentration for fitting
+    mf     = np.vstack((hc/h0, hs/h0, he/h0)) # Real molefraction
     return mf_fit, mf
 
 def nmr_coek(params, xdata, *args, **kwargs):
@@ -820,7 +794,7 @@ def nmr_coek(params, xdata, *args, **kwargs):
     mf     = np.vstack((h, hs, he))
     return mf_fit, mf
 
-def uv_coek(params, xdata, molefrac=False, *args, **kwargs):
+def uv_coek(params, xdata, *args, **kwargs):
     """
     Calculates predicted [H] [Hs] and [He] given data object and binding constants
     as input.
@@ -869,14 +843,8 @@ def uv_coek(params, xdata, molefrac=False, *args, **kwargs):
     # Convert to free concentration
     hc = h0*h
 
-    #if molefrac:
-    #    # Convert to molefrac
-    #    hc /= h0
-    #    hs /= h0
-    #    he /= h0
-
-    mf_fit = np.vstack((hc, hs, he))
-    mf     = np.vstack((hc, hs, he))
+    mf_fit = np.vstack((hc,    hs,    he))    # Free concentration for fitting
+    mf     = np.vstack((hc/h0, hs/h0, he/h0)) # Real molefraction
     return mf_fit, mf
 
 

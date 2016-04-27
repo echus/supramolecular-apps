@@ -115,7 +115,7 @@ class Fitter():
         ydata_init = self.ydata[:,0] if ydata is None else ydata[:,0]
         logger.debug("Fitter.run: ydata_init")
         logger.debug(ydata_init)
-        fit_norm, residuals, coeffs_raw, molefrac_raw, coeffs, molefrac = self.function.objective(result.x, x, y, scalar=False, force_molefrac=True, ydata_init=ydata_init)
+        fit_norm, residuals, coeffs_raw, molefrac_raw, coeffs, molefrac = self.function.objective(result.x, x, y, scalar=False, ydata_init=ydata_init)
 
         # Postprocessing
         # Populate fit results dict
@@ -191,7 +191,6 @@ class Fitter():
                     x, 
                     y, 
                     scalar=False,
-                    force_molefrac=True,
                     ydata_init=ydata_init,
                     fit_coeffs=coeffs)
             fit_shift = self._postprocess(self.ydata, fit_shift_norm)
