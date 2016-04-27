@@ -22,23 +22,45 @@ def fitter_list():
     Returns list of all available fitters 
     """
 
+    CONST_nmr_group_description = ("Fit your nuclear magnetic resonance (NMR) "
+        "titration data to one of the binding models below.")
+    CONST_uv_group_description = ("Fit your ultraviolet-visible (UV or UV-Vis) "
+        "spectroscopic titration data to one of the binding models below. These "
+        "models also work for flurescence titration if the free guest is "
+        "\"silent\" (non-fluorescent) and dynamic quenching is absent.")
+    CONST_save_data_group_description = ("The below options allow you to save, "
+        "archive and obtain a unique URL for your raw data without processing "
+        "it further.")
+
     fitter_list = [
-            {"name": "NMR 1:1",        "key": "nmr1to1",  "group": "NMR"},
-            {"name": "NMR 1:2",        "key": "nmr1to2",  "group": "NMR"},
-            {"name": "NMR 2:1",        "key": "nmr2to1",  "group": "NMR"},
+            {"name": "NMR 1:1",        "key": "nmr1to1",  "group": "NMR", 
+                                       "group_desc": CONST_nmr_group_description},
+            {"name": "NMR 1:2",        "key": "nmr1to2",  "group": "NMR", 
+                                       "group_desc": CONST_nmr_group_description},
+            {"name": "NMR 2:1",        "key": "nmr2to1",  "group": "NMR", 
+                                       "group_desc": CONST_nmr_group_description},
             {"name": "NMR Dimer Aggregation",
-                                       "key": "nmrdimer", "group": "NMR"},
+                                       "key": "nmrdimer", "group": "NMR", 
+                                       "group_desc": CONST_nmr_group_description},
             {"name": "NMR CoEK Aggregation",
-                                       "key": "nmrcoek",  "group": "NMR"},
-            {"name": "UV 1:1",         "key": "uv1to1",   "group": "UV"},
-            {"name": "UV 1:2",         "key": "uv1to2",   "group": "UV"},
-            {"name": "UV 2:1",         "key": "uv2to1",   "group": "UV"},
+                                       "key": "nmrcoek",  "group": "NMR", 
+                                       "group_desc": CONST_nmr_group_description},
+            {"name": "UV 1:1",         "key": "uv1to1",   "group": "UV", 
+                                       "group_desc": CONST_uv_group_description},
+            {"name": "UV 1:2",         "key": "uv1to2",   "group": "UV", 
+                                       "group_desc": CONST_uv_group_description},
+            {"name": "UV 2:1",         "key": "uv2to1",   "group": "UV", 
+                                       "group_desc": CONST_uv_group_description},
             {"name": "UV Dimer Aggregation",
-                                       "key": "uvdimer",  "group": "UV"},
+                                       "key": "uvdimer",  "group": "UV", 
+                                       "group_desc": CONST_uv_group_description},
             {"name": "UV CoEK Aggregation",
-                                       "key": "uvcoek",   "group": "UV"},
-            {"name": "NMR",            "key": "nmrdata",  "group": "Save data only"},
-            {"name": "UV",             "key": "uvdata",   "group": "Save data only"},
+                                       "key": "uvcoek",   "group": "UV", 
+                                       "group_desc": CONST_uv_group_description},
+            {"name": "NMR",            "key": "nmrdata",  "group": "Save data only", 
+                                       "group_desc": CONST_save_data_group_description},
+            {"name": "UV",             "key": "uvdata",   "group": "Save data only",
+                                       "group_desc": CONST_save_data_group_description},
 
             {"name": "IC50", "key": "inhibitor", "group": "Test only"},
             ]

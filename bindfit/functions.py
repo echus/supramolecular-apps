@@ -729,7 +729,7 @@ def nmr_dimer(params, xdata, *args, **kwargs):
     mf     = np.vstack((h, hs, he))
     return mf_fit, mf
 
-def uv_dimer(params, xdata, *args, **kwargs):
+def uv_dimer(params, xdata, molefrac=False, *args, **kwargs):
     """
     Calculates predicted [H] [Hs] and [He] given data object and binding
     constant as input.
@@ -759,6 +759,12 @@ def uv_dimer(params, xdata, *args, **kwargs):
 
     # Convert to free concentration
     hc = h0*h
+
+    if molefrac:
+        # Convert to molefractions
+        hc /= h0
+        hs /= h0
+        he /= h0
 
     mf_fit = np.vstack((hc, hs, he))
     mf     = np.vstack((hc, hs, he))
@@ -814,7 +820,7 @@ def nmr_coek(params, xdata, *args, **kwargs):
     mf     = np.vstack((h, hs, he))
     return mf_fit, mf
 
-def uv_coek(params, xdata, *args, **kwargs):
+def uv_coek(params, xdata, molefrac=False, *args, **kwargs):
     """
     Calculates predicted [H] [Hs] and [He] given data object and binding constants
     as input.
@@ -862,6 +868,12 @@ def uv_coek(params, xdata, *args, **kwargs):
         
     # Convert to free concentration
     hc = h0*h
+
+    #if molefrac:
+    #    # Convert to molefrac
+    #    hc /= h0
+    #    hs /= h0
+    #    he /= h0
 
     mf_fit = np.vstack((hc, hs, he))
     mf     = np.vstack((hc, hs, he))
