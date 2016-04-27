@@ -109,11 +109,13 @@ class Fitter():
         # Force molefraction (not free concentration) calculation for proper 
         # fitting in UV models
         logger.debug("Fitter.run: Calculating optimised fit")
-        fit_norm, residuals, coeffs_raw, molefrac_raw, coeffs, molefrac = self.function.objective(
-                                                    result.x, 
-                                                    x, 
-                                                    y, 
-                                                    force_molefrac=True)
+        logger.debug("Fitter.run: self.ydata vs. ydata")
+        logger.debug(self.ydata)
+        logger.debug(ydata)
+        ydata_init = self.ydata[:,0] if ydata is None else ydata[:,0]
+        logger.debug("Fitter.run: ydata_init")
+        logger.debug(ydata_init)
+        fit_norm, residuals, coeffs_raw, molefrac_raw, coeffs, molefrac = self.function.objective(result.x, x, y, scalar=False, force_molefrac=True, ydata_init=ydata_init)
 
         # Postprocessing
         # Populate fit results dict
@@ -126,7 +128,8 @@ class Fitter():
         results["_params_raw"] = result.x
 
         # Postprocess (denormalise) and save fitted data
-        fit = self._postprocess(self.ydata, fit_norm)
+        fit = self._postprocess(self.ydata if ydata is None else ydata, 
+                                fit_norm)
         results["fit"] = fit
 
         results["residuals"] = residuals
@@ -182,11 +185,14 @@ class Fitter():
             # Calculate fit with modified parameter set
             x   = self.xdata
             y   = self._preprocess(self.ydata)
+            ydata_init = self.ydata[:,0]
             fit_shift_norm, _, _, _, _, _ = self.function.objective(
                     params_shift, 
                     x, 
                     y, 
+                    scalar=False,
                     force_molefrac=True,
+                    ydata_init=ydata_init,
                     fit_coeffs=coeffs)
             fit_shift = self._postprocess(self.ydata, fit_shift_norm)
             

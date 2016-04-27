@@ -55,8 +55,9 @@ class BaseFunction(object):
 
 class BindingMixin():
     def objective(self, params, xdata, ydata, 
-                  scalar=False, 
+                  scalar=True, 
                   force_molefrac=False,
+                  ydata_init=None,
                   fit_coeffs=None,
                   *args, **kwargs):
         """
@@ -67,13 +68,17 @@ class BindingMixin():
         results.
 
         Arguments:
-            params: Parameter  lmfit Parameter object containing binding 
-                               constant guesses
-            datax:    ndarray    x x m array of x independent variables, m obs
-            datay:    ndarray    y x m array of y dependent variables, m obs
-            scalar:   bool       
-            molefrac: bool       Force molefraction calculation (for UV 
-                                 objective functions)
+            params:         dict     Parameter guess
+            datax:          ndarray  x x m array of x independent variables, 
+                                     m obs
+            datay:          ndarray  y x m array of y dependent variables, m obs
+            scalar:         bool     Calc and return only ssr 
+            force_molefrac: bool     Force molefraction calculation (for UV 
+                                     objective functions)
+            ydata_init:     ndarray  Array of initial y data values, length y,
+                                     required if scalar=False
+            fit_coeffs:     ndarray  Use pre-calculated coefficient values, 
+                                     used in error calculations
 
         Returns:
             float:  Sum of least squares
@@ -124,7 +129,7 @@ class BindingMixin():
         else:
             # Return full fit with formatted molefrac and coeffs
             coeffs = self.format_coeffs(coeffs_raw, 
-                                        ydata_init=ydata[:,0], 
+                                        ydata_init=ydata_init, 
                                         h0_init=xdata[0][0])
             return fit, residuals, coeffs_raw, molefrac_raw, coeffs, molefrac
 
@@ -148,6 +153,9 @@ class BindingMixin():
         # H coefficients
         h = np.copy(ydata_init)
         coeffs = np.array(coeffs)
+
+        logger.debug("YDATA_INIT")
+        logger.debug(h)
 
         # Divide initial ydata values and coeffs by h0 in UV fitters
         if "uv" in self.fitter and h0_init is not None:
