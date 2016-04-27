@@ -149,6 +149,9 @@ class BindingMixin():
         # H coefficients
         h = np.copy(ydata_init)
         coeffs = np.array(coeffs)
+        logger.debug("FORMAT_COEFFS: H, COEFFS")
+        logger.debug(h)
+        logger.debug(coeffs)
 
         if self.flavour == "add" or self.flavour == "stat":
             # Preprocess coeffs for additive flavours
@@ -160,11 +163,9 @@ class BindingMixin():
                 coeffs = np.array([coeffs[0], coeffs[1], coeffs[1]*2])
 
         if self.normalise:
-            # Divide initial ydata values and coeffs by h0 in UV fitters
-            # in prep for addition
             if "uv" in self.fitter and h0_init is not None:
+                # Calculate coefficient for H (ydata_init/h0)
                 h /= h0_init
-                coeffs = np.copy(coeffs)/h0_init
 
             # Calc and add first row of coeffs using excluded initial values
             rows = coeffs.shape[0]
@@ -267,11 +268,9 @@ class AggMixin():
         coeffs = np.array(coeffs)
 
         if self.normalise:
-            # Divide initial ydata values and coeffs by h0 in UV fitters
-            # in prep for addition
             if "uv" in self.fitter and h0_init is not None:
+                # Calculate coefficient for H (ydata_init/h0)
                 h /= h0_init
-                coeffs = np.copy(coeffs)/h0_init
 
             # Calc and add first row of coeffs using excluded initial values
             rows = coeffs.shape[0]
