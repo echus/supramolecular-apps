@@ -136,6 +136,9 @@ class Data(models.Model):
 class Fit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    # Edit key
+    edit_key = models.UUIDField(default=None, blank=True, null=True)
+
     # Options and flags
     # Fitter
     fitter_name = models.CharField(max_length=20)
