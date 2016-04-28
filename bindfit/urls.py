@@ -8,6 +8,7 @@ urlpatterns = [
                        views.FitMonteCarloView.as_view(),
                        name="bindfit_fit_save"),
     url(r'^fit/save$', views.FitSaveView.as_view(),     name="bindfit_fit_save"),
+    url(r'^edit$',     views.FitEditEmailView.as_view(),name="bindfit_edit"),
     url(r'^search$',   views.FitSearchView.as_view(),   name="bindfit_search"),
     url(r'^search/email$',   
                        views.FitSearchEmailView.as_view(),   

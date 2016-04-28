@@ -2,6 +2,8 @@ import os
 import string
 import random
 import datetime
+import uuid
+
 import pandas as pd
 import numpy  as np
 
@@ -376,6 +378,38 @@ class FitRetrieveView(APIView):
         fit = models.Fit.objects.get(id=id)
         response = fit.to_dict()
         return Response(response)
+
+
+
+class FitEditEmailView(APIView):
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        fit_id   = request.data["id"]       # Fit ID to edit
+        edit_url = request.data["edit_url"] # Frontend base URL to use with
+                                            # fit ID and edit key
+
+        # Generate new edit key
+        edit_key = uuid.uuid4()
+
+        # Save edit key
+        fit = models.Fit.objects.get(id=fit_id)
+        fit.edit_key = edit_key
+        fit.save()
+
+        # Get email
+        email = fit.meta_email
+
+        # Email edit key
+        link = edit_url+str(fit.id)+"?key="+str(edit_key)
+        send_mail("Your temporary edit URL",
+                  link,
+                  "BindFit Database <noreply@opendatafit.org>",
+                  [email],
+                  fail_silently=False)
+
+        return Response({"detail": "Success! Check your email."}, 
+                             status=status.HTTP_200_OK)
 
 
 
