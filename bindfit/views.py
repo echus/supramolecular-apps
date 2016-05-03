@@ -265,6 +265,8 @@ class FitSaveView(APIView):
         meta_options_searchable = meta["options"]["searchable"]
 
         meta_email     = meta.get("email",     "")
+        # Remove whitespace from email
+        meta_email.strip()
         meta_author    = meta.get("author",    "")
         meta_name      = meta.get("name",      "")
         meta_date      = meta.get("date",      None)
@@ -378,8 +380,13 @@ class FitSaveView(APIView):
         try:
             validate_email(fit_dict["meta_email"])
         except forms.ValidationError:
-            return Response({"detail": "Provided email is invalid."}, 
-                             status=status.HTTP_400_BAD_REQUEST)
+            if fit_dict["meta_email"] == "":
+                # Deal with blank emails separately in edit/new save routes
+                # below
+                pass
+            else:
+                return Response({"detail": "Provided email is invalid."}, 
+                                 status=status.HTTP_400_BAD_REQUEST)
 
         if fit_id is not None and fit_edit_key is not None:
             # Edit existing fit entry if edit key matches entry's key
@@ -399,6 +406,10 @@ class FitSaveView(APIView):
             # Check edit key matches retrieved fit entry's edit key
             if fit_entry_edit_key is not None and fit_edit_key == fit_entry_edit_key:
                 logger.debug("FitSaveView: Edit keys match, updating fit")
+                # If provided email is blank, remove from fit_dict and
+                # update fit entry without updating email
+                if fit_dict["meta_email"] == "":
+                    del fit_dict["meta_email"]
 
                 # Update/overwrite saved fit with new values
                 for (key, value) in fit_dict.items():
@@ -414,8 +425,14 @@ class FitSaveView(APIView):
         else:
             logger.debug("FitSaveView: Received new entry save request") 
             # Create new fit entry
-            fit_entry = models.Fit(**fit_dict)
-            fit_entry.save()
+
+            # Check for blank email
+            if fit_dict["meta_email"] == "":
+                return Response({"detail": "Provided email is invalid."}, 
+                                 status=status.HTTP_400_BAD_REQUEST)
+            else:
+                fit_entry = models.Fit(**fit_dict)
+                fit_entry.save()
 
         response = formatter.save(fit_entry.id)
         return Response(response)
