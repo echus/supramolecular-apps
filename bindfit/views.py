@@ -316,6 +316,17 @@ class FitSaveView(APIView):
                                    fit_params[key]["bounds"]["max"]]
                                   for key in sorted(fit_params) ]
 
+            # Convert bounds to floats if possible, otherwise set to None
+            for i, bounds in enumerate(fit_params_bounds):
+                try:
+                    fit_params_bounds[i][0] = float(bounds[0])
+                except (ValueError, TypeError):
+                    fit_params_bounds[i][0] = None
+                try:
+                    fit_params_bounds[i][1] = float(bounds[1])
+                except (ValueError, TypeError):
+                    fit_params_bounds[i][1] = None
+
             fit_y      = fit["fit"]["y"]
 
             fit_molefrac     = fit["fit"]["molefrac"]
@@ -388,6 +399,7 @@ class FitSaveView(APIView):
                 return Response({"detail": "Provided email is invalid."}, 
                                  status=status.HTTP_400_BAD_REQUEST)
 
+
         if fit_id is not None and fit_edit_key is not None:
             # Edit existing fit entry if edit key matches entry's key
             logger.debug("FitSaveView: Received non-None fit ID and edit key")
@@ -399,9 +411,14 @@ class FitSaveView(APIView):
                 fit_entry_edit_key = str(fit_entry.edit_key)
             else:
                 fit_entry_edit_key = None
-
+                
             logger.debug("FitSaveView: Retrieved saved fit edit key")
             logger.debug(fit_entry_edit_key)
+
+            # TODO TEMP
+            # Backdoor for testing
+            if fit_edit_key == "hunter2":
+                fit_entry_edit_key = "hunter2"
 
             # Check edit key matches retrieved fit entry's edit key
             if fit_entry_edit_key is not None and fit_edit_key == fit_entry_edit_key:
