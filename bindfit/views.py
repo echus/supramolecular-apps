@@ -8,6 +8,10 @@ import pandas as pd
 import numpy  as np
 
 from django.core.mail import send_mail
+# For email validation on save
+from django.core.validators import validate_email
+# For email validation exception
+from django import forms
 
 from rest_framework.views import APIView
 
@@ -255,6 +259,9 @@ class FitSaveView(APIView):
         fit  = request.data
         meta = request.data["meta"]
 
+        fit_id       = fit.get("fit_id",       None)
+        fit_edit_key = fit.get("fit_edit_key", None)
+
         meta_options_searchable = meta["options"]["searchable"]
 
         meta_email     = meta.get("email",     "")
@@ -316,57 +323,101 @@ class FitSaveView(APIView):
             fit_time         = fit["time"]
             fit_residuals    = fit["qof"]["residuals"]
 
-            fit = models.Fit(no_fit=no_fit,
-                             meta_options_searchable=meta_options_searchable, 
-                             meta_email=meta_email, 
-                             meta_author=meta_author, 
-                             meta_name=meta_name, 
-                             meta_date=meta_date, 
-                             meta_ref=meta_ref, 
-                             meta_host=meta_host, 
-                             meta_guest=meta_guest, 
-                             meta_solvent=meta_solvent, 
-                             meta_temp=meta_temp, 
-                             meta_notes=meta_notes,
-                             data=data,
-                             fitter_name=options_fitter,
-                             options_dilute=options_dilute,
-                             options_normalise=options_normalise,
-                             options_method=options_method,
-                             options_flavour=options_flavour,
-                             fit_params_keys=fit_params_keys,
-                             fit_params_init=fit_params_init,
-                             fit_params_value=fit_params_value,
-                             fit_params_stderr=fit_params_stderr,
-                             fit_params_bounds=fit_params_bounds,
-                             fit_y=fit_y,
-                             fit_molefrac=fit_molefrac,
-                             fit_coeffs=fit_coeffs,
-                             fit_molefrac_raw=fit_molefrac_raw,
-                             fit_coeffs_raw=fit_coeffs_raw,
-                             qof_residuals=fit_residuals,
-                             time=fit_time,
-                             )
-            fit.save()
-        else:
-            fit = models.Fit(no_fit=no_fit,
-                             meta_options_searchable=meta_options_searchable, 
-                             meta_email=meta_email, 
-                             meta_author=meta_author, 
-                             meta_name=meta_name, 
-                             meta_date=meta_date, 
-                             meta_ref=meta_ref, 
-                             meta_host=meta_host, 
-                             meta_guest=meta_guest, 
-                             meta_solvent=meta_solvent, 
-                             meta_temp=meta_temp, 
-                             meta_notes=meta_notes,
-                             data=data,
-                             fitter_name=options_fitter,
-                             )
-            fit.save()
+            fit_dict = {
+                "no_fit": no_fit,
+                "meta_options_searchable": meta_options_searchable, 
+                "meta_email":              meta_email, 
+                "meta_author":             meta_author, 
+                "meta_name":               meta_name, 
+                "meta_date":               meta_date, 
+                "meta_ref":                meta_ref, 
+                "meta_host":               meta_host, 
+                "meta_guest":              meta_guest, 
+                "meta_solvent":            meta_solvent, 
+                "meta_temp":               meta_temp, 
+                "meta_notes":              meta_notes,
+                "data":                    data,
+                "fitter_name":             options_fitter,
+                "options_dilute":          options_dilute,
+                "options_normalise":       options_normalise,
+                "options_method":          options_method,
+                "options_flavour":         options_flavour,
+                "fit_params_keys":         fit_params_keys,
+                "fit_params_init":         fit_params_init,
+                "fit_params_value":        fit_params_value,
+                "fit_params_stderr":       fit_params_stderr,
+                "fit_params_bounds":       fit_params_bounds,
+                "fit_y":                   fit_y,
+                "fit_molefrac":            fit_molefrac,
+                "fit_coeffs":              fit_coeffs,
+                "fit_molefrac_raw":        fit_molefrac_raw,
+                "fit_coeffs_raw":          fit_coeffs_raw,
+                "qof_residuals":           fit_residuals,
+                "time":                    fit_time,
+                }
 
-        response = formatter.save(fit.id)
+        else:
+            fit_dict = {
+                "no_fit":                  no_fit,
+                "meta_options_searchable": meta_options_searchable, 
+                "meta_email":              meta_email, 
+                "meta_author":             meta_author, 
+                "meta_name":               meta_name, 
+                "meta_date":               meta_date, 
+                "meta_ref":                meta_ref, 
+                "meta_host":               meta_host, 
+                "meta_guest":              meta_guest, 
+                "meta_solvent":            meta_solvent, 
+                "meta_temp":               meta_temp, 
+                "meta_notes":              meta_notes,
+                "data":                    data,
+                "fitter_name":             options_fitter,
+                }
+
+        # Validate email - error if no valid email provided
+        try:
+            validate_email(fit_dict["meta_email"])
+        except forms.ValidationError:
+            return Response({"detail": "Provided email is invalid."}, 
+                             status=status.HTTP_400_BAD_REQUEST)
+
+        if fit_id is not None and fit_edit_key is not None:
+            # Edit existing fit entry if edit key matches entry's key
+            logger.debug("FitSaveView: Received non-None fit ID and edit key")
+            logger.debug(fit_id)
+            logger.debug(fit_edit_key)
+
+            fit_entry          = models.Fit.objects.get(id=fit_id)
+            if fit_entry.edit_key is not None:
+                fit_entry_edit_key = str(fit_entry.edit_key)
+            else:
+                fit_entry_edit_key = None
+
+            logger.debug("FitSaveView: Retrieved saved fit edit key")
+            logger.debug(fit_entry_edit_key)
+
+            # Check edit key matches retrieved fit entry's edit key
+            if fit_entry_edit_key is not None and fit_edit_key == fit_entry_edit_key:
+                logger.debug("FitSaveView: Edit keys match, updating fit")
+
+                # Update/overwrite saved fit with new values
+                for (key, value) in fit_dict.items():
+                    setattr(fit_entry, key, value)
+                # Reset edit key and save
+                fit_entry.edit_key = None
+                fit_entry.save()
+            else:
+                # Fit edit key doesn't match saved key
+                # Edit not allowed
+                return Response({"detail": "Fit edit key does not match specified entry."}, 
+                                 status=status.HTTP_403_FORBIDDEN)
+        else:
+            logger.debug("FitSaveView: Received new entry save request") 
+            # Create new fit entry
+            fit_entry = models.Fit(**fit_dict)
+            fit_entry.save()
+
+        response = formatter.save(fit_entry.id)
         return Response(response)
 
 
