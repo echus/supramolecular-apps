@@ -103,6 +103,11 @@ class BindingMixin():
             # Equivalent to << coeffs = molefrac\ydata (EA = HG\DA) >> in Matlab
             coeffs_raw, _, _, _ = np.linalg.lstsq(molefrac_raw.T, ydata.T)
 
+        # Restrict UV coefficients to +ve values when normalised
+        if not self.normalise and "uv" in self.fitter:
+            logger.debug("Function.objective: normalised UV fit - removing negative coeffs")
+            coeffs_raw[coeffs_raw < 0] = 0
+
         logger.debug("Function.objective: molefrac_raw fitted, calc'd coeffs_raw")
         logger.debug(molefrac_raw)
         logger.debug(coeffs_raw)
