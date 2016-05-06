@@ -115,3 +115,27 @@ def dilute(h0, data):
     dilmat = ml.repmat(dilfac, y.shape[0], 1)
     y_dil = (y*dilmat)
     return y_dil
+
+def pad_2d(items, const=None):
+    # Pad a list to the specified size along second axis
+    # All items in list must be lists
+
+    # Find maximum 2nd axis size to pad to
+    sizes = [ len(i) for i in items ]
+    size = max(sizes)
+
+    # If padding needed (sizes are not all equal)
+    if size > 1 and sizes.count(sizes[0]) != len(sizes):
+        padded = []
+        for i in range(len(items)): 
+            pad = [const]*size
+            pad[0:len(items[i])] = items[i]
+            padded.append(pad)
+    else:
+        padded = items
+
+    return padded
+
+def unpad_2d(items, const=None):
+    return [ [ value for value in subitems if value != None ] 
+               for subitems in items ]

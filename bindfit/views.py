@@ -29,6 +29,7 @@ from django.conf import settings
 from . import models
 from . import formatter
 from . import functions
+from . import helpers 
 from .fitter import Fitter
 
 import logging
@@ -302,12 +303,12 @@ class FitSaveView(APIView):
             fit_params_keys   = [ key for key in sorted(fit_params) ]
             fit_params_init   = [ fit_params[key]["init"]  
                                   for key in sorted(fit_params) ]
+
             # Convert bare float values to arrays here for DB storage
             fit_params_value  = [ fit_params[key]["value"]
                                   if isinstance(fit_params[key]["value"], list) 
                                   else [fit_params[key]["value"]]
                                   for key in sorted(fit_params) ]
-            # Convert bare float values to arrays here for DB storage
             fit_params_stderr = [ fit_params[key]["stderr"]
                                   if isinstance(fit_params[key]["stderr"], list) 
                                   else [fit_params[key]["stderr"]]
@@ -315,6 +316,12 @@ class FitSaveView(APIView):
             fit_params_bounds = [ [fit_params[key]["bounds"]["min"],
                                    fit_params[key]["bounds"]["max"]]
                                   for key in sorted(fit_params) ]
+            # Pad params arrays for DB storage if axis extents are not equal
+            # Axis extent = number of sub params
+            fit_params_value  = helpers.pad_2d(items=fit_params_value, 
+                                               const=None)
+            fit_params_stderr = helpers.pad_2d(items=fit_params_stderr, 
+                                               const=None)
 
             # Convert bounds to floats if possible, otherwise set to None
             for i, bounds in enumerate(fit_params_bounds):

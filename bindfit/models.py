@@ -243,6 +243,10 @@ class Fit(models.Model):
         if not self.no_fit:
             # Return full fit
 
+            # Strip any padded values
+            fit_params_value  = helpers.unpad_2d(self.fit_params_value)
+            fit_params_stderr = helpers.unpad_2d(self.fit_params_stderr)
+
             # Convert parameter arrays to appropriate nested dict input to formatter
             # Backwards compatibility check for saved fits without bounds
             if self.fit_params_bounds:
@@ -260,8 +264,8 @@ class Fit(models.Model):
                            for (key, init, value, stderr, bounds)
                            in zip(self.fit_params_keys,
                                   self.fit_params_init,
-                                  self.fit_params_value,
-                                  self.fit_params_stderr,
+                                  fit_params_value,
+                                  fit_params_stderr,
                                   self.fit_params_bounds) }
             else:
                 params = { key: {"init": init, 
@@ -278,8 +282,8 @@ class Fit(models.Model):
                            for (key, init, value, stderr)
                            in zip(self.fit_params_keys,
                                   self.fit_params_init,
-                                  self.fit_params_value,
-                                  self.fit_params_stderr) }
+                                  fit_params_value,
+                                  fit_params_stderr) }
                        
             response = formatter.fit(fitter      =self.fitter_name,
                                      data        =self.data.to_dict(self.fitter_name, self.options_dilute),
