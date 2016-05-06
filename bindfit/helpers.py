@@ -12,6 +12,10 @@ import numpy.matlib as ml
 import logging
 logger = logging.getLogger('supramolecular')
 
+def ssr(residuals):
+    # Calculate the sum of squares of residuals
+    return np.sum(np.square(residuals))
+
 def cov(data, residuals, total=False):
     # TODO: TEMP
     # Add axis to single y arrays for generalised calcs
