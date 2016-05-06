@@ -629,12 +629,15 @@ class FitExportView(APIView):
         fit_molefrac   = np.array(fit["fit"]["molefrac"],   dtype=dt).T
         fit_coeffs_raw = np.array(fit["fit"]["coeffs_raw"], dtype=dt).T
         fit_coeffs     = np.array(fit["fit"]["coeffs"],     dtype=dt).T
+        fit_n_y        = fit["fit"]["n_y"]
+        fit_n_params   = fit["fit"]["n_params"]
         # PLACEHOLDER  deal with multi-D y inputs here later
         fit_residuals  = np.array(fit["qof"]["residuals"],  dtype=dt).T
         fit_rms        = np.array(fit["qof"]["rms"],        dtype=dt).T
         fit_cov        = np.array(fit["qof"]["cov"],        dtype=dt).T
         fit_rms_total  = fit["qof"]["rms_total"]
         fit_cov_total  = fit["qof"]["cov_total"]
+        fit_ssr        = fit["qof"]["ssr"]
 
         # Backwards compatibility for fits pre-coeffs_raw calculation
         if fit_coeffs_raw is not None:
@@ -642,14 +645,20 @@ class FitExportView(APIView):
 
         # Labels
         params_labels_dict = labels["fit"]["params"]
-        params_labels      = [ params_labels_dict[key] for key in sorted(params_labels_dict) ]
+        params_labels      = [ params_labels_dict[key] 
+                               for key in sorted(params_labels_dict) ]
         coeffs_labels      = labels["fit"]["coeffs"]
         molefrac_labels    = labels["fit"]["molefrac"]
 
         # Create output arrays
         data_array     = np.hstack((data_x, data_x_calc, data_y))
-        options_array  = np.concatenate(([options_fitter], options_params))
-        fit_array      = np.hstack((data_x, data_x_calc, fit_y, fit_residuals, fit_molefrac))
+        options_array  = np.concatenate(([options_fitter], options_params, 
+                                         [options_dilute, 
+                                          options_normalise, 
+                                          options_method, 
+                                          options_flavour]))
+        fit_array      = np.hstack((data_x, data_x_calc, 
+                                    fit_y, fit_residuals, fit_molefrac))
         qof_array_1    = np.append(fit_rms, fit_rms_total)
         qof_array_2    = np.append(fit_cov, fit_cov_total)
 
@@ -662,13 +671,16 @@ class FitExportView(APIView):
             # each group)
             params_array_1 = np.array([ p[0] for p in fit_params ])[np.newaxis]
 
+        params_array_1a = np.array([[fit_ssr, fit_n_y, fit_n_params]])
         params_array_2 = fit_coeffs
         params_array_3 = fit_coeffs_raw
 
         # Generate appropriate column titles
-        data_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
+        data_names      = [ "x"+str(i+1)+": "+l 
+                            for i, l in enumerate(data_x_labels) ]
         data_names.extend(["x3: G/H equivalent total"])
-        data_names.extend([ "y"+str(i+1)+": "+l for i, l in enumerate(data_y_labels) ])
+        data_names.extend([ "y"+str(i+1)+": "+l 
+                            for i, l in enumerate(data_y_labels) ])
 
         options_names      = ["Fitter"]
         options_names.extend([ p["label"][0]
@@ -677,6 +689,7 @@ class FitExportView(APIView):
                                for p in params_labels ])
         if len(options_names) > len(options_array):
             options_names = options_names[:len(options_array)]
+        options_names.extend(["Dilute", "Subtract initial values", "Method", "Flavour"])
 
         fit_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
         fit_names.extend(["x3: G/H equivalent total"])
@@ -695,23 +708,26 @@ class FitExportView(APIView):
                            for p in params_labels ]
         if len(params_names_1) > len(params_array_1[0]):
             params_names_1 = params_names_1[:len(params_array_1)]
-        params_names_2 = [ str(l)+" coeffs" for l in coeffs_labels ]
-        params_names_3 = [ "Raw coeffs"+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
+        params_names_1a = ["SSR", "Datapoints fitted", "Params fitted"]
+        params_names_2  = [ str(l)+" coeffs" for l in coeffs_labels ]
+        params_names_3  = [ "Raw coeffs "+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
 
         # Create data frames for export
-        data_output     = pd.DataFrame(data_array,     columns=data_names)
-        options_output  = pd.DataFrame(options_array,  index=options_names) 
-        fit_output      = pd.DataFrame(fit_array,      columns=fit_names)
-        qof_output_1    = pd.DataFrame(qof_array_1,    index=qof_names_1)
-        qof_output_2    = pd.DataFrame(qof_array_2,    index=qof_names_2)
-        qof_output      = pd.concat([qof_output_1,
+        data_output      = pd.DataFrame(data_array,      columns=data_names)
+        options_output   = pd.DataFrame(options_array,   index=options_names) 
+        fit_output       = pd.DataFrame(fit_array,       columns=fit_names)
+        qof_output_1     = pd.DataFrame(qof_array_1,     index=qof_names_1)
+        qof_output_2     = pd.DataFrame(qof_array_2,     index=qof_names_2)
+        qof_output       = pd.concat([qof_output_1,
                                      qof_output_2],
                                      axis=0,
                                      join_axes=[qof_output_1.columns])
-        params_output_1 = pd.DataFrame(params_array_1, columns=params_names_1)
-        params_output_2 = pd.DataFrame(params_array_2, columns=params_names_2)
-        params_output_3 = pd.DataFrame(params_array_3, columns=params_names_3)
-        params_output   = pd.concat([params_output_1,
+        params_output_1  = pd.DataFrame(params_array_1,  columns=params_names_1)
+        params_output_1a = pd.DataFrame(params_array_1a, columns=params_names_1a)
+        params_output_2  = pd.DataFrame(params_array_2,  columns=params_names_2)
+        params_output_3  = pd.DataFrame(params_array_3,  columns=params_names_3)
+        params_output    = pd.concat([params_output_1,
+                                     params_output_1a,
                                      params_output_2,
                                      params_output_3],
                                      axis=1,
