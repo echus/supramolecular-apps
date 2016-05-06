@@ -272,26 +272,9 @@ class AggMixin():
         h = np.copy(ydata_init)
         coeffs = np.array(coeffs)
 
-        if self.normalise:
-            if "uv" in self.fitter and h0_init is not None:
-                # Calculate coefficient for H (ydata_init/h0)
-                h /= h0_init
+        # TODO: proper coefficient formatting here
 
-            # Calc and add first row of coeffs using excluded initial values
-            rows = coeffs.shape[0]
-            if rows == 1:
-                # 1:1 system
-                hg = h + coeffs[0]
-                return np.vstack((h, hg))
-            elif rows == 2:
-                # 1:2 or 2:1 system
-                hg  = h + coeffs[0]
-                hg2 = h + coeffs[1]
-                return np.vstack((h, hg, hg2))
-            else:
-                pass # Throw error here
-        else:
-            return coeffs
+        return coeffs
 
     def format_params(self, params_init, params_result, err):
         params = params_init

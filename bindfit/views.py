@@ -712,6 +712,10 @@ class FitExportView(APIView):
         params_names_2  = [ str(l)+" coeffs" for l in coeffs_labels ]
         params_names_3  = [ "Raw coeffs "+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
 
+        logger.debug("PARAMS ARRAY NAMES 2")
+        logger.debug(params_array_2)
+        logger.debug(params_names_2)
+
         # Create data frames for export
         data_output      = pd.DataFrame(data_array,      columns=data_names)
         options_output   = pd.DataFrame(options_array,   index=options_names) 
