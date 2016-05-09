@@ -137,5 +137,12 @@ def pad_2d(items, const=None):
     return padded
 
 def unpad_2d(items, const=None):
-    return [ [ value for value in subitems if value != None ] 
-               for subitems in items ]
+    # Check if passed list is a list of lists, do nothing if not
+
+    unpadded = None
+    if not any(isinstance(item, list) for item in items):
+        unpadded = items
+    else: 
+        unpadded = [ [ value for value in subitems if value != None ] 
+                     for subitems in items ]
+    return unpadded
