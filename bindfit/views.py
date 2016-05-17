@@ -690,12 +690,16 @@ class FitExportView(APIView):
                             for i, l in enumerate(data_y_labels) ])
 
         options_names      = ["Fitter"]
-        options_names.extend([ p["label"][0]
-                                   if isinstance(p["label"], list)
-                                   else p["label"]
-                               for p in params_labels ])
-        if len(options_names) > len(options_array):
-            options_names = options_names[:len(options_array)]
+
+        # Get parameter labels, cull any hidden labels
+        options_params_names = [ p["label"][0]
+                                     if isinstance(p["label"], list)
+                                     else p["label"]
+                                 for p in params_labels ]
+        if len(options_params_names) > len(options_params):
+            options_params_names = options_params_names[:len(options_params)]
+
+        options_names.extend(options_params_names)
         options_names.extend(["Dilute", "Subtract initial values", "Method", "Flavour"])
 
         fit_names      = [ "x"+str(i+1)+": "+l for i, l in enumerate(data_x_labels) ]
@@ -718,10 +722,6 @@ class FitExportView(APIView):
         params_names_1a = ["SSR", "Datapoints fitted", "Params fitted"]
         params_names_2  = [ str(l)+" coeffs" for l in coeffs_labels ]
         params_names_3  = [ "Raw coeffs "+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
-
-        logger.debug("PARAMS ARRAY NAMES 2")
-        logger.debug(params_array_2)
-        logger.debug(params_names_2)
 
         # Create data frames for export
         data_output      = pd.DataFrame(data_array,      columns=data_names)
