@@ -633,6 +633,12 @@ class FitExportView(APIView):
                     else fit["fit"]["params"][key]["value"]
                   for key in sorted(fit["fit"]["params"]) ], 
                 dtype=dt)
+        fit_params_stderr = np.array(
+                [ fit["fit"]["params"][key]["stderr"][0] 
+                    if isinstance(fit["fit"]["params"][key]["stderr"], list) 
+                    else fit["fit"]["params"][key]["stderr"]
+                  for key in sorted(fit["fit"]["params"]) ], 
+                dtype=dt)
         fit_molefrac   = np.array(fit["fit"]["molefrac"],   dtype=dt).T
         fit_coeffs_raw = np.array(fit["fit"]["coeffs_raw"], dtype=dt).T
         fit_coeffs     = np.array(fit["fit"]["coeffs"],     dtype=dt).T
@@ -671,12 +677,15 @@ class FitExportView(APIView):
 
         if len(fit_params.shape) < 2:
             # No sub-params
-            params_array_1 = fit_params[np.newaxis] # To force horizontal array
-                                                    # in DataFrame
+            # np.newaxis to force horizontal array in DataFrame
+            params_array_1 = np.hstack((fit_params,
+                                        fit_params_stderr))[np.newaxis] 
         else:
             # Deal with sub-params (for now just take initial subparam from 
             # each group)
-            params_array_1 = np.array([ p[0] for p in fit_params ])[np.newaxis]
+            params = np.array([ p[0] for p in fit_params ])
+            stderr = np.array([ p[0] for p in fit_params_stderr ])
+            params_array_1 = np.hstack((params, stderr))[np.newaxis]
 
         params_array_1a = np.array([[fit_ssr, fit_n_y, fit_n_params]])
         params_array_2 = fit_coeffs
@@ -717,8 +726,11 @@ class FitExportView(APIView):
                                if isinstance(p["label"], list) 
                                else p["label"] 
                            for p in params_labels ]
-        if len(params_names_1) > len(params_array_1[0]):
+        # Remove hidden parameter labels
+        if len(params_names_1) > len(fit_params):
             params_names_1 = params_names_1[:len(params_array_1)]
+        # Add param error column titles
+        params_names_1.extend([ name+" error (%)" for name in params_names_1 ])
         params_names_1a = ["SSR", "Datapoints fitted", "Params fitted"]
         params_names_2  = [ str(l)+" coeffs" for l in coeffs_labels ]
         params_names_3  = [ "Raw coeffs "+str(i+1) for i in range(fit_coeffs_raw.shape[1]) ]
