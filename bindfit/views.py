@@ -554,31 +554,80 @@ class FitSearchView(APIView):
             # Filtering added here as a temp fix.
             matches = SearchQuerySet().filter(content=AutoQuery(query)).filter(searchable=True)
 
+            # Preload matching DB objects
+            matches.load_all()
+
+            # Generate summary list to return
+            summary_list = []
+
+            for match in matches.all():
+                summary = match.object.summary
+                summary_list.append(summary)
+
         elif type(r['query']) is dict:
             # Advanced search (not implemented)
             # TODO: port to haystack, expand
             # Current code gets only exact matches directly from the database
             query = r['query']
 
-            # Parse request names -> DB field names
-            search = {}
-            for (key, value) in query.items():
-                if value:
-                    search["meta_"+str(key)] = value
+            logger.debug("ADVANCED SEARCH")
+            logger.debug(query)
 
-            # Get matching entries from DB
-            matches = models.Fit.objects.filter(**search)
+            # Filter search index-based things here
+            matches = SearchQuerySet().filter(searchable=True,
+                                              content=AutoQuery(query['text']), 
+                                              fitter_name=query['fitter'],
+                                              options_dilute=query['options']['dilute'],
+                                              options_normalise=query['options']['normalise'])
+            if query['options']['method']:
+                matches = matches.filter(options_method=query['options']['method'])
+            if query['options']['flavour']:
+                matches = matches.filter(options_flavour=query['options']['flavour'])
+
+            # Preload matching DB objects
+            matches.load_all()
+
+            # Generate summary list to return and filter by array values
+            summary_list = []
+
+            for match in matches.all():
+                # Set to true below if match is filtered
+                unmatch = False 
+
+                fit = match.object.to_dict()
+
+                # Filter each param by given parameter ranges
+                for key, param in query['params'].items():
+                    logger.debug("PARAM KEY, PARAM VALUE VS BOUNDS MIN AND MAX")
+                    logger.debug(key)
+                    logger.debug(type(fit['fit']['params'][key]['value']))
+                    logger.debug(type(param['bounds']['min']))
+                    logger.debug(type(param['bounds']['max']))
+
+                    try:
+                        param_min = float(param['bounds']['min'])
+                        if fit['fit']['params'][key]['value'] < param_min:
+                            unmatch = True 
+                    except (ValueError, TypeError):
+                        # No minimum bound
+                        pass
+
+                    try:
+                        param_max = float(param['bounds']['max'])
+                        if fit['fit']['params'][key]['value'] > param_max:
+                            unmatch = True 
+                    except (ValueError, TypeError):
+                        # No maximum bound
+                        pass
+
+                if not unmatch:
+                    summary = match.object.summary
+                    summary_list.append(summary)
 
         else:
             # Bad query
             return Response({"detail": "Query must be a string or object."}, 
                              status=status.HTTP_400_BAD_REQUEST)
-
-        summary_list = []
-
-        for match in matches.all():
-            summary = match.object.summary
-            summary_list.append(summary)
 
         response = {"matches": summary_list}
 
