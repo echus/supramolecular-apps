@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.core.validators import validate_email
 # For email validation exception
 from django import forms
+from django.core import exceptions
 
 from rest_framework.views import APIView
 
@@ -90,9 +91,14 @@ class FitView(APIView):
         # Get input data to fit from database
         dilute = request.data["options"]["dilute"] # Dilution factor flag
                                                    # used for data retrieval
-        data = models.Data.objects.get(id=request.data["data_id"]).to_dict(
-                fitter=fitter_name,
-                dilute=dilute)
+
+        try:
+            data = models.Data.objects.get(id=request.data["data_id"]).to_dict(
+                    fitter=fitter_name,
+                    dilute=dilute)
+        except exceptions.ObjectDoesNotExist:
+            return Response({"detail": "Input data not given."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         logger.debug("views.FitView: data.to_dict() after retrieving")
         logger.debug(data)
