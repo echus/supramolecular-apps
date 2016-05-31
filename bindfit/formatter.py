@@ -727,6 +727,24 @@ def options(fitter, data_id=None, params=None, dilute=False):
     else:
         return default_options_select[fitter]
 
+def options_search(fitter):
+    opts = options(fitter)
+
+    # Replace parameter fit options with parameter search options
+    for key in opts["params"]:
+        opts["params"][key] = {
+                "value": {
+                    "min": None,
+                    "max": None,
+                    }
+                }
+
+    # Remove options defaults
+    opts["options"]["normalise"] = None
+    opts["options"]["dilute"]    = None
+        
+    return opts
+
 def meta(author, 
          name, 
          date, 

@@ -243,6 +243,14 @@ class FitOptionsView(APIView):
 
 
 
+class SearchOptionsView(APIView):
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        return Response(formatter.options_search(request.data["fitter"]))
+
+
+
 class FitLabelsView(APIView):
     parser_classes = (JSONParser,)
     
