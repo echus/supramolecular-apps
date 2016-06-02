@@ -10,7 +10,7 @@ class FitIndex(indexes.SearchIndex, indexes.Indexable):
     options_dilute = indexes.BooleanField(model_attr='options_dilute')
     options_normalise = indexes.BooleanField(model_attr='options_normalise')
 
-    options_method = indexes.CharField(model_attr='options_method')
+    options_method  = indexes.CharField(model_attr='options_method')
     options_flavour = indexes.CharField(model_attr='options_flavour')
 
     def get_model(self):

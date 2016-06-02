@@ -590,13 +590,19 @@ class FitSearchView(APIView):
             # Filter search index-based things here
             matches = SearchQuerySet().filter(searchable=True,
                                               content=AutoQuery(query['text']), 
-                                              fitter_name=query['fitter'],
-                                              options_dilute=query['options']['dilute'],
-                                              options_normalise=query['options']['normalise'])
-            if query['options']['method']:
-                matches = matches.filter(options_method=query['options']['method'])
-            if query['options']['flavour']:
-                matches = matches.filter(options_flavour=query['options']['flavour'])
+                                              fitter_name=query['fitter'])
+                                              #options_dilute=query['options']['dilute'],
+                                              #options_normalise=query['options']['normalise'])
+
+            if 'method' in query['options'] and isinstance(query['options']['method'], list):
+                matches = matches.filter(
+                    options_method__in=query['options']['method']
+                )
+
+            if 'flavour' in query['options'] and isinstance(query['options']['flavour'], list):
+                matches = matches.filter(
+                    options_flavour__in=query['options']['flavour']
+                )
 
             # Preload matching DB objects
             matches.load_all()
@@ -612,14 +618,8 @@ class FitSearchView(APIView):
 
                 # Filter each param by given parameter ranges
                 for key, param in query['params'].items():
-                    logger.debug("PARAM KEY, PARAM VALUE VS BOUNDS MIN AND MAX")
-                    logger.debug(key)
-                    logger.debug(type(fit['fit']['params'][key]['value']))
-                    logger.debug(type(param['bounds']['min']))
-                    logger.debug(type(param['bounds']['max']))
-
                     try:
-                        param_min = float(param['bounds']['min'])
+                        param_min = float(param['value']['min'])
                         if fit['fit']['params'][key]['value'] < param_min:
                             unmatch = True 
                     except (ValueError, TypeError):
@@ -627,7 +627,7 @@ class FitSearchView(APIView):
                         pass
 
                     try:
-                        param_max = float(param['bounds']['max'])
+                        param_max = float(param['value']['max'])
                         if fit['fit']['params'][key]['value'] > param_max:
                             unmatch = True 
                     except (ValueError, TypeError):
