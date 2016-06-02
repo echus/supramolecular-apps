@@ -147,12 +147,12 @@ class Fit(models.Model):
     # Options strings and flags (defined on fit)
     options_dilute    = models.BooleanField(default=False) # Dilution factor flag
     options_normalise = models.BooleanField(default=True)  # Normalisation (initial value subtraction) flag
-    options_method    = models.CharField(default="",
+    options_method    = models.CharField(default="Nelder-Mead",
                                          max_length=50, 
-                                         blank=True) # Fit method
-    options_flavour   = models.CharField(default="",
+                                         blank=False) # Fit method
+    options_flavour   = models.CharField(default="none",
                                          max_length=50,
-                                         blank=True) # Fit flavour 
+                                         blank=False) # Fit flavour 
 
     # Time to fit
     time = models.FloatField(blank=True, null=True) # Time to fit

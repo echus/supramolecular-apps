@@ -30,7 +30,7 @@ class BaseFunction(object):
     # for the mixin functions to override BaseFunction template functions.
     # See here: https://www.ianlewis.org/en/mixins-and-python
 
-    def __init__(self, fitter, f=None, normalise=True, flavour=""):
+    def __init__(self, fitter, f=None, normalise=True, flavour="none"):
         self.f         = f
         self.fitter    = fitter
         self.normalise = normalise 
@@ -423,7 +423,7 @@ def uv_1to1(params, xdata, *args, **kwargs):
 
     return hg_mat_fit, hg_mat
 
-def uv_1to2(params, xdata, flavour="", *args, **kwargs):
+def uv_1to2(params, xdata, flavour="none", *args, **kwargs):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
@@ -477,7 +477,7 @@ def uv_1to2(params, xdata, flavour="", *args, **kwargs):
     hg_mat = np.vstack((h/h0, hg/h0, hg2/h0)) # Display-only molefracs
     return hg_mat_fit, hg_mat
 
-def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
+def nmr_1to2(params, xdata, flavour="none", *args, **kwargs):
     """
     Calculates predicted [HG] and [HG2] given data object and binding constants
     as input.
@@ -545,7 +545,7 @@ def nmr_1to2(params, xdata, flavour="", *args, **kwargs):
     hg_mat = np.vstack((h, hg, hg2))
     return hg_mat_fit, hg_mat
 
-def nmr_2to1(params, xdata, flavour="", *args, **kwargs):
+def nmr_2to1(params, xdata, flavour="none", *args, **kwargs):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
@@ -609,7 +609,7 @@ def nmr_2to1(params, xdata, flavour="", *args, **kwargs):
     hg_mat = np.vstack((h, hg, h2g))
     return hg_mat_fit, hg_mat
 
-def uv_2to1(params, xdata, flavour=""):
+def uv_2to1(params, xdata, flavour="none"):
     """
     Calculates predicted [HG] and [H2G] given data object and binding constants
     as input.
@@ -836,7 +836,7 @@ def uv_coek(params, xdata, *args, **kwargs):
 
 
 
-def construct(key, normalise=True, flavour=""):
+def construct(key, normalise=True, flavour="none"):
     """
     Constructs and returns requested function object.
 
