@@ -3,7 +3,7 @@ from . import models
 
 class FitIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.EdgeNgramField(document=True, use_template=True)
-    searchable = indexes.CharField(model_attr='meta_options_searchable')
+    searchable = indexes.BooleanField(model_attr='meta_options_searchable')
 
     fitter_name = indexes.CharField(model_attr='fitter_name')
 
