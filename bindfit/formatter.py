@@ -33,6 +33,45 @@ def fitter_list():
         "it further.")
 
     fitter_list = [
+            {
+                "groupName": "NMR",
+                "groupDesc": CONST_nmr_group_description,
+                "options": [
+                    {"name": "NMR 1:1",        "key": "nmr1to1"},
+                    {"name": "NMR 1:2",        "key": "nmr1to2"},
+                    {"name": "NMR 2:1",        "key": "nmr2to1"},
+                    {"name": "NMR Dimer Aggregation", "key": "nmrdimer"},
+                    {"name": "NMR CoEK Aggregation",  "key": "nmrcoek"}, 
+                ]
+            },
+            {
+                "groupName": "UV",
+                "groupDesc": CONST_uv_group_description,
+                "options": [
+                    {"name": "UV 1:1",         "key": "uv1to1"},
+                    {"name": "UV 1:2",         "key": "uv1to2"},
+                    {"name": "UV 2:1",         "key": "uv2to1"},
+                    {"name": "UV Dimer Aggregation", "key": "uvdimer"},
+                    {"name": "UV CoEK Aggregation",  "key": "uvcoek"},
+                ]
+            },
+            {
+                "groupName": "Save data only",
+                "groupDesc": CONST_save_data_group_description,
+                "options": [
+                    {"name": "NMR", "key": "nmrdata"}, 
+                    {"name": "UV",  "key": "uvdata"},
+                ]
+            },
+            {
+                "groupName": "Test only",
+                "options": [
+                    {"name": "IC50", "key": "inhibitor"},
+                ]
+            }
+        ]
+
+    fitter_list = [
             {"name": "NMR 1:1",        "key": "nmr1to1",  "group": "NMR", 
                                        "group_desc": CONST_nmr_group_description},
             {"name": "NMR 1:2",        "key": "nmr1to2",  "group": "NMR", 
