@@ -414,6 +414,20 @@ def labels(fitter):
 
 def options(fitter, data_id=None, params=None, dilute=False):
     # Default options for each fitter type
+    method_nm     = {"name": "Nelder-Mead"}
+    method_lbfgsb = {"name": "L-BFGS-B"}
+
+    flavour_none    = {"name":           "None (Full)",
+                       "key":            "none"}
+    flavour_noncoop = {"name":           "Non-cooperative", 
+                       "key":            "noncoop",
+                       "exclude_params": ["k2"]}
+    flavour_add     = {"name":           "Additive",
+                       "key":            "add"}
+    flavour_stat    = {"name":           "Statistical",
+                       "key":            "stat",
+                       "exclude_params": ["k2"]}
+
     default_options_select = {
             "nmrdata": {
                 "fitter": "nmrdata",
@@ -452,8 +466,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour": [],
                     },
                 },
@@ -480,18 +493,11 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
-                    "flavour": [{"name":           "None",
-                                 "key":            "none"},
-                                {"name":           "Non-cooperative", 
-                                 "key":            "noncoop",
-                                 "exclude_params": ["k2"]},
-                                {"name":           "Additive",
-                                 "key":            "add"},
-                                {"name":           "Statistical",
-                                 "key":            "stat",
-                                 "exclude_params": ["k2"]}],
+                    "method": [method_nm, method_lbfgsb],
+                    "flavour": [flavour_none, 
+                                flavour_noncoop, 
+                                flavour_add, 
+                                flavour_stat],
                     },
                 },
 
@@ -517,18 +523,11 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
-                    "flavour": [{"name":           "None",
-                                 "key":            "none"},
-                                {"name":           "Non-cooperative", 
-                                 "key":            "noncoop",
-                                 "exclude_params": ["k2"]},
-                                {"name":           "Additive",
-                                 "key":            "add"},
-                                {"name":           "Statistical",
-                                 "key":            "stat",
-                                 "exclude_params": ["k2"]}],
+                    "method": [method_nm, method_lbfgsb],
+                    "flavour": [flavour_none, 
+                                flavour_noncoop, 
+                                flavour_add, 
+                                flavour_stat],
                     },
                 },
 
@@ -547,8 +546,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  True,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour": [],
                     },
                 },
@@ -575,18 +573,11 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  True,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
-                    "flavour": [{"name":           "None",
-                                 "key":            "none"},
-                                {"name":           "Non-cooperative", 
-                                 "key":            "noncoop",
-                                 "exclude_params": ["k2"]},
-                                {"name":           "Additive",
-                                 "key":            "add"},
-                                {"name":           "Statistical",
-                                 "key":            "stat",
-                                 "exclude_params": ["k2"]}],
+                    "method": [method_nm, method_lbfgsb],
+                    "flavour": [flavour_none, 
+                                flavour_noncoop, 
+                                flavour_add, 
+                                flavour_stat],
                     },
                 },
 
@@ -612,18 +603,11 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  True,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
-                    "flavour": [{"name":           "None",
-                                 "key":            "none"},
-                                {"name":           "Non-cooperative", 
-                                 "key":            "noncoop",
-                                 "exclude_params": ["k2"]},
-                                {"name":           "Additive",
-                                 "key":            "add"},
-                                {"name":           "Statistical",
-                                 "key":            "stat",
-                                 "exclude_params": ["k2"]}],
+                    "method": [method_nm, method_lbfgsb],
+                    "flavour": [flavour_none, 
+                                flavour_noncoop, 
+                                flavour_add, 
+                                flavour_stat],
                     },
                 },
 
@@ -642,8 +626,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour": [],
                     },
                 },
@@ -663,8 +646,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":    False,
                     "normalise": False,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour":   [],
                     },
                 },
@@ -691,8 +673,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":  False,
                     "normalise": True,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour": [],
                     },
                 },
@@ -719,8 +700,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":    False,
                     "normalise": False,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour":   [],
                     },
                 },
@@ -747,8 +727,7 @@ def options(fitter, data_id=None, params=None, dilute=False):
                 "options": {
                     "dilute":    False,
                     "normalise": False,
-                    "method": [{"name": "Nelder-Mead"},
-                               {"name": "L-BFGS-B"}],
+                    "method": [method_nm, method_lbfgsb],
                     "flavour":   [],
                     },
                 },
