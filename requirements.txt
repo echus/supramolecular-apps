@@ -27,7 +27,7 @@ supervisor==3.0b2
 Twisted-Core==13.2.0
 Twisted-Names==13.2.0
 Twisted-Web==13.2.0
-urllib3==1.7.1
+urllib3==1.26.5
 virtualenv==13.1.2
 virtualenv-clone==0.2.6
 virtualenvwrapper==4.7.1
