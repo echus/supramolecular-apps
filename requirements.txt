@@ -23,7 +23,7 @@ requests==2.2.1
 six==1.10.0
 ssh-import-id==3.21
 stevedore==1.10.0
-supervisor==3.0b2
+supervisor==3.0.1
 Twisted-Core==13.2.0
 Twisted-Names==13.2.0
 Twisted-Web==13.2.0
