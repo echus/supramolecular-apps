@@ -19,7 +19,7 @@ pyserial==2.6
 python-apt===0.9.3.5ubuntu1
 python-debian===0.1.21-nmu2ubuntu2
 PyYAML==3.10
-requests==2.2.1
+requests==2.20.0
 six==1.10.0
 ssh-import-id==3.21
 stevedore==1.10.0
